@@ -1,0 +1,101 @@
+{% load humanize %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Statement | Veltris Bank</title>
+    <style>
+        body { font-family: 'Helvetica Neue', Arial, sans-serif; background: #555; display: flex; justify-content: center; padding: 40px; margin: 0; }
+        .page { background: white; width: 210mm; min-height: 297mm; padding: 20mm; box-shadow: 0 0 20px rgba(0,0,0,0.5); box-sizing: border-box; position: relative; }
+        
+        .header { display: flex; justify-content: space-between; border-bottom: 2px solid #004d99; padding-bottom: 20px; margin-bottom: 40px; }
+        .brand { font-size: 28px; font-weight: bold; color: #004d99; letter-spacing: 2px; }
+        .meta { text-align: right; font-size: 12px; color: #666; line-height: 1.5; }
+        
+        .summary { display: flex; justify-content: space-between; background: #f8fafc; padding: 20px; border-radius: 8px; margin-bottom: 40px; }
+        .sum-item div:first-child { font-size: 11px; text-transform: uppercase; color: #888; font-weight: bold; }
+        .sum-item div:last-child { font-size: 18px; font-weight: bold; color: #333; margin-top: 5px; }
+        
+        table { width: 100%; border-collapse: collapse; font-size: 12px; }
+        th { text-align: left; padding: 10px; border-bottom: 2px solid #eee; color: #888; text-transform: uppercase; }
+        td { padding: 12px 10px; border-bottom: 1px solid #eee; color: #333; }
+        tr:last-child td { border-bottom: none; }
+        
+        .amount-in { color: #166534; font-weight: bold; }
+        .amount-out { color: #333; }
+        
+        .footer { position: absolute; bottom: 20mm; left: 20mm; right: 20mm; text-align: center; font-size: 10px; color: #999; border-top: 1px solid #eee; padding-top: 20px; }
+        
+        .print-btn { position: fixed; top: 20px; right: 20px; padding: 10px 20px; background: #004d99; color: white; text-decoration: none; border-radius: 5px; font-weight: bold; box-shadow: 0 5px 15px rgba(0,0,0,0.3); }
+        
+        @media print {
+            body { background: none; padding: 0; }
+            .page { box-shadow: none; width: 100%; margin: 0; }
+            .print-btn { display: none; }
+        }
+    </style>
+</head>
+<body>
+    <a href="javascript:window.print()" class="print-btn">🖨️ Print / Save PDF</a>
+
+    <div class="page">
+        <div class="header">
+            <div>
+                <div class="brand">VELTRIS BANK</div>
+                <div style="font-size:12px; color:#666; margin-top:5px;">123 Financial District, NY 10005</div>
+            </div>
+            <div class="meta">
+                <strong>Statement Period:</strong> {{ date|date:"F Y" }}<br>
+                <strong>Account Number:</strong> •••• {{ account.account_number|slice:"-4:" }}<br>
+                <strong>Generated On:</strong> {{ date|date:"M d, Y" }}
+            </div>
+        </div>
+
+        <div class="summary">
+            <div class="sum-item">
+                <div>Account Holder</div>
+                <div>{{ account.user.first_name }} {{ account.user.last_name }}</div>
+            </div>
+            <div class="sum-item">
+                <div>Closing Balance</div>
+                <div style="color:#004d99;">${{ account.balance|intcomma }}</div>
+            </div>
+            <div class="sum-item">
+                <div>Status</div>
+                <div style="color:green;">Active</div>
+            </div>
+        </div>
+
+        <table>
+            <thead>
+                <tr>
+                    <th>Date</th>
+                    <th>Description</th>
+                    <th>Ref ID</th>
+                    <th style="text-align:right;">Amount</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for t in transactions %}
+                <tr>
+                    <td>{{ t.date|date:"M d" }}</td>
+                    <td>
+                        <strong style="display:block;color:#000;">{{ t.transaction_type|title }}</strong>
+                        <span style="color:#666;">{{ t.note|default:"-" }}</span>
+                    </td>
+                    <td style="font-family:monospace;">#TRX-{{ t.id }}</td>
+                    <td style="text-align:right;" class="{% if t.receiver == user %}amount-in{% else %}amount-out{% endif %}">
+                        {% if t.receiver == user %}+{% else %}-{% endif %}${{ t.amount|intcomma }}
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+
+        <div class="footer">
+            Veltris Bank N.A. Member FDIC. Equal Housing Lender.<br>
+            This is a computer generated statement.
+        </div>
+    </div>
+</body>
+</html>

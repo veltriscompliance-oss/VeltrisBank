@@ -1,0 +1,142 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>About Veltris | The Financial OS</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        :root { --primary: #2563eb; --dark: #020617; --text: #f8fafc; --text-muted: #94a3b8; --border: rgba(255,255,255,0.08); }
+        * { box-sizing: border-box; }
+        body { margin: 0; font-family: 'Inter', sans-serif; background: var(--dark); color: var(--text); overflow-x: hidden; }
+
+        /* NAV */
+        .nav { padding: 20px 8%; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border); backdrop-filter: blur(10px); position: sticky; top: 0; z-index: 100; background: rgba(2,6,23,0.8); }
+        .logo { font-weight: 800; font-size: 20px; color: white; text-decoration: none; display: flex; gap: 8px; align-items: center; }
+        .btn-back { color: var(--text-muted); text-decoration: none; font-size: 14px; font-weight: 500; transition: 0.2s; }
+        .btn-back:hover { color: white; }
+
+        /* HERO */
+        .hero { padding: 160px 8% 100px; text-align: center; position: relative; }
+        .hero::before { content:''; position:absolute; top:-20%; left:50%; transform:translateX(-50%); width:60%; height:500px; background:radial-gradient(circle, rgba(37,99,235,0.15) 0%, transparent 70%); filter:blur(80px); pointer-events:none; }
+        
+        h1 { font-size: 72px; font-weight: 800; letter-spacing: -2px; margin: 0 0 30px; background: linear-gradient(to bottom, #fff, #94a3b8); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+        p.lead { font-size: 20px; color: var(--text-muted); line-height: 1.6; max-width: 700px; margin: 0 auto; }
+
+        /* STATS */
+        .stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 40px; padding: 80px 8%; border-bottom: 1px solid var(--border); }
+        .stat-item { text-align: center; }
+        .stat-num { font-size: 48px; font-weight: 800; color: var(--primary); display: block; margin-bottom: 5px; }
+        .stat-label { font-size: 14px; text-transform: uppercase; letter-spacing: 1px; color: var(--text-muted); }
+
+        /* MANIFESTO */
+        .manifesto { padding: 120px 8%; display: flex; align-items: center; gap: 80px; }
+        .man-text { flex: 1; }
+        .man-text h2 { font-size: 42px; margin-bottom: 20px; }
+        .man-text p { font-size: 18px; color: var(--text-muted); line-height: 1.7; margin-bottom: 20px; }
+        .man-img { flex: 1; height: 500px; background: linear-gradient(135deg, #1e3a8a, #0f172a); border-radius: 30px; border: 1px solid var(--border); position: relative; overflow: hidden; }
+        .man-img::after { content:''; position:absolute; inset:0; background: url('https://images.unsplash.com/photo-1556761175-5973dc0f32e7?auto=format&fit=crop&q=80') center/cover; opacity: 0.3; }
+
+        /* VALUES */
+        .values { padding: 100px 8%; background: #0b1121; }
+        .sec-head { text-align: center; margin-bottom: 80px; }
+        .sec-head h2 { font-size: 36px; margin-bottom: 10px; }
+        
+        .val-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 30px; }
+        .val-card { background: rgba(255,255,255,0.02); border: 1px solid var(--border); padding: 40px; border-radius: 20px; transition: 0.3s; }
+        .val-card:hover { transform: translateY(-5px); border-color: var(--primary); background: rgba(255,255,255,0.04); }
+        .val-icon { width: 50px; height: 50px; background: rgba(37,99,235,0.1); border-radius: 12px; display: flex; align-items: center; justify-content: center; color: var(--primary); margin-bottom: 20px; }
+        .val-title { font-size: 20px; font-weight: 700; margin-bottom: 10px; }
+        .val-desc { color: var(--text-muted); line-height: 1.6; }
+
+        /* INVESTORS */
+        .investors { padding: 100px 8%; text-align: center; border-top: 1px solid var(--border); }
+        .logos { display: flex; justify-content: center; gap: 60px; margin-top: 50px; opacity: 0.5; filter: grayscale(100%); flex-wrap: wrap; }
+        .logos svg { height: 30px; }
+
+        /* FOOTER */
+        .footer { padding: 60px 8%; text-align: center; color: var(--text-muted); font-size: 14px; border-top: 1px solid var(--border); }
+
+        /* ANIMATION CLASSES */
+        .reveal { opacity: 0; transform: translateY(30px); transition: 1s cubic-bezier(0.16, 1, 0.3, 1); }
+        .reveal.active { opacity: 1; transform: translateY(0); }
+
+        @media (max-width: 900px) {
+            h1 { font-size: 48px; }
+            .stats { grid-template-columns: 1fr; gap: 30px; }
+            .manifesto { flex-direction: column; }
+            .val-grid { grid-template-columns: 1fr; }
+            .logos { gap: 30px; }
+        }
+    </style>
+</head>
+<body>
+    <nav class="nav">
+        <a href="/" class="logo"><svg width="24" height="24" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg> VELTRIS</a>
+        <a href="{% url 'home' %}" class="btn-back">Back to Home</a>
+    </nav>
+
+    <section class="hero reveal">
+        <h1>Building the bank<br>of the future.</h1>
+        <p class="lead">Veltris was founded on a simple premise: traditional banking is broken. We are building the financial operating system for the next generation of internet-first companies.</p>
+    </section>
+
+    <section class="stats reveal">
+        <div class="stat-item"><span class="stat-num">$2.5B+</span><span class="stat-label">Processed Annually</span></div>
+        <div class="stat-item"><span class="stat-num">150k+</span><span class="stat-label">Active Founders</span></div>
+        <div class="stat-item"><span class="stat-num">140+</span><span class="stat-label">Countries Supported</span></div>
+    </section>
+
+    <section class="manifesto">
+        <div class="man-text reveal">
+            <h2>Why we exist</h2>
+            <p>For too long, banks have been gatekeepers rather than enablers. They charge hidden fees, rely on outdated technology, and make simple tasks difficult.</p>
+            <p>Veltris is different. We are a technology company that happens to offer banking services. We prioritize speed, transparency, and design. Our mission is to remove the friction from finance so you can focus on building.</p>
+        </div>
+        <div class="man-img reveal"></div>
+    </section>
+
+    <section class="values">
+        <div class="sec-head reveal"><h2>Our Core Values</h2></div>
+        <div class="val-grid">
+            <div class="val-card reveal">
+                <div class="val-icon"><svg width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"></path></svg></div>
+                <div class="val-title">Speed Matters</div>
+                <div class="val-desc">We build for speed. Instant transfers, real-time data, and rapid support. Money should move as fast as information.</div>
+            </div>
+            <div class="val-card reveal">
+                <div class="val-icon"><svg width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path></svg></div>
+                <div class="val-title">Trust & Security</div>
+                <div class="val-desc">We don't cut corners on compliance. Your trust is our most valuable asset, and we protect it with military-grade security.</div>
+            </div>
+            <div class="val-card reveal">
+                <div class="val-icon"><svg width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"></circle><path d="M16.24 7.76a6 6 0 0 1 0 8.49m-8.48-.01a6 6 0 0 1 0-8.49m11.31-2.82a10 10 0 0 1 0 14.14m-14.14 0a10 10 0 0 1 0-14.14"></path></svg></div>
+                <div class="val-title">Global First</div>
+                <div class="val-desc">Talent is everywhere. We build tools that work seamlessly across borders, currencies, and time zones.</div>
+            </div>
+        </div>
+    </section>
+
+    <section class="investors reveal">
+        <h3 style="font-size:12px; text-transform:uppercase; letter-spacing:2px; color:var(--text-muted); margin-bottom:30px;">Backed by the best</h3>
+        <div class="logos">
+            <!-- Simulated Investor Logos -->
+            <svg viewBox="0 0 100 30" fill="currentColor"><path d="M10,15 L20,5 L30,15 L20,25 Z M40,5 H50 V25 H40 Z M60,5 H80 V10 H65 V12 H75 V17 H65 V25 H60 Z" /></svg>
+            <svg viewBox="0 0 100 30" fill="currentColor"><circle cx="15" cy="15" r="10"/><rect x="35" y="5" width="20" height="20"/><rect x="65" y="5" width="20" height="20"/></svg>
+            <svg viewBox="0 0 100 30" fill="currentColor"><path d="M10,25 L20,5 L30,25 M15,15 H25 M40,5 H60 M50,5 V25 M70,5 H90 V25 H70 Z" /></svg>
+        </div>
+    </section>
+
+    <div class="footer">
+        &copy; 2025 Veltris Technologies Inc. All rights reserved.
+    </div>
+
+    <script>
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => { if(entry.isIntersecting) entry.target.classList.add('active'); });
+        });
+        document.querySelectorAll('.reveal').forEach((el) => observer.observe(el));
+    </script>
+</body>
+</html>

@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Transaction Details | Veltris Bank</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root { --primary: #004d99; --light: #f4f6f8; --dark: #1a1a1a; --border: #e2e8f0; }
+        body { margin: 0; font-family: 'Inter', sans-serif; background-color: var(--light); display: flex; height: 100vh; overflow: hidden; }
+        
+        .sidebar { width: 260px; background: white; border-right: 1px solid var(--border); padding: 25px; display: flex; flex-direction: column; z-index: 1000; }
+        .brand { font-size: 22px; font-weight: 800; color: var(--primary); margin-bottom: 40px; }
+        .menu-item { color: #64748b; text-decoration: none; padding: 12px 15px; border-radius: 8px; font-size: 14px; font-weight: 500; display: block; margin-bottom: 5px; }
+        .menu-item:hover { background: #f1f5f9; color: var(--primary); }
+        .menu-item.active { background: #eff6ff; color: var(--primary); font-weight: 600; }
+        .sidebar-footer { margin-top: auto; border-top: 1px solid var(--border); padding-top: 20px; }
+
+        .main { flex: 1; padding: 40px; overflow-y: auto; width: 100%; display: flex; flex-direction: column; align-items: center; }
+
+        /* DETAILS CARD */
+        .details-card { 
+            background: white; width: 100%; max-width: 600px; 
+            border-radius: 24px; padding: 40px; 
+            box-shadow: 0 10px 30px rgba(0,0,0,0.05); text-align: center;
+            border: 1px solid var(--border);
+        }
+
+        .txn-amount { font-size: 42px; font-weight: 800; color: var(--dark); margin: 10px 0; }
+        .txn-type { font-size: 14px; text-transform: uppercase; color: #64748b; font-weight: 600; letter-spacing: 1px; }
+        
+        .status-badge { padding: 6px 16px; border-radius: 20px; font-size: 12px; font-weight: 600; display: inline-block; margin-bottom: 30px; letter-spacing: 0.5px; }
+        .status-success { background: #dcfce7; color: #166534; }
+        .status-processing { background: #fef9c3; color: #854d0e; }
+        .status-pending { background: #fef9c3; color: #854d0e; }
+        .status-failed { background: #fee2e2; color: #991b1b; }
+
+        /* GRID */
+        .info-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; text-align: left; margin-bottom: 40px; }
+        .info-item { padding: 15px; border-bottom: 1px solid #f1f5f9; }
+        .label { font-size: 11px; text-transform: uppercase; color: #64748b; font-weight: 600; margin-bottom: 5px; }
+        .value { font-size: 15px; font-weight: 500; color: var(--dark); }
+
+        .btn-receipt { 
+            background: var(--primary); color: white; padding: 15px 30px; 
+            border-radius: 12px; text-decoration: none; font-weight: 600; 
+            display: inline-block; width: 100%; box-sizing: border-box;
+            transition: 0.2s; box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+        .btn-receipt:hover { transform: translateY(-2px); }
+        .btn-back { color: #64748b; text-decoration: none; font-size: 14px; margin-top: 20px; display: inline-block; }
+
+        @media (max-width: 900px) {
+            .sidebar { display: none; } 
+            .main { padding: 20px; }
+            .info-grid { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- SIDEBAR -->
+    <div class="sidebar">
+        <div class="brand">VELTRIS</div>
+        <a href="/dashboard/" class="menu-item">Dashboard</a>
+        <a href="/transfer/" class="menu-item">Transfers</a>
+        <a href="/cards/" class="menu-item">My Cards</a>
+        <a href="/pay-bills/" class="menu-item">Pay Bills</a>
+        <a href="/analytics/" class="menu-item">Analytics</a>
+        <div class="sidebar-footer">
+            <a href="/profile/" class="menu-item">Profile</a>
+            <a href="/support/" class="menu-item">Support</a>
+            <a href="/logout/" class="menu-item" style="color: #ef4444;">Sign Out</a>
+        </div>
+    </div>
+
+    <div class="main">
+        <div class="details-card">
+            
+            <div class="txn-type">{{ t.transaction_type }}</div>
+            
+            <!-- Amount Color Logic -->
+            <div class="txn-amount" style="{% if t.receiver == request.user %}color: #166534;{% else %}color: var(--dark);{% endif %}">
+                {% if t.receiver == request.user %}+{% else %}-{% endif %}${{ t.amount }}
+            </div>
+
+            <div class="status-badge status-{{ t.status }}">{{ t.status|title }}</div>
+
+            <div class="info-grid">
+                <div class="info-item">
+                    <div class="label">Date & Time</div>
+                    <div class="value">{{ t.date }}</div>
+                </div>
+                <div class="info-item">
+                    <div class="label">Reference ID</div>
+                    <div class="value">#TRX-{{ t.id }}9928</div>
+                </div>
+                
+                <!-- SENDER LOGIC -->
+                <div class="info-item">
+                    <div class="label">From</div>
+                    <div class="value">
+                        {% if t.sender %}
+                            {{ t.sender.username }}
+                        {% else %}
+                            External Source
+                        {% endif %}
+                    </div>
+                </div>
+
+                <!-- RECEIVER LOGIC (FIXED) -->
+                <div class="info-item">
+                    <div class="label">To</div>
+                    <div class="value">
+                        {% if t.receiver %}
+                            <!-- Internal User -->
+                            {% if t.receiver == request.user %}
+                                You ({{ request.user.first_name }})
+                            {% else %}
+                                {{ t.receiver.first_name }} {{ t.receiver.last_name }}
+                            {% endif %}
+                        {% else %}
+                            <!-- External / Wire / Bill -->
+                            {{ t.note|default:"External Beneficiary" }}
+                        {% endif %}
+                    </div>
+                </div>
+                
+                <!-- Extra Details for Wires -->
+                {% if t.routing_number %}
+                <div class="info-item">
+                    <div class="label">Routing Number</div>
+                    <div class="value">{{ t.routing_number }}</div>
+                </div>
+                {% endif %}
+                
+                {% if t.receiver_account_number %}
+                <div class="info-item">
+                    <div class="label">External Account</div>
+                    <div class="value">{{ t.receiver_account_number }}</div>
+                </div>
+                {% endif %}
+
+                {% if t.receiver_bank_name %}
+                <div class="info-item">
+                    <div class="label">Bank Name</div>
+                    <div class="value">{{ t.receiver_bank_name }}</div>
+                </div>
+                {% endif %}
+            </div>
+
+            <!-- BUTTON TO VIEW OFFICIAL RECEIPT -->
+            <a href="/transaction/{{ t.id }}/receipt/" class="btn-receipt">📄 View Official Receipt</a>
+            
+            <br>
+            <a href="/dashboard/" class="btn-back">← Back to Dashboard</a>
+        </div>
+    </div>
+
+</body>
+</html>

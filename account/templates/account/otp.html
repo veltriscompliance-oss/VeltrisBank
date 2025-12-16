@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Verify Identity | Veltris Bank</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root { --primary: #2563eb; --glass-bg: rgba(255, 255, 255, 0.05); --glass-border: rgba(255, 255, 255, 0.1); --text-light: #e2e8f0; }
+        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+        body { margin: 0; font-family: 'Inter', sans-serif; height: 100vh; background: #0f172a; color: white; display: flex; align-items: center; justify-content: center; position: relative; overflow: hidden; }
+        
+        .orb { position: absolute; border-radius: 50%; filter: blur(80px); opacity: 0.6; z-index: 0; animation: float 10s infinite alternate; }
+        .orb-1 { width: 400px; height: 400px; background: #1e40af; top: -100px; left: -100px; }
+        .orb-2 { width: 300px; height: 300px; background: #0891b2; bottom: -100px; right: -50px; animation-delay: -5s; }
+        @keyframes float { 0% { transform: translate(0, 0); } 100% { transform: translate(30px, 50px); } }
+
+        .otp-card { width: 90%; max-width: 400px; padding: 40px 30px; text-align: center; background: rgba(15, 23, 42, 0.7); backdrop-filter: blur(20px); border: 1px solid var(--glass-border); border-radius: 24px; box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5); z-index: 10; }
+        
+        .icon-box { width: 70px; height: 70px; background: rgba(37, 99, 235, 0.2); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 25px; border: 1px solid rgba(37, 99, 235, 0.3); box-shadow: 0 0 20px rgba(37, 99, 235, 0.2); }
+        .icon-box svg { width: 32px; height: 32px; color: #60a5fa; }
+
+        h2 { margin: 0 0 10px 0; font-size: 22px; font-weight: 700; }
+        p { color: #94a3b8; font-size: 14px; line-height: 1.6; margin-bottom: 30px; }
+        .highlight { color: white; font-weight: 600; background: rgba(255,255,255,0.1); padding: 2px 6px; border-radius: 4px; }
+
+        .otp-input { letter-spacing: 8px; font-size: 28px; font-weight: 700; text-align: center; width: 100%; padding: 18px; border: 1px solid var(--glass-border); background: var(--glass-bg); color: white; border-radius: 12px; margin-bottom: 25px; outline: none; transition: 0.3s; }
+        .otp-input:focus { border-color: var(--primary); background: rgba(255,255,255,0.1); box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.2); }
+
+        .btn-verify { background: linear-gradient(135deg, var(--primary), #1d4ed8); color: white; border: none; width: 100%; padding: 16px; font-size: 16px; font-weight: 600; border-radius: 12px; cursor: pointer; transition: 0.3s; box-shadow: 0 4px 15px rgba(37, 99, 235, 0.3); }
+        .btn-verify:hover { transform: translateY(-2px); box-shadow: 0 8px 25px rgba(37, 99, 235, 0.4); }
+
+        .error-msg { background: rgba(239, 68, 68, 0.15); color: #fca5a5; padding: 12px; border-radius: 8px; font-size: 13px; margin-bottom: 25px; border: 1px solid rgba(239, 68, 68, 0.2); display: flex; align-items: center; justify-content: center; gap: 8px; }
+        .success-msg { background: rgba(16, 185, 129, 0.15); color: #6ee7b7; padding: 12px; border-radius: 8px; font-size: 13px; margin-bottom: 25px; border: 1px solid rgba(16, 185, 129, 0.2); }
+
+        /* RESEND LOGIC STYLES */
+        .resend-box { margin-top: 25px; font-size: 13px; color: #64748b; }
+        .btn-resend { background: none; border: none; color: var(--primary); font-weight: 600; cursor: pointer; padding: 0; text-decoration: underline; font-family: 'Inter'; }
+        .btn-resend:hover { color: white; }
+        #timer-text { color: #94a3b8; }
+        
+        @media (max-width: 480px) {
+            .otp-card { padding: 30px 20px; width: 90%; }
+            .otp-input { font-size: 24px; padding: 15px; }
+        }
+    </style>
+</head>
+<body>
+    <div class="orb orb-1"></div>
+    <div class="orb orb-2"></div>
+
+    <div class="otp-card">
+        <div class="icon-box">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>
+        </div>
+        
+        <h2>Verification Required</h2>
+        <p>We detected a login attempt. Please enter the 6-digit code sent to your email.</p>
+
+        {% if messages %}
+            {% for message in messages %}
+            <div class="{% if 'New code' in message.message %}success-msg{% else %}error-msg{% endif %}">
+                {{ message }}
+            </div>
+            {% endfor %}
+        {% endif %}
+
+        <form method="POST">
+            {% csrf_token %}
+            <input type="text" name="otp_code" class="otp-input" maxlength="6" placeholder="000000" inputmode="numeric" pattern="[0-9]*" autocomplete="one-time-code" autofocus required>
+            <button type="submit" class="btn-verify">Verify Identity</button>
+        </form>
+        
+        <div class="resend-box">
+            <span id="timer-text">Resend code in <span id="countdown">60</span>s</span>
+            <form method="POST" id="resend-form" style="display:none;">
+                {% csrf_token %}
+                <input type="hidden" name="resend_code" value="true">
+                <button type="submit" class="btn-resend">Resend Code</button>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        let timeLeft = 60;
+        const timerText = document.getElementById('timer-text');
+        const resendForm = document.getElementById('resend-form');
+        const countdownSpan = document.getElementById('countdown');
+
+        const timerId = setInterval(() => {
+            timeLeft--;
+            countdownSpan.textContent = timeLeft;
+            if (timeLeft <= 0) {
+                clearInterval(timerId);
+                timerText.style.display = 'none';
+                resendForm.style.display = 'inline';
+            }
+        }, 1000);
+    </script>
+</body>
+</html>

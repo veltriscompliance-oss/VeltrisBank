@@ -1,0 +1,415 @@
+{% load humanize %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Support | Veltris Bank</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@500&display=swap" rel="stylesheet">
+    <script type="importmap">
+      {
+        "imports": {
+          "@google/generative-ai": "https://esm.run/@google/generative-ai"
+        }
+      }
+    </script>
+    <style>
+        /* --- GLOBAL THEME VARIABLES --- */
+        :root { 
+            --primary: #004d99; 
+            --light: #f4f6f8; 
+            --dark: #1a1a1a; 
+            --border: #e2e8f0; 
+            --card-bg: #ffffff;
+            --text-main: #1a1a1a;
+            --text-light: #64748b;
+            --input-bg: #ffffff;
+            --accent-color: #2563eb;
+            --danger: #ef4444;
+            --chat-bg: #f8fafc;
+            --msg-user-bg: #2563eb;
+            --msg-user-text: #ffffff;
+            --msg-admin-bg: #ffffff;
+            --msg-admin-text: #1a1a1a;
+        }
+
+        /* DARK MODE OVERRIDES */
+        body.dark-mode {
+            --light: #0f172a; 
+            --card-bg: #1e293b; 
+            --text-main: #f8fafc; 
+            --text-light: #94a3b8;
+            --border: #334155;
+            --dark: #f8fafc; 
+            --input-bg: #0f172a;
+            --chat-bg: #0f172a;
+            --msg-user-bg: #3b82f6;
+            --msg-admin-bg: #334155;
+            --msg-admin-text: #f8fafc;
+        }
+
+        /* Specific Dark Mode Fixes */
+        body.dark-mode .sidebar { background: #1e293b; border-right: 1px solid #334155; }
+        body.dark-mode .menu-item { color: #94a3b8; }
+        body.dark-mode .menu-item:hover { background: #334155; }
+        body.dark-mode .notif-dropdown { background: #1e293b; border: 1px solid #334155; }
+        body.dark-mode .notif-item { border-bottom: 1px solid #334155; }
+        body.dark-mode .notif-item:hover { background: #0f172a; }
+        body.dark-mode .notif-msg { color: #f8fafc; }
+        
+        body.dark-mode .chat-wrapper { background: var(--card-bg); border-color: var(--border); }
+        body.dark-mode .chat-header { border-bottom-color: var(--border); background: var(--card-bg); }
+        body.dark-mode .chat-footer { border-top-color: var(--border); background: var(--card-bg); }
+        body.dark-mode .input-box { background: var(--input-bg); border-color: var(--border); }
+        body.dark-mode input { color: white; }
+        body.dark-mode .agent-icon { background: rgba(59, 130, 246, 0.2); color: #60a5fa; }
+        body.dark-mode .msg-admin { border-color: var(--border); }
+        body.dark-mode .btn-send { background: var(--accent-color); }
+        body.dark-mode .timeout-card { background: var(--card-bg); }
+
+        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+        body { margin: 0; font-family: 'Inter', sans-serif; background-color: var(--light); color: var(--text-main); display: flex; height: 100vh; overflow: hidden; transition: 0.3s; }
+        
+        /* SIDEBAR */
+        .sidebar { width: 260px; background: var(--card-bg); border-right: 1px solid var(--border); padding: 25px; display: flex; flex-direction: column; z-index: 2000; transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1); }
+        .brand { font-size: 20px; font-weight: 800; color: var(--primary); margin-bottom: 40px; display: flex; align-items: center; gap: 10px; }
+        .brand-icon { width: 32px; height: 32px; background: var(--primary); border-radius: 8px; color: white; display: flex; align-items: center; justify-content: center; }
+        .menu-group { display: flex; flex-direction: column; gap: 5px; flex: 1; }
+        .menu-item { color: var(--text-light); text-decoration: none; padding: 12px 15px; border-radius: 12px; font-size: 14px; font-weight: 500; display: flex; align-items: center; gap: 12px; margin-bottom: 5px; transition: 0.2s; }
+        .menu-item svg { width: 20px; height: 20px; stroke-width: 2px; }
+        .menu-item:hover { background: var(--light); color: var(--primary); }
+        .menu-item.active { background: #eff6ff; color: var(--primary); font-weight: 600; }
+        /* Dark mode active fix */
+        body.dark-mode .menu-item.active { background: rgba(37, 99, 235, 0.2); color: #60a5fa; }
+        .sidebar-footer { margin-top: auto; border-top: 1px solid var(--border); padding-top: 20px; }
+
+        .main { flex: 1; padding: 40px; overflow-y: auto; width: 100%; display: flex; flex-direction: column; align-items: center; position: relative; }
+
+        /* HEADER */
+        .mobile-header { display: none; width: 100%; justify-content: space-between; align-items: center; margin-bottom: 25px; }
+        .nav-avatar { width: 40px; height: 40px; border-radius: 50%; object-fit: cover; border: 2px solid var(--card-bg); box-shadow: 0 2px 8px rgba(0,0,0,0.1); cursor: pointer; }
+        .icon-btn { background: var(--card-bg); width: 40px; height: 40px; border-radius: 50%; display: flex; align-items: center; justify-content: center; box-shadow: 0 2px 8px rgba(0,0,0,0.05); position: relative; cursor: pointer; color: var(--text-main); border: 1px solid var(--border); }
+        .notif-badge { position: absolute; top: 0; right: 0; background: #ef4444; color: white; width: 16px; height: 16px; border-radius: 50%; font-size: 10px; display: flex; align-items: center; justify-content: center; font-weight: bold; border: 2px solid var(--card-bg); }
+
+        .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px; width: 100%; max-width: 900px; }
+        .page-title { margin: 0; font-size: 24px; font-weight: 700; color: var(--text-main); }
+        .page-subtitle { color: var(--text-light); font-size: 13px; margin-top: 4px; }
+        
+        .user-pill { display: flex; align-items: center; gap: 10px; padding: 6px 12px 6px 6px; background: var(--card-bg); border: 1px solid var(--border); border-radius: 30px; cursor: pointer; transition: 0.2s; }
+        .user-pill:hover { border-color: var(--text-light); }
+        .user-name { font-size: 13px; font-weight: 600; color: var(--text-main); margin-right: 5px; }
+        .avatar { width: 32px; height: 32px; border-radius: 50%; object-fit: cover; background: #e2e8f0; }
+
+        /* CHAT UI */
+        .chat-wrapper { 
+            width: 100%; max-width: 900px; height: calc(100vh - 180px); 
+            background: var(--card-bg); border-radius: 24px; border: 1px solid var(--border);
+            display: flex; flex-direction: column; overflow: hidden;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.05);
+        }
+
+        .chat-header {
+            padding: 20px; border-bottom: 1px solid var(--border);
+            display: flex; align-items: center; justify-content: space-between; background: var(--card-bg);
+        }
+        .agent-info-group { display: flex; align-items: center; gap: 15px; }
+        .agent-icon {
+            width: 45px; height: 45px; background: #eff6ff; color: var(--primary);
+            border-radius: 12px; display: flex; align-items: center; justify-content: center;
+        }
+        .agent-info h3 { margin: 0; font-size: 16px; font-weight: 700; color: var(--text-main); }
+        .agent-status { font-size: 12px; color: #166534; display: flex; align-items: center; gap: 5px; font-weight: 500; margin-top: 2px; }
+        .status-dot { width: 8px; height: 8px; background: #166534; border-radius: 50%; }
+
+        .chat-body {
+            flex: 1; padding: 25px; overflow-y: auto; background: var(--chat-bg);
+            display: flex; flex-direction: column; gap: 20px;
+        }
+
+        .message { max-width: 75%; padding: 15px; border-radius: 16px; font-size: 14px; line-height: 1.5; position: relative; animation: slideIn 0.3s ease; }
+        @keyframes slideIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+        /* Admin/AI Message (Left) */
+        .msg-admin {
+            align-self: flex-start; background: var(--msg-admin-bg); color: var(--msg-admin-text);
+            border: 1px solid var(--border); border-bottom-left-radius: 4px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.03);
+        }
+
+        /* User Message (Right) */
+        .msg-user {
+            align-self: flex-end; background: var(--msg-user-bg); color: var(--msg-user-text);
+            border-bottom-right-radius: 4px;
+            box-shadow: 0 4px 10px rgba(37, 99, 235, 0.2);
+        }
+
+        .timestamp { font-size: 10px; margin-top: 8px; display: block; opacity: 0.7; text-align: right; }
+
+        .chat-footer {
+            padding: 20px; border-top: 1px solid var(--border); background: var(--card-bg);
+        }
+        .input-box {
+            display: flex; gap: 10px; background: var(--input-bg); padding: 8px; border-radius: 16px; border: 1px solid var(--border);
+        }
+        .input-box input {
+            flex: 1; border: none; background: transparent; padding: 10px 15px;
+            font-size: 15px; color: var(--text-main); outline: none; font-family: 'Inter';
+        }
+        .btn-send {
+            background: var(--primary); color: white; border: none; 
+            width: 40px; height: 40px; border-radius: 12px; cursor: pointer;
+            display: flex; align-items: center; justify-content: center; transition: 0.2s;
+        }
+        .btn-send:hover { background: var(--accent-color); transform: scale(1.05); }
+
+        /* AI TOGGLE */
+        .ai-toggle-wrapper { display: flex; align-items: center; gap: 8px; background: var(--input-bg); padding: 6px 12px; border-radius: 20px; border: 1px solid var(--border); }
+        .ai-toggle-label { font-size: 12px; font-weight: 600; color: var(--text-light); cursor: pointer; }
+        .switch { position: relative; display: inline-block; width: 34px; height: 20px; }
+        .switch input { opacity: 0; width: 0; height: 0; }
+        .slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: #ccc; transition: .4s; border-radius: 34px; }
+        .slider:before { position: absolute; content: ""; height: 14px; width: 14px; left: 3px; bottom: 3px; background-color: white; transition: .4s; border-radius: 50%; }
+        input:checked + .slider { background-color: var(--primary); }
+        input:checked + .slider:before { transform: translateX(14px); }
+
+        /* NOTIFICATIONS */
+        .notif-dropdown { display: none; position: absolute; top: 60px; right: 20px; background: var(--card-bg); width: 320px; max-height: 400px; overflow-y: auto; box-shadow: 0 10px 40px rgba(0,0,0,0.15); border-radius: 16px; z-index: 3000; border: 1px solid var(--border); }
+        .notif-item { padding: 15px; border-bottom: 1px solid var(--border); transition: 0.2s; }
+        .notif-item:hover { background: var(--light); }
+        .notif-msg { font-size: 13px; color: var(--text-main); line-height: 1.4; }
+        .notif-time { font-size: 11px; color: var(--text-light); margin-top: 5px; }
+
+        .overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 1500; backdrop-filter: blur(4px); transition: opacity 0.3s; }
+
+        /* TIMEOUT MODAL */
+        .timeout-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); z-index: 9999; display: none; align-items: center; justify-content: center; backdrop-filter: blur(5px); }
+        .timeout-card { background: var(--card-bg); padding: 40px; border-radius: 24px; text-align: center; width: 90%; max-width: 400px; box-shadow: 0 25px 60px rgba(0,0,0,0.5); }
+        .timeout-title { font-size: 22px; font-weight: 800; color: var(--text-main); margin-bottom: 10px; }
+        .timeout-msg { color: var(--text-light); font-size: 15px; margin-bottom: 30px; line-height: 1.5; }
+        .timeout-btn { background: var(--primary); color: white; border: none; padding: 14px 28px; border-radius: 12px; font-weight: 600; font-size: 15px; cursor: pointer; width: 100%; }
+
+        @media (max-width: 900px) {
+            .sidebar { position: fixed; left: 0; top: 0; height: 100%; transform: translateX(-100%); transition: 0.3s; box-shadow: none; }
+            .sidebar.active { transform: translateX(0); box-shadow: 10px 0 30px rgba(0,0,0,0.1); }
+            .main { padding: 20px; }
+            .mobile-header { display: flex; }
+            .header { display: none; }
+            .chat-wrapper { height: calc(100vh - 120px); border-radius: 16px; }
+            .notif-dropdown { right: 20px; top: 70px; width: calc(100% - 40px); }
+            .nav-avatar { width: 40px !important; height: 40px !important; min-width: 40px !important; border: 2px solid var(--border-color); }
+        }
+    </style>
+</head>
+<body class="{% if account.dark_mode %}dark-mode{% endif %}">
+    
+    <!-- TIMEOUT MODAL -->
+    <div class="timeout-overlay" id="timeoutModal">
+        <div class="timeout-card">
+            <div style="font-size: 40px; margin-bottom: 20px;">⏰</div>
+            <div class="timeout-title">Session Expiring</div>
+            <div class="timeout-msg">You will be logged out in <span id="timeLeft" style="font-weight:bold; color:var(--accent-color);">30</span> seconds due to inactivity.</div>
+            <button class="timeout-btn" onclick="resetTimer()">Keep me signed in</button>
+        </div>
+    </div>
+
+    <div class="overlay" onclick="toggleSidebar()"></div>
+
+    <!-- SIDEBAR -->
+    <div class="sidebar" id="sidebar">
+        <div class="brand">
+            <div class="brand-icon"><svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="3" viewBox="0 0 24 24"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg></div>
+            VELTRIS
+        </div>
+
+        <div class="menu-group">
+            <a href="/dashboard/" class="menu-item"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7"></rect><rect x="14" y="3" width="7" height="7"></rect><rect x="14" y="14" width="7" height="7"></rect><rect x="3" y="14" width="7" height="7"></rect></svg> Dashboard</a>
+            <a href="/transfer/" class="menu-item"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><line x1="7" y1="17" x2="17" y2="7"></line><polyline points="7 7 17 7 17 17"></polyline></svg> Transfers</a>
+            <a href="/cards/" class="menu-item"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><rect x="1" y="4" width="22" height="16" rx="2" ry="2"></rect><line x1="1" y1="10" x2="23" y2="10"></line></svg> Cards</a>
+            <a href="/pay-bills/" class="menu-item"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"></path></svg> Payments</a>
+            <a href="/loans/" class="menu-item"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path></svg> Credit & Loans</a>
+            <a href="/analytics/" class="menu-item"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M21.21 15.89A10 10 0 1 1 8 2.83"></path><path d="M22 12A10 10 0 0 0 12 2v10z"></path></svg> Insights</a>
+            <a href="/documents/" class="menu-item"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg> Statements</a>
+        </div>
+        <div class="sidebar-footer">
+            <a href="/profile/" class="menu-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg> Profile</a>
+            <a href="/support/" class="menu-item active"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg> Support</a>
+            <a href="/logout/" class="menu-item" style="color: var(--danger);"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path><polyline points="16 17 21 12 16 7"></polyline><line x1="21" y1="12" x2="9" y2="12"></line></svg> Sign Out</a>
+        </div>
+    </div>
+
+    <div class="main">
+        <!-- MOBILE HEADER -->
+        <div class="mobile-header">
+            <div style="display: flex; align-items: center; gap: 15px;">
+                <div onclick="toggleSidebar()">
+                    {% if account.profile_pic %}
+                        <img src="{{ account.profile_pic.url }}" class="nav-avatar">
+                    {% else %}
+                        <div class="nav-avatar" style="background: #e2e8f0; color: #64748b; display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 14px;">{{ user.username|slice:":1" }}</div>
+                    {% endif %}
+                </div>
+                <div style="font-weight: 800; color: var(--primary); font-size: 20px;">SUPPORT</div>
+            </div>
+
+            <div class="icon-btn" onclick="toggleNotifs()">
+                <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path><path d="M13.73 21a2 2 0 0 1-3.46 0"></path></svg>
+                {% if unread_count > 0 %}<div class="notif-badge">{{ unread_count }}</div>{% endif %}
+            </div>
+        </div>
+
+        <!-- DESKTOP HEADER -->
+        <div class="header">
+            <div class="welcome-text">
+                <h1 class="page-title">Support Center</h1>
+                <div class="page-subtitle">Get help with your account and transactions.</div>
+            </div>
+            
+            <div style="display: flex; gap: 20px; align-items: center;">
+                <div class="icon-btn" onclick="toggleNotifs()">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path><path d="M13.73 21a2 2 0 0 1-3.46 0"></path></svg>
+                    {% if unread_count > 0 %}<div class="notif-badge">{{ unread_count }}</div>{% endif %}
+                </div>
+                {% if account.profile_pic %}
+                    <img src="{{ account.profile_pic.url }}" class="nav-avatar" style="width: 45px; height: 45px;">
+                {% else %}
+                    <div class="nav-avatar" style="width: 45px; height: 45px; background: #e2e8f0; color: #64748b; display: flex; align-items: center; justify-content: center; font-weight: bold;">{{ user.username|slice:":1" }}</div>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- NOTIFICATION DROPDOWN -->
+        <div id="notif-dropdown" class="notif-dropdown">
+            <div style="padding: 15px; border-bottom: 1px solid var(--border); font-weight: 700; font-size: 13px; color: var(--text-main); background: var(--light);">NOTIFICATIONS</div>
+            <div style="max-height: 300px; overflow-y: auto;">
+                {% for n in notifications %}
+                    <div class="notif-item">
+                        <div class="notif-msg">{{ n.message }}</div>
+                        <div class="notif-time">{{ n.date|timesince }} ago</div>
+                    </div>
+                {% empty %}
+                    <div style="padding: 20px; text-align: center; color: #94a3b8; font-size: 13px;">No new alerts</div>
+                {% endfor %}
+            </div>
+        </div>
+
+        <!-- CHAT UI -->
+        <div class="chat-wrapper">
+            <div class="chat-header">
+                <div class="agent-info-group">
+                    <div class="agent-icon">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg>
+                    </div>
+                    <div class="agent-info">
+                        <h3>Veltris Support</h3>
+                        <div class="agent-status"><div class="status-dot"></div> Online Now</div>
+                    </div>
+                </div>
+                
+                <!-- AI TOGGLE -->
+                <div class="ai-toggle-wrapper">
+                    <span class="ai-toggle-label">Ask AI</span>
+                    <label class="switch">
+                        <input type="checkbox" id="ai-toggle">
+                        <span class="slider"></span>
+                    </label>
+                </div>
+            </div>
+
+            <div class="chat-body" id="chatWindow">
+                <!-- Welcome Message -->
+                <div class="message msg-admin">
+                    Hello {{ user.first_name }}! How can we assist you today?
+                    <span class="timestamp">Now</span>
+                </div>
+
+                {% for msg in messages %}
+                    <div class="message {% if msg.is_admin_reply %}msg-admin{% else %}msg-user{% endif %}">
+                        {{ msg.message }}
+                        <span class="timestamp">{{ msg.timestamp|time:"H:i" }}</span>
+                    </div>
+                {% endfor %}
+            </div>
+
+            <div class="chat-footer">
+                <form id="chatForm" method="POST" class="input-box">
+                    {% csrf_token %}
+                    <input type="text" name="message" id="chatInput" placeholder="Type your message..." required autocomplete="off">
+                    <button type="submit" class="btn-send">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="22" y1="2" x2="11" y2="13"></line><polygon points="22 2 15 22 11 13 2 9 22 2"></polygon></svg>
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <script type="module">
+        import { GoogleGenerativeAI } from "@google/generative-ai";
+
+        // THEME LOGIC
+        if("{{ account.dark_mode }}" === "True") { document.body.classList.add('dark-mode'); }
+
+        // UI LOGIC
+        window.toggleSidebar = function() { document.getElementById('sidebar').classList.toggle('active'); document.querySelector('.overlay').style.display = document.getElementById('sidebar').classList.contains('active') ? 'block' : 'none'; }
+        window.toggleNotifs = function() { var x = document.getElementById("notif-dropdown"); x.style.display = x.style.display === "block" ? "none" : "block"; }
+        window.onclick = function(event) { if (!event.target.matches('.icon-btn') && !event.target.closest('.icon-btn') && !event.target.matches('.notif-dropdown') && !event.target.closest('.notif-dropdown')) { document.getElementById("notif-dropdown").style.display = "none"; } }
+        var chatWindow = document.getElementById("chatWindow");
+        chatWindow.scrollTop = chatWindow.scrollHeight;
+
+        // --- AI CHAT LOGIC ---
+        const apiKey = "PASTE_YOUR_API_KEY_HERE"; 
+        const genAI = new GoogleGenerativeAI(apiKey);
+        const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash-preview-09-2025" });
+
+        const form = document.getElementById('chatForm');
+        const input = document.getElementById('chatInput');
+        const aiToggle = document.getElementById('ai-toggle');
+        const chatBody = document.getElementById('chatWindow');
+
+        form.addEventListener('submit', async function(e) {
+            if (aiToggle.checked) {
+                e.preventDefault(); // Stop normal form submit
+                const userMsg = input.value;
+                if (!userMsg) return;
+
+                // 1. Add User Message to UI
+                appendMessage(userMsg, 'msg-user');
+                input.value = '';
+
+                // 2. Call Gemini
+                try {
+                    const prompt = `You are a helpful banking assistant for Veltris Bank. The user asks: "${userMsg}". Give a concise, professional answer.`;
+                    const result = await model.generateContent(prompt);
+                    const response = await result.response;
+                    const text = response.text();
+                    
+                    // 3. Add AI Response
+                    appendMessage(text, 'msg-admin');
+                } catch (error) {
+                    console.error(error);
+                    appendMessage("I'm having trouble connecting to the AI brain right now.", 'msg-admin');
+                }
+            }
+            // Else: Let normal form submit happen (goes to Django -> Admin)
+        });
+
+        function appendMessage(text, className) {
+            const div = document.createElement('div');
+            div.className = `message ${className}`;
+            div.innerHTML = `${text}<span class="timestamp">Now</span>`;
+            chatBody.appendChild(div);
+            chatBody.scrollTop = chatBody.scrollHeight;
+        }
+
+        // --- TIMEOUT LOGIC (5 MINS) ---
+        let warningTimer, logoutTimer;
+        const TIMEOUT_DURATION = 300000; 
+        const WARNING_DURATION = 270000; 
+        function startTimers() { warningTimer = setTimeout(showWarning, WARNING_DURATION); logoutTimer = setTimeout(doLogout, TIMEOUT_DURATION); }
+        function resetTimer() { clearTimeout(warningTimer); clearTimeout(logoutTimer); document.getElementById('timeoutModal').style.display = 'none'; startTimers(); }
+        function showWarning() { document.getElementById('timeoutModal').style.display = 'flex'; }
+        function doLogout() { window.location.href = '/logout/'; }
+        window.onload = function() { startTimers(); };
+        document.onclick = resetTimer; document.onmousemove = resetTimer; document.onkeypress = resetTimer;
+    </script>
+</body>
+</html>

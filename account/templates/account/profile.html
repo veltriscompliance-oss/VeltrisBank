@@ -1,0 +1,300 @@
+{% load humanize %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Profile | Veltris Bank</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        /* --- GLOBAL THEME VARIABLES --- */
+        :root { 
+            --primary: #004d99; 
+            --light: #f4f6f8; 
+            --dark: #1a1a1a; 
+            --border: #e2e8f0; 
+            --card-bg: #ffffff;
+            --text-main: #1a1a1a;
+            --text-light: #64748b;
+            --input-bg: #ffffff;
+            --item-bg: #f8fafc;
+        }
+        
+        /* DARK MODE OVERRIDES */
+        body.dark-mode {
+            --light: #0f172a; 
+            --card-bg: #1e293b; 
+            --text-main: #f8fafc; 
+            --text-light: #94a3b8;
+            --border: #334155;
+            --dark: #f8fafc; 
+            --input-bg: #0f172a;
+            --item-bg: #111827;
+        }
+
+        /* Specific Dark Mode Fixes */
+        body.dark-mode .sidebar { background: #1e293b; border-right: 1px solid #334155; }
+        body.dark-mode .menu-item { color: #94a3b8; }
+        body.dark-mode .menu-item:hover { background: #334155; }
+        body.dark-mode .profile-card { background: var(--card-bg); border-color: var(--border); }
+        body.dark-mode .info-item { background: var(--item-bg); border-color: var(--border); }
+        body.dark-mode .notif-dropdown { background: #1e293b; border: 1px solid #334155; }
+        body.dark-mode .notif-item { border-bottom: 1px solid #334155; }
+        body.dark-mode .notif-item:hover { background: #0f172a; }
+        body.dark-mode .notif-msg { color: #f8fafc; }
+        body.dark-mode .modal-content { background: var(--card-bg); }
+        body.dark-mode input { background: var(--input-bg); border-color: var(--border); color: white; }
+        body.dark-mode .btn-edit { color: #60a5fa; border-color: #60a5fa; }
+        body.dark-mode .btn-edit:hover { background: rgba(96, 165, 250, 0.1); }
+
+        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+        body { margin: 0; font-family: 'Inter', sans-serif; background-color: var(--light); color: var(--text-main); display: flex; height: 100vh; overflow: hidden; transition: 0.3s; }
+        
+        /* SIDEBAR */
+        .sidebar { width: 260px; background: var(--card-bg); border-right: 1px solid var(--border); padding: 25px; display: flex; flex-direction: column; z-index: 2000; transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1); }
+        .brand { font-size: 22px; font-weight: 800; color: var(--primary); margin-bottom: 40px; display: flex; align-items: center; gap: 10px; }
+        .menu-item { color: var(--text-light); text-decoration: none; padding: 12px 15px; border-radius: 12px; font-size: 14px; font-weight: 500; display: flex; align-items: center; gap: 12px; margin-bottom: 5px; transition: 0.2s; }
+        .menu-item svg { width: 20px; height: 20px; stroke-width: 2px; }
+        .menu-item:hover { background: var(--light); color: var(--primary); }
+        .menu-item.active { background: #eff6ff; color: var(--primary); font-weight: 600; }
+        /* Dark mode active fix */
+        body.dark-mode .menu-item.active { background: rgba(37, 99, 235, 0.2); color: #60a5fa; }
+        .sidebar-footer { margin-top: auto; border-top: 1px solid var(--border); padding-top: 20px; }
+
+        .main { flex: 1; padding: 40px; overflow-y: auto; width: 100%; display: flex; flex-direction: column; align-items: center; position: relative; }
+
+        /* HEADER */
+        .mobile-header { display: none; width: 100%; justify-content: space-between; align-items: center; margin-bottom: 25px; }
+        .nav-avatar { width: 40px; height: 40px; border-radius: 50%; object-fit: cover; border: 2px solid var(--card-bg); box-shadow: 0 2px 8px rgba(0,0,0,0.1); cursor: pointer; }
+        .icon-btn { background: var(--card-bg); width: 40px; height: 40px; border-radius: 50%; display: flex; align-items: center; justify-content: center; box-shadow: 0 2px 8px rgba(0,0,0,0.05); position: relative; cursor: pointer; color: var(--text-main); border: 1px solid var(--border); }
+        .notif-badge { position: absolute; top: 0; right: 0; background: #ef4444; color: white; width: 16px; height: 16px; border-radius: 50%; font-size: 10px; display: flex; align-items: center; justify-content: center; font-weight: bold; border: 2px solid var(--card-bg); }
+
+        .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px; width: 100%; max-width: 700px; }
+        .page-title { margin: 0; font-size: 24px; font-weight: 700; color: var(--text-main); }
+        .page-subtitle { color: var(--text-light); font-size: 13px; margin-top: 4px; }
+
+        /* PROFILE CARD */
+        .profile-card { 
+            background: var(--card-bg); width: 100%; max-width: 700px; 
+            border-radius: 24px; padding: 40px; 
+            box-shadow: 0 10px 40px rgba(0,0,0,0.05); text-align: center;
+            border: 1px solid var(--border);
+        }
+        
+        .avatar-upload { position: relative; width: 110px; height: 110px; margin: 0 auto 20px; cursor: pointer; }
+        .avatar-img { width: 100%; height: 100%; border-radius: 50%; object-fit: cover; border: 4px solid var(--light); }
+        .avatar-placeholder { width: 100%; height: 100%; border-radius: 50%; background: #e2e8f0; display: flex; align-items: center; justify-content: center; font-size: 36px; color: #64748b; font-weight: bold; border: 4px solid white; }
+        .camera-icon { 
+            position: absolute; bottom: 5px; right: 5px; background: var(--primary); color: white; 
+            width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; 
+            justify-content: center; font-size: 16px; border: 3px solid white; box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+        }
+
+        .user-name { font-size: 26px; font-weight: 700; color: var(--text-main); margin-bottom: 5px; }
+        .user-handle { color: var(--text-light); font-size: 14px; margin-bottom: 15px; }
+
+        /* BADGES */
+        .badge { padding: 6px 16px; border-radius: 20px; font-size: 12px; font-weight: 600; display: inline-block; margin-bottom: 30px; letter-spacing: 0.5px; }
+        .badge-verified { background: #dcfce7; color: #166534; }
+        .badge-pending { background: #fef9c3; color: #854d0e; }
+
+        /* EDIT BTN */
+        .btn-edit {
+            background: transparent; color: var(--primary); border: 1px solid var(--primary);
+            padding: 8px 16px; border-radius: 8px; font-size: 12px; font-weight: 600; cursor: pointer; margin-bottom: 30px;
+            transition: 0.2s;
+        }
+        .btn-edit:hover { background: #eff6ff; }
+
+        /* INFO GRID */
+        .info-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; text-align: left; }
+        .info-item { padding: 20px; background: var(--item-bg); border-radius: 16px; border: 1px solid var(--border); transition: 0.2s; }
+        .info-item:hover { border-color: var(--primary); }
+        .label { font-size: 11px; text-transform: uppercase; color: var(--text-light); font-weight: 700; margin-bottom: 8px; letter-spacing: 0.5px; }
+        .value { font-size: 15px; font-weight: 600; color: var(--text-main); word-break: break-word; font-family: 'Inter', sans-serif; }
+        .mono { font-family: monospace; letter-spacing: 0.5px; }
+        
+        .value-green { color: #166534; }
+        .value-orange { color: #854d0e; }
+
+        /* NOTIFICATIONS */
+        .notif-dropdown { display: none; position: absolute; top: 60px; right: 20px; background: var(--card-bg); width: 320px; max-height: 400px; overflow-y: auto; box-shadow: 0 10px 40px rgba(0,0,0,0.15); border-radius: 16px; z-index: 3000; border: 1px solid var(--border); }
+        .notif-item { padding: 15px; border-bottom: 1px solid var(--border); transition: 0.2s; }
+        .notif-item:hover { background: var(--light); }
+        .notif-msg { font-size: 13px; color: var(--text-main); line-height: 1.4; }
+        .notif-time { font-size: 11px; color: var(--text-light); margin-top: 5px; }
+
+        .overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 1500; backdrop-filter: blur(4px); transition: opacity 0.3s; }
+
+        /* MODAL */
+        .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); z-index: 5000; align-items: center; justify-content: center; backdrop-filter: blur(5px); }
+        .modal-content { background: var(--card-bg); padding: 40px; border-radius: 24px; width: 90%; max-width: 450px; text-align: center; position: relative; box-shadow: 0 20px 50px rgba(0,0,0,0.2); }
+        .close-btn { position: absolute; top: 20px; right: 20px; font-size: 24px; cursor: pointer; color: var(--text-light); line-height: 1; }
+        
+        .modal input { width: 100%; padding: 14px; border: 1px solid var(--border); border-radius: 10px; margin-bottom: 15px; font-family: 'Inter'; box-sizing: border-box; background: var(--input-bg); color: var(--text-main); }
+        .modal h2 { font-size: 22px; color: var(--text-main); margin-bottom: 20px; }
+        .btn-save { background: var(--primary); color: white; width: 100%; padding: 14px; border: none; border-radius: 10px; font-weight: 600; cursor: pointer; }
+
+        @media (max-width: 900px) {
+            .sidebar { position: fixed; left: -280px; top: 0; height: 100%; transition: 0.3s; }
+            .sidebar.active { transform: translateX(280px); }
+            .main { padding: 20px; }
+            .mobile-header { display: flex; }
+            .header { display: none; }
+            .info-grid { grid-template-columns: 1fr; }
+            .profile-card { padding: 25px; }
+            .notif-dropdown { right: 20px; top: 70px; width: calc(100% - 40px); }
+        }
+    </style>
+</head>
+<body class="{% if account.dark_mode %}dark-mode{% endif %}">
+    
+    <div class="overlay" onclick="toggleSidebar()"></div>
+
+    <!-- SIDEBAR -->
+    <div class="sidebar" id="sidebar">
+        <div class="brand"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg> VELTRIS</div>
+        <div class="menu-group">
+            <a href="/dashboard/" class="menu-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"></rect><rect x="14" y="3" width="7" height="7"></rect><rect x="14" y="14" width="7" height="7"></rect><rect x="3" y="14" width="7" height="7"></rect></svg> Dashboard</a>
+            <a href="/transfer/" class="menu-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><line x1="7" y1="17" x2="17" y2="7"></line><polyline points="7 7 17 7 17 17"></polyline></svg> Transfers</a>
+            <a href="/cards/" class="menu-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><rect x="1" y="4" width="22" height="16" rx="2" ry="2"></rect><line x1="1" y1="10" x2="23" y2="10"></line></svg> My Cards</a>
+            <a href="/pay-bills/" class="menu-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"></path></svg> Pay Bills</a>
+             <a href="/loans/" class="menu-item active"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path></svg> Loans</a>
+            <a href="/analytics/" class="menu-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M21.21 15.89A10 10 0 1 1 8 2.83"></path><path d="M22 12A10 10 0 0 0 12 2v10z"></path></svg> Analytics</a>
+        </div>
+        <div class="sidebar-footer">
+            <a href="/profile/" class="menu-item active"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg> Profile</a>
+            <a href="/settings/" class="menu-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg> Settings</a>
+            <a href="/support/" class="menu-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg> Support</a>
+            <a href="/logout/" class="menu-item" style="color: #ef4444;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path><polyline points="16 17 21 12 16 7"></polyline><line x1="21" y1="12" x2="9" y2="12"></line></svg> Sign Out</a>
+        </div>
+    </div>
+
+    <div class="main">
+        <div class="mobile-header">
+            <div onclick="toggleSidebar()">
+                {% if account.profile_pic %}
+                    <img src="{{ account.profile_pic.url }}" class="nav-avatar">
+                {% else %}
+                    <div class="nav-avatar" style="background: #e2e8f0; color: #64748b; display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 14px;">{{ user.username|slice:":1" }}</div>
+                {% endif %}
+            </div>
+            <div style="font-weight: 800; color: var(--primary);">PROFILE</div>
+            <div class="icon-btn" onclick="toggleNotifs()">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path><path d="M13.73 21a2 2 0 0 1-3.46 0"></path></svg>
+                {% if unread_count > 0 %}<div class="notif-badge">{{ unread_count }}</div>{% endif %}
+            </div>
+        </div>
+
+        <!-- DESKTOP HEADER -->
+        <div class="header">
+            <div class="welcome-text">
+                <h1 class="page-title">Profile Settings</h1>
+                <div class="page-subtitle">Manage your identity and account details.</div>
+            </div>
+            <div style="display: flex; gap: 20px; align-items: center;">
+                <div class="icon-btn" onclick="toggleNotifs()">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path><path d="M13.73 21a2 2 0 0 1-3.46 0"></path></svg>
+                    {% if unread_count > 0 %}<div class="notif-badge">{{ unread_count }}</div>{% endif %}
+                </div>
+                {% if account.profile_pic %}
+                    <img src="{{ account.profile_pic.url }}" class="nav-avatar" style="width: 45px; height: 45px;">
+                {% else %}
+                    <div class="nav-avatar" style="width: 45px; height: 45px; background: #e2e8f0; color: #64748b; display: flex; align-items: center; justify-content: center; font-weight: bold;">{{ user.username|slice:":1" }}</div>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- NOTIFICATION DROPDOWN -->
+        <div id="notif-dropdown" class="notif-dropdown">
+            <div style="padding: 15px; border-bottom: 1px solid var(--border); font-weight: 700; font-size: 13px; color: var(--text-main); background: var(--light);">NOTIFICATIONS</div>
+            <div style="max-height: 300px; overflow-y: auto;">
+                {% for n in notifications %}
+                    <div class="notif-item">
+                        <div class="notif-msg">{{ n.message }}</div>
+                        <div class="notif-time">{{ n.date|timesince }} ago</div>
+                    </div>
+                {% empty %}
+                    <div style="padding: 20px; text-align: center; color: var(--text-light); font-size: 13px;">No new alerts</div>
+                {% endfor %}
+            </div>
+        </div>
+
+        <div class="profile-card">
+            
+            <!-- UPLOAD FORM -->
+            <form method="POST" enctype="multipart/form-data" id="avatarForm">
+                {% csrf_token %}
+                <input type="hidden" name="action" value="upload_avatar">
+                <div class="avatar-upload" onclick="document.getElementById('fileInput').click()">
+                    {% if account.profile_pic %}
+                        <img src="{{ account.profile_pic.url }}" class="avatar-img">
+                    {% else %}
+                        <div class="avatar-placeholder">{{ user.username|slice:":1" }}</div>
+                    {% endif %}
+                    <div class="camera-icon">📷</div>
+                </div>
+                <input type="file" name="profile_pic" id="fileInput" style="display: none;" onchange="document.getElementById('avatarForm').submit()">
+            </form>
+
+            <div class="user-name">{{ user.first_name }} {{ user.last_name }}</div>
+            <div class="user-handle">@{{ user.username }}</div>
+
+            {% if account.kyc_confirmed %}
+                <div class="badge badge-verified">✓ Identity Verified</div>
+            {% else %}
+                <a href="/kyc/" style="text-decoration:none;">
+                    <div class="badge badge-pending" style="cursor:pointer; transition:0.2s;">⚠ Verify Identity Now</div>
+                </a>
+            {% endif %}
+            
+            <br>
+            <button class="btn-edit" onclick="openEditModal()">Edit Profile Details</button>
+
+            <!-- FULL DATA GRID -->
+            <div class="info-grid">
+                <div class="info-item"><div class="label">Email Address</div><div class="value">{{ user.email }}</div></div>
+                <div class="info-item"><div class="label">Phone Number</div><div class="value">{{ account.phone|default:"Not Provided" }}</div></div>
+                <div class="info-item"><div class="label">Legal Address</div><div class="value">{{ account.address|default:"Not Provided" }}</div></div>
+                <div class="info-item"><div class="label">Social Security (Last 4)</div><div class="value">***-**-{{ account.ssn|slice:"-4:" }}</div></div>
+                <div class="info-item"><div class="label">Account Number</div><div class="value mono">{{ account.account_number }}</div></div>
+                <div class="info-item"><div class="label">Routing Number</div><div class="value mono">026009593</div></div>
+                <div class="info-item"><div class="label">Account Status</div><div class="value value-green">{{ account.account_status|title }}</div></div>
+                <div class="info-item">
+                    <div class="label">Daily Transfer Limit</div>
+                    {% if account.kyc_confirmed %}<div class="value value-green">$1,000,000.00</div>
+                    {% else %}<div class="value value-orange">$500.00 (Unverified)</div>{% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- EDIT MODAL -->
+    <div id="editModal" class="modal">
+        <div class="modal-content">
+            <span class="close-btn" onclick="closeEditModal()">&times;</span>
+            <h2 style="font-size:22px; color:var(--text-main); margin-bottom:20px;">Edit Profile</h2>
+            <form method="POST">
+                {% csrf_token %}
+                <input type="hidden" name="action" value="edit_profile">
+                <input type="email" name="email" value="{{ user.email }}" placeholder="Email Address">
+                <input type="text" name="phone" value="{{ account.phone }}" placeholder="Phone Number">
+                <input type="text" name="address" value="{{ account.address }}" placeholder="Address">
+                <button class="btn-save">Save Changes</button>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        // DARK MODE CHECK
+        if("{{ account.dark_mode }}" === "True") { document.body.classList.add('dark-mode'); }
+
+        function toggleSidebar() { document.getElementById('sidebar').classList.toggle('active'); document.querySelector('.overlay').style.display = document.getElementById('sidebar').classList.contains('active') ? 'block' : 'none'; }
+        function toggleNotifs() { var x = document.getElementById("notif-dropdown"); x.style.display = x.style.display === "block" ? "none" : "block"; }
+        window.onclick = function(event) { if (!event.target.matches('.icon-btn') && !event.target.closest('.icon-btn') && !event.target.matches('.notif-dropdown') && !event.target.closest('.notif-dropdown')) { document.getElementById("notif-dropdown").style.display = "none"; } }
+
+        function openEditModal() { document.getElementById("editModal").style.display = "flex"; }
+        function closeEditModal() { document.getElementById("editModal").style.display = "none"; }
+    </script>
+</body>
+</html>

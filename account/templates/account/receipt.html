@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Transaction Receipt | Veltris Bank</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Courier+Prime&display=swap" rel="stylesheet">
+    <style>
+        :root { --primary: #0f172a; --accent: #0056b3; --text: #334155; --muted: #94a3b8; --border: #e2e8f0; }
+        
+        body { 
+            background-color: #f1f5f9; 
+            font-family: 'Inter', sans-serif; 
+            display: flex; justify-content: center; 
+            padding: 40px 20px; margin: 0;
+            min-height: 100vh;
+        }
+        
+        .receipt-paper {
+            background: white;
+            width: 100%; max-width: 600px;
+            padding: 0; /* Removing padding from container to use inner layout */
+            box-shadow: 0 20px 50px rgba(0,0,0,0.1);
+            position: relative;
+            border-radius: 4px;
+            overflow: hidden;
+        }
+
+        /* SECURITY WATERMARK PATTERN */
+        .receipt-paper::before {
+            content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            background-image: radial-gradient(#e2e8f0 1px, transparent 1px);
+            background-size: 20px 20px; opacity: 0.3; pointer-events: none;
+        }
+
+        /* HEADER SECTION */
+        .header { 
+            background: #0f172a; color: white; padding: 40px; 
+            display: flex; justify-content: space-between; align-items: flex-start;
+            position: relative;
+        }
+        .brand { font-size: 24px; font-weight: 800; letter-spacing: -1px; display: flex; align-items: center; gap: 10px; }
+        .brand svg { width: 28px; height: 28px; }
+        
+        .header-meta { text-align: right; }
+        .meta-label { font-size: 11px; text-transform: uppercase; color: #94a3b8; letter-spacing: 1px; margin-bottom: 4px; }
+        .meta-value { font-family: 'Courier Prime', monospace; font-size: 14px; color: white; }
+
+        /* BODY SECTION */
+        .body { padding: 40px; position: relative; }
+
+        .status-badge {
+            position: absolute; top: -20px; right: 40px;
+            padding: 8px 20px; border-radius: 30px;
+            font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+        }
+        .status-success { background: #dcfce7; color: #166534; border: 2px solid white; }
+        .status-processing { background: #fef9c3; color: #854d0e; border: 2px solid white; }
+        .status-failed { background: #fee2e2; color: #991b1b; border: 2px solid white; }
+
+        .amount-section { text-align: center; margin-bottom: 40px; border-bottom: 2px dashed var(--border); padding-bottom: 40px; }
+        .amount-label { font-size: 13px; color: var(--muted); text-transform: uppercase; letter-spacing: 1px; font-weight: 600; }
+        .amount-value { font-size: 48px; font-weight: 800; color: var(--primary); margin: 10px 0; letter-spacing: -2px; }
+        .txn-type { font-size: 14px; background: #eff6ff; color: var(--accent); padding: 4px 12px; border-radius: 6px; display: inline-block; font-weight: 600; text-transform: uppercase; }
+
+        /* GRID LAYOUT */
+        .details-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 30px; margin-bottom: 30px; }
+        .detail-group { margin-bottom: 5px; }
+        .label { font-size: 11px; color: var(--muted); text-transform: uppercase; font-weight: 600; margin-bottom: 6px; }
+        .value { font-size: 15px; color: var(--text); font-weight: 500; border-bottom: 1px solid #f1f5f9; padding-bottom: 8px; }
+        .section-title { font-size: 12px; font-weight: 700; color: var(--primary); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 15px; margin-top: 20px; }
+
+        /* REJECTION BOX */
+        .rejection-box {
+            background-color: #fff1f2; border-left: 4px solid #f43f5e;
+            padding: 15px; margin-bottom: 30px; border-radius: 4px;
+            color: #be123c; font-size: 14px; font-weight: 500;
+        }
+
+        /* FOOTER & QR */
+        .footer { 
+            background: #f8fafc; padding: 30px 40px; 
+            border-top: 1px solid var(--border);
+            display: flex; justify-content: space-between; align-items: center;
+        }
+        .footer-text { font-size: 10px; color: var(--muted); line-height: 1.6; max-width: 70%; }
+        .qr-code { width: 60px; height: 60px; background: white; padding: 5px; border: 1px solid var(--border); }
+
+        /* PRINT BUTTON */
+        .print-btn {
+            position: fixed; bottom: 30px; right: 30px;
+            background: var(--primary); color: white; padding: 14px 28px;
+            border: none; border-radius: 50px; cursor: pointer;
+            font-weight: 600; box-shadow: 0 10px 25px rgba(15, 23, 42, 0.3);
+            transition: 0.2s; display: flex; align-items: center; gap: 8px; z-index: 100;
+        }
+        .print-btn:hover { transform: translateY(-3px); box-shadow: 0 15px 35px rgba(15, 23, 42, 0.4); }
+
+        @media print {
+            body { background: none; padding: 0; }
+            .receipt-paper { box-shadow: none; width: 100%; max-width: 100%; border: 1px solid #ddd; }
+            .print-btn { display: none; }
+            .header { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+        }
+    </style>
+</head>
+<body>
+
+    <button onclick="window.print()" class="print-btn">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9V2h12v7"></path><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"></path><path d="M6 14h12v8H6z"></path></svg>
+        Download PDF
+    </button>
+
+    <div class="receipt-paper">
+        
+        <!-- DARK HEADER -->
+        <div class="header">
+            <div class="brand">
+                <svg viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg>
+                VELTRIS
+            </div>
+            <div class="header-meta">
+                <div class="meta-label">Reference ID</div>
+                <div class="meta-value">#TRX-{{ transaction.id }}99842</div>
+                <div class="meta-label" style="margin-top: 8px;">Date Generated</div>
+                <div class="meta-value">{{ transaction.date|date:"M d, Y H:i" }}</div>
+            </div>
+        </div>
+
+        <div class="body">
+            <!-- STATUS BADGE -->
+            <div class="status-badge status-{{ transaction.status }}">
+                {{ transaction.status|upper }}
+            </div>
+
+            <!-- AMOUNT HERO -->
+            <div class="amount-section">
+                <div class="amount-label">Transfer Amount</div>
+                <div class="amount-value">${{ transaction.amount }}</div>
+                <div class="txn-type">{{ transaction.transaction_type }}</div>
+            </div>
+
+            <!-- REJECTION REASON -->
+            {% if transaction.status == 'failed' and transaction.rejection_reason %}
+            <div class="rejection-box">
+                ⚠ TRANSACTION FAILED: {{ transaction.rejection_reason }}
+            </div>
+            {% endif %}
+
+            <!-- DETAILS GRID -->
+            <div class="section-title">Sender Information</div>
+            <div class="details-grid">
+                <div>
+                    <div class="label">Account Holder</div>
+                    <div class="value">
+                        {% if transaction.sender %}
+                            {{ transaction.sender.first_name }} {{ transaction.sender.last_name }}
+                        {% else %}
+                            External Source
+                        {% endif %}
+                    </div>
+                </div>
+                <div>
+                    <div class="label">Bank</div>
+                    <div class="value">Veltris Bank N.A.</div>
+                </div>
+            </div>
+
+            <div class="section-title">Beneficiary Details</div>
+            <div class="details-grid">
+                <div>
+                    <div class="label">Recipient Name / Note</div>
+                    <div class="value">
+                        {% if transaction.receiver %}
+                            {{ transaction.receiver.first_name }} {{ transaction.receiver.last_name }}
+                        {% else %}
+                            {{ transaction.note|default:"External Beneficiary" }}
+                        {% endif %}
+                    </div>
+                </div>
+                
+                <div>
+                    <div class="label">Account Number</div>
+                    <div class="value" style="font-family: 'Courier Prime';">
+                        {% if transaction.receiver %}
+                            {{ transaction.receiver.account.account_number }}
+                        {% else %}
+                            {{ transaction.receiver_account_number|default:"N/A" }}
+                        {% endif %}
+                    </div>
+                </div>
+
+                {% if transaction.receiver_bank_name %}
+                <div>
+                    <div class="label">Destination Bank</div>
+                    <div class="value">{{ transaction.receiver_bank_name }}</div>
+                </div>
+                {% endif %}
+
+                {% if transaction.routing_number %}
+                <div>
+                    <div class="label">Routing Number</div>
+                    <div class="value" style="font-family: 'Courier Prime';">{{ transaction.routing_number }}</div>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- FOOTER WITH QR -->
+        <div class="footer">
+            <div class="footer-text">
+                This is an electronically generated receipt valid without signature.<br>
+                <strong>Veltris Bank N.A.</strong> Member FDIC. Equal Housing Lender.<br>
+                <span style="opacity: 0.7; font-size: 9px;">Transaction ID: {{ transaction.id }}-{{ transaction.date|date:"YmdHis" }}</span>
+            </div>
+            <!-- Simple CSS QR Code (Visual Only) -->
+            <svg class="qr-code" viewBox="0 0 100 100" fill="none">
+                <rect x="0" y="0" width="100" height="100" fill="white"/>
+                <path fill="black" d="M10 10h30v30h-30z M60 10h30v30h-30z M10 60h30v30h-30z M50 50h10v10h-10z M70 70h10v10h-10z M20 20h10v10h-10z M70 20h10v10h-10z M20 70h10v10h-10z"/>
+            </svg>
+        </div>
+    </div>
+
+</body>
+</html>

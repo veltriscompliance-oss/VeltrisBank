@@ -1,0 +1,196 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Help Center | Veltris Bank</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #2563eb;
+            --primary-dark: #1d4ed8;
+            --dark: #020617;
+            --slate: #0f172a;
+            --text: #f8fafc;
+            --text-muted: #94a3b8;
+            --border: rgba(255, 255, 255, 0.08);
+            --glass: rgba(15, 23, 42, 0.6);
+        }
+        
+        * { box-sizing: border-box; -webkit-font-smoothing: antialiased; }
+        html { scroll-behavior: smooth; }
+
+        body { 
+            margin: 0; font-family: 'Inter', sans-serif; 
+            background-color: var(--dark); color: var(--text); overflow-x: hidden;
+            background-image: 
+                radial-gradient(at 0% 0%, rgba(56, 189, 248, 0.15) 0px, transparent 50%),
+                radial-gradient(at 100% 0%, rgba(99, 102, 241, 0.15) 0px, transparent 50%);
+        }
+
+        /* NAVBAR */
+        .nav {
+            padding: 20px 8%; display: flex; justify-content: space-between; align-items: center;
+            border-bottom: 1px solid var(--border); background: rgba(2, 6, 23, 0.85); backdrop-filter: blur(20px);
+            position: sticky; top: 0; z-index: 100;
+        }
+        .logo { 
+            font-size: 20px; font-weight: 800; color: white; text-decoration: none; 
+            display: flex; align-items: center; gap: 8px; 
+        }
+        .btn-outline {
+            border: 1px solid var(--border); color: white; padding: 8px 20px; border-radius: 30px;
+            text-decoration: none; font-size: 14px; font-weight: 500; transition: 0.3s;
+        }
+        .btn-outline:hover { background: rgba(255,255,255,0.05); border-color: white; }
+
+        /* HERO */
+        .hero { padding: 100px 8% 160px; text-align: center; position: relative; }
+        h1 { font-size: 56px; font-weight: 800; letter-spacing: -1px; margin-bottom: 20px; }
+        .hero p { color: var(--text-muted); font-size: 18px; margin-bottom: 40px; }
+        
+        .search-box { 
+            max-width: 600px; margin: 0 auto; position: relative; 
+            background: rgba(255,255,255,0.05); border: 1px solid var(--border); 
+            border-radius: 16px; display: flex; align-items: center; padding: 5px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.2); transition: 0.3s;
+        }
+        .search-box:focus-within { border-color: var(--primary); box-shadow: 0 0 30px rgba(37, 99, 235, 0.2); }
+        .search-icon { margin-left: 20px; color: var(--text-muted); }
+        .search-box input { 
+            width: 100%; padding: 15px; border: none; background: transparent; 
+            font-size: 16px; color: white; outline: none; font-family: 'Inter';
+        }
+
+        /* CONTENT GRID */
+        .content { 
+            max-width: 1100px; margin: -100px auto 0; padding: 0 20px; 
+            display: grid; grid-template-columns: repeat(3, 1fr); gap: 25px; 
+            position: relative; z-index: 2;
+        }
+        
+        .topic-card { 
+            background: rgba(15, 23, 42, 0.8); backdrop-filter: blur(12px);
+            padding: 40px 30px; border-radius: 24px; border: 1px solid var(--border);
+            text-decoration: none; color: inherit; transition: 0.3s; display: flex; flex-direction: column; align-items: flex-start;
+        }
+        .topic-card:hover { transform: translateY(-5px); border-color: var(--primary); background: rgba(30, 41, 59, 0.6); }
+        
+        .icon-circle {
+            width: 50px; height: 50px; border-radius: 12px; 
+            background: rgba(37, 99, 235, 0.1); color: var(--primary);
+            display: flex; align-items: center; justify-content: center; margin-bottom: 20px;
+        }
+        .topic-card h3 { margin: 0 0 10px 0; font-size: 20px; }
+        .topic-card p { color: var(--text-muted); font-size: 14px; margin: 0; line-height: 1.5; }
+
+        /* FAQ SECTION */
+        .faq-section { padding: 100px 8%; max-width: 900px; margin: 0 auto; }
+        .faq-head { text-align: center; margin-bottom: 50px; }
+        .faq-item { border-bottom: 1px solid var(--border); padding: 20px 0; }
+        .faq-question { display: flex; justify-content: space-between; align-items: center; cursor: pointer; font-weight: 600; font-size: 16px; }
+        .faq-answer { display: none; margin-top: 15px; color: var(--text-muted); line-height: 1.6; font-size: 15px; }
+        .faq-item.active .faq-answer { display: block; }
+        .chevron { transition: 0.3s; }
+        .faq-item.active .chevron { transform: rotate(180deg); }
+
+        /* FOOTER CTA */
+        .help-footer { text-align: center; padding: 100px 8%; border-top: 1px solid var(--border); background: #020617; }
+        .btn-contact { 
+            background: var(--primary); color: white; padding: 14px 32px; border-radius: 30px; 
+            text-decoration: none; font-weight: 600; display: inline-flex; align-items: center; gap: 10px;
+            transition: 0.3s; box-shadow: 0 4px 15px rgba(37, 99, 235, 0.3);
+        }
+        .btn-contact:hover { transform: translateY(-2px); box-shadow: 0 8px 25px rgba(37, 99, 235, 0.4); }
+
+        @media (max-width: 900px) {
+            .content { grid-template-columns: 1fr; margin-top: -60px; }
+            h1 { font-size: 42px; }
+            .hero { padding: 80px 5% 120px; }
+        }
+    </style>
+</head>
+<body>
+
+    <nav class="nav">
+        <a href="/" class="logo">
+            <svg width="24" height="24" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg>
+            VELTRIS
+        </a>
+        <a href="/" class="btn-outline">Back to Home</a>
+    </nav>
+
+    <div class="hero">
+        <h1>How can we help?</h1>
+        <p>Search our knowledge base or browse common topics below.</p>
+        <div class="search-box">
+            <svg class="search-icon" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+            <input type="text" placeholder="Search for answers (e.g. 'Reset PIN', 'Wire Transfer')">
+        </div>
+    </div>
+
+    <div class="content">
+        <a href="{% url 'login' %}" class="topic-card">
+            <div class="icon-circle"><svg width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg></div>
+            <h3>Security & Access</h3>
+            <p>Reset password, 2FA setup, PIN management, and account locking.</p>
+        </a>
+        <a href="{% url 'login' %}" class="topic-card">
+            <div class="icon-circle"><svg width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><line x1="12" y1="1" x2="12" y2="23"></line><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path></svg></div>
+            <h3>Payments & Transfers</h3>
+            <p>Wire transfers, ACH limits, international payments, and bill pay.</p>
+        </a>
+        <a href="{% url 'login' %}" class="topic-card">
+            <div class="icon-circle"><svg width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="1" y="4" width="22" height="16" rx="2" ry="2"></rect><line x1="1" y1="10" x2="23" y2="10"></line></svg></div>
+            <h3>Cards & Spend</h3>
+            <p>Activate physical cards, freeze virtual cards, and dispute charges.</p>
+        </a>
+    </div>
+
+    <div class="faq-section">
+        <div class="faq-head">
+            <h2>Frequently Asked Questions</h2>
+        </div>
+        
+        <div class="faq-item" onclick="toggleFaq(this)">
+            <div class="faq-question">
+                How do I reset my transaction PIN?
+                <svg class="chevron" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"></polyline></svg>
+            </div>
+            <div class="faq-answer">Log in to your dashboard, go to Settings, and select "Change Transaction PIN". You will need to verify your identity via email OTP.</div>
+        </div>
+
+        <div class="faq-item" onclick="toggleFaq(this)">
+            <div class="faq-question">
+                What are the daily wire limits?
+                <svg class="chevron" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"></polyline></svg>
+            </div>
+            <div class="faq-answer">For verified accounts, the daily domestic wire limit is $50,000. International wires are capped at $100,000 per day. Contact support for higher limits.</div>
+        </div>
+
+        <div class="faq-item" onclick="toggleFaq(this)">
+            <div class="faq-question">
+                How long do deposits take to clear?
+                <svg class="chevron" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"></polyline></svg>
+            </div>
+            <div class="faq-answer">Mobile check deposits typically clear within 1-2 business days. Wire transfers received before 4 PM ET are available immediately.</div>
+        </div>
+    </div>
+
+    <div class="help-footer">
+        <h2 style="margin-bottom: 20px;">Still need help?</h2>
+        <p style="color:#94a3b8; margin-bottom: 40px;">Our support team is available 24/7 to assist you with any issues.</p>
+        <a href="mailto:veltris.compliance@gmail.com" class="btn-contact">
+            <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path><polyline points="22,6 12,13 2,6"></polyline></svg>
+            Contact Support
+        </a>
+    </div>
+
+    <script>
+        function toggleFaq(el) {
+            el.classList.toggle('active');
+        }
+    </script>
+</body>
+</html>

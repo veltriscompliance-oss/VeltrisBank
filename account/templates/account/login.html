@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Secure Sign On | Veltris Bank</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #2563eb;
+            --accent: #00d4ff;
+            --glass-bg: rgba(255, 255, 255, 0.05);
+            --glass-border: rgba(255, 255, 255, 0.1);
+            --text-light: #e2e8f0;
+        }
+
+        * { box-sizing: border-box; }
+
+        body { 
+            margin: 0; font-family: 'Inter', sans-serif; 
+            height: 100vh; overflow: hidden;
+            background: #0f172a; /* Deep Navy Background */
+            color: white;
+            display: flex; align-items: center; justify-content: center;
+            position: relative;
+        }
+
+        /* --- ANIMATED BACKGROUND ORBS --- */
+        .orb {
+            position: absolute; border-radius: 50%;
+            filter: blur(80px); opacity: 0.6; z-index: 0;
+            animation: float 10s infinite alternate;
+        }
+        .orb-1 { width: 400px; height: 400px; background: #1e40af; top: -50px; left: -100px; }
+        .orb-2 { width: 300px; height: 300px; background: #0891b2; bottom: -50px; right: -50px; animation-delay: -5s; }
+        
+        @keyframes float {
+            0% { transform: translate(0, 0); }
+            100% { transform: translate(30px, 50px); }
+        }
+
+        /* --- GLASS CARD --- */
+        .login-card {
+            width: 100%; max-width: 420px;
+            padding: 50px 40px;
+            background: rgba(15, 23, 42, 0.6); /* Semi-transparent dark */
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid var(--glass-border);
+            border-radius: 24px;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+            z-index: 10; position: relative;
+        }
+
+        .brand { 
+            text-align: center; margin-bottom: 40px; 
+            font-size: 28px; font-weight: 800; letter-spacing: -1px;
+            color: white;
+            text-shadow: 0 0 20px rgba(255, 255, 255, 0.3);
+        }
+
+        /* INPUT FIELDS */
+        .input-group { margin-bottom: 25px; position: relative; }
+        .input-group label { 
+            display: block; font-size: 12px; font-weight: 500; 
+            color: #94a3b8; margin-bottom: 8px; text-transform: uppercase; letter-spacing: 1px;
+        }
+        
+        .input-wrapper { position: relative; }
+        .input-icon {
+            position: absolute; left: 16px; top: 50%; transform: translateY(-50%);
+            color: #64748b; width: 20px; height: 20px; transition: 0.3s;
+        }
+
+        input { 
+            width: 100%; padding: 16px 16px 16px 50px;
+            background: var(--glass-bg);
+            border: 1px solid var(--glass-border);
+            border-radius: 12px;
+            font-size: 16px; color: white;
+            transition: all 0.3s ease;
+            outline: none;
+        }
+        
+        input:focus { 
+            border-color: var(--primary); 
+            background: rgba(255,255,255,0.1);
+            box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.2); 
+        }
+        input:focus + .input-icon { color: var(--primary); }
+        input::placeholder { color: #475569; }
+
+        /* BUTTON */
+        .btn-submit {
+            width: 100%; padding: 16px; margin-top: 10px;
+            background: linear-gradient(135deg, var(--primary), #1d4ed8);
+            color: white; border: none; border-radius: 12px;
+            font-size: 16px; font-weight: 600; cursor: pointer;
+            transition: 0.3s; box-shadow: 0 4px 15px rgba(37, 99, 235, 0.3);
+        }
+        .btn-submit:hover { transform: translateY(-2px); box-shadow: 0 8px 25px rgba(37, 99, 235, 0.4); }
+
+        /* REMEMBER ME & FORGOT */
+        .action-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px; font-size: 13px; color: #94a3b8; }
+        .remember-box { display: flex; align-items: center; gap: 8px; cursor: pointer; }
+        .remember-box input { width: auto; padding: 0; accent-color: var(--primary); }
+        .forgot-pass { color: #94a3b8; text-decoration: none; transition: 0.2s; }
+        .forgot-pass:hover { color: white; }
+
+        /* LINKS */
+        .footer-links { margin-top: 30px; text-align: center; font-size: 14px; color: #64748b; }
+        .footer-links a { color: var(--accent); text-decoration: none; font-weight: 500; transition: 0.2s; }
+        .footer-links a:hover { color: white; }
+        
+        .error-message {
+            background: rgba(239, 68, 68, 0.1); border: 1px solid rgba(239, 68, 68, 0.2);
+            color: #fca5a5; padding: 12px; border-radius: 8px;
+            font-size: 13px; margin-bottom: 25px; text-align: center;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="orb orb-1"></div>
+    <div class="orb orb-2"></div>
+
+    <div class="login-card">
+        <div class="brand">VELTRIS BANK</div>
+
+        {% if messages %}
+            {% for message in messages %}
+            <div class="error-message">⚠️ {{ message }}</div>
+            {% endfor %}
+        {% endif %}
+
+        <form method="POST">
+            {% csrf_token %}
+            
+            <div class="input-group">
+                <label>Username or Email</label>
+                <div class="input-wrapper">
+                    <input type="text" name="username" placeholder="Enter username or email" required>
+                    <!-- User SVG Icon -->
+                    <svg class="input-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path></svg>
+                </div>
+            </div>
+
+            <div class="input-group" style="margin-bottom: 15px;">
+                <label>Security Key</label>
+                <div class="input-wrapper">
+                    <input type="password" name="password" placeholder="Password" required>
+                    <!-- Lock SVG Icon -->
+                    <svg class="input-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path></svg>
+                </div>
+            </div>
+
+            <div class="action-row">
+                <label class="remember-box">
+                    <input type="checkbox" name="remember_me"> Remember Device
+                </label>
+                <a href="/forgot-access/" class="forgot-pass">Forgot Password?</a>
+            </div>
+
+            <button type="submit" class="btn-submit">Authenticate Access</button>
+        </form>
+
+        <div class="footer-links">
+            <p>New Client? <a href="/register/">Open an Account</a></p>
+            <p style="margin-top: 10px; font-size: 12px; opacity: 0.5;">
+                Secured by 256-Bit Veltris Encryption
+            </p>
+        </div>
+    </div>
+
+</body>
+</html>

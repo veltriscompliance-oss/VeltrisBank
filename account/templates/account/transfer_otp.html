@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Authorize Transfer | Veltris Bank</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        /* (Shared styles from otp.html) */
+        :root { --success: #10b981; --glass-bg: rgba(255, 255, 255, 0.05); --glass-border: rgba(255, 255, 255, 0.1); --primary: #2563eb; }
+        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+        body { margin: 0; font-family: 'Inter', sans-serif; height: 100vh; background: #0f172a; color: white; display: flex; align-items: center; justify-content: center; position: relative; overflow: hidden; }
+        
+        .orb { position: absolute; border-radius: 50%; filter: blur(80px); opacity: 0.5; z-index: 0; animation: float 10s infinite alternate; }
+        .orb-1 { width: 400px; height: 400px; background: #1e40af; top: -100px; left: -100px; }
+        .orb-2 { width: 300px; height: 300px; background: #10b981; bottom: -100px; right: -100px; animation-delay: -5s; }
+        @keyframes float { 0% { transform: translate(0, 0); } 100% { transform: translate(30px, 50px); } }
+
+        .card { width: 90%; max-width: 400px; padding: 40px 30px; text-align: center; background: rgba(15, 23, 42, 0.7); backdrop-filter: blur(20px); border: 1px solid var(--glass-border); border-radius: 24px; box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5); z-index: 10; }
+        
+        .icon-box { width: 60px; height: 60px; background: rgba(16, 185, 129, 0.2); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 20px; border: 1px solid rgba(16, 185, 129, 0.3); }
+        .icon-box svg { width: 30px; height: 30px; color: #34d399; }
+        
+        h2 { margin: 0 0 10px 0; font-size: 22px; font-weight: 700; }
+        p { color: #94a3b8; font-size: 14px; line-height: 1.5; margin-bottom: 30px; }
+        .highlight { color: white; font-weight: bold; }
+        
+        input { width: 100%; padding: 15px; margin-bottom: 20px; background: var(--glass-bg); border: 1px solid var(--glass-border); border-radius: 12px; color: white; font-size: 24px; font-weight: bold; text-align: center; letter-spacing: 5px; outline: none; transition: 0.3s; }
+        input:focus { border-color: var(--success); background: rgba(255,255,255,0.1); }
+        
+        button { width: 100%; padding: 16px; background: linear-gradient(135deg, var(--success), #059669); color: white; border: none; border-radius: 12px; font-size: 16px; font-weight: 600; cursor: pointer; transition: 0.3s; box-shadow: 0 4px 15px rgba(16, 185, 129, 0.3); }
+        button:hover { transform: translateY(-2px); box-shadow: 0 8px 20px rgba(16, 185, 129, 0.4); }
+
+        .messages { background: rgba(220, 38, 38, 0.2); border: 1px solid rgba(220, 38, 38, 0.3); color: #fca5a5; padding: 10px; border-radius: 8px; font-size: 13px; margin-bottom: 20px; }
+        .success-msg { background: rgba(16, 185, 129, 0.15); color: #6ee7b7; padding: 12px; border-radius: 8px; font-size: 13px; margin-bottom: 25px; border: 1px solid rgba(16, 185, 129, 0.2); }
+
+        .resend-box { margin-top: 25px; font-size: 13px; color: #64748b; }
+        .btn-resend { background: none; border: none; color: #10b981; font-weight: 600; cursor: pointer; padding: 0; text-decoration: underline; font-family: 'Inter'; }
+        .btn-resend:hover { color: white; }
+    </style>
+</head>
+<body>
+    <div class="orb orb-1"></div>
+    <div class="orb orb-2"></div>
+
+    <div class="card">
+        <div class="icon-box">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path><path d="M9 12l2 2 4-4"></path></svg>
+        </div>
+        
+        <h2>Authorize Transaction</h2>
+        <p>This transfer requires additional verification. Please enter the code sent to <span class="highlight">{{ user.email }}</span>.</p>
+
+        {% if messages %}
+            {% for message in messages %}
+            <div class="{% if 'New code' in message.message %}success-msg{% else %}messages{% endif %}">
+                {{ message }}
+            </div>
+            {% endfor %}
+        {% endif %}
+
+        <form method="POST">
+            {% csrf_token %}
+            <input type="text" name="otp" placeholder="000000" maxlength="6" inputmode="numeric" pattern="[0-9]*" autofocus required>
+            <button type="submit">Confirm Transfer</button>
+        </form>
+        
+        <div class="resend-box">
+            <span id="timer-text">Resend code in <span id="countdown">60</span>s</span>
+            <form method="POST" id="resend-form" style="display:none;">
+                {% csrf_token %}
+                <input type="hidden" name="resend_code" value="true">
+                <button type="submit" class="btn-resend">Resend Code</button>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        let timeLeft = 60;
+        const timerText = document.getElementById('timer-text');
+        const resendForm = document.getElementById('resend-form');
+        const countdownSpan = document.getElementById('countdown');
+
+        const timerId = setInterval(() => {
+            timeLeft--;
+            countdownSpan.textContent = timeLeft;
+            if (timeLeft <= 0) {
+                clearInterval(timerId);
+                timerText.style.display = 'none';
+                resendForm.style.display = 'inline';
+            }
+        }, 1000);
+    </script>
+</body>
+</html>

@@ -1,0 +1,93 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Veltris for Business | Scale Faster</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Fira+Code&display=swap" rel="stylesheet">
+    <style>
+        :root { --primary: #3b82f6; --dark: #020617; --slate: #0f172a; --text: #f8fafc; --border: rgba(255,255,255,0.08); }
+        body { margin: 0; font-family: 'Inter', sans-serif; background: var(--dark); color: var(--text); overflow-x: hidden; }
+        
+        .nav { padding: 20px 8%; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border); }
+        .logo { font-weight: 800; font-size: 20px; color: white; text-decoration: none; }
+        .btn { padding: 10px 20px; border-radius: 30px; font-weight: 600; text-decoration: none; transition: 0.2s; }
+        .btn-primary { background: var(--primary); color: white; }
+        .btn-primary:hover { background: #2563eb; transform: translateY(-2px); }
+        .btn-outline { border: 1px solid var(--border); color: white; margin-right: 10px; }
+        
+        .hero { padding: 120px 8%; text-align: center; }
+        h1 { font-size: 64px; font-weight: 800; letter-spacing: -2px; margin: 0 0 20px; line-height: 1.1; }
+        p.lead { font-size: 20px; color: #94a3b8; max-width: 600px; margin: 0 auto 40px; }
+
+        .features { padding: 100px 8%; background: var(--slate); }
+        .f-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 30px; }
+        .f-card { background: rgba(255,255,255,0.02); padding: 40px; border-radius: 20px; border: 1px solid var(--border); }
+        .f-card h3 { font-size: 20px; margin-bottom: 10px; }
+        .f-card p { color: #94a3b8; line-height: 1.5; }
+
+        /* CODE BLOCK */
+        .api-section { padding: 100px 8%; display: flex; align-items: center; gap: 60px; }
+        .api-text { flex: 1; }
+        .api-code { flex: 1; background: #0f172a; padding: 30px; border-radius: 16px; border: 1px solid var(--border); font-family: 'Fira Code', monospace; font-size: 14px; color: #a5b4fc; box-shadow: 0 20px 50px rgba(0,0,0,0.3); }
+        
+        .keyword { color: #c084fc; } .string { color: #4ade80; } .func { color: #60a5fa; }
+
+        @media (max-width: 900px) {
+            h1 { font-size: 42px; }
+            .f-grid { grid-template-columns: 1fr; }
+            .api-section { flex-direction: column; }
+            .api-code { width: 100%; }
+        }
+    </style>
+</head>
+<body>
+    <nav class="nav">
+        <a href="/" class="logo">VELTRIS</a>
+        <div>
+            <a href="{% url 'home' %}" class="btn btn-outline">Back</a>
+            <a href="{% url 'register' %}" class="btn btn-primary">Open Account</a>
+        </div>
+    </nav>
+
+    <section class="hero">
+        <h1>Banking built for<br>scale.</h1>
+        <p class="lead">Automate your finances with our powerful API, issue corporate cards instantly, and manage treasury operations from a single dashboard.</p>
+        <a href="{% url 'register' %}" class="btn btn-primary" style="padding: 15px 30px; font-size: 16px;">Start Now</a>
+    </section>
+
+    <section class="features">
+        <div class="f-grid">
+            <div class="f-card">
+                <h3>Treasury Management</h3>
+                <p>Earn up to 5.00% APY on your idle cash with our automated treasury sweep accounts. Capital preservation meets yield.</p>
+            </div>
+            <div class="f-card">
+                <h3>Corporate Cards</h3>
+                <p>Issue physical and virtual cards for your entire team. Set spend limits, lock cards, and track expenses in real-time.</p>
+            </div>
+            <div class="f-card">
+                <h3>Global Payments</h3>
+                <p>Send payments to 140+ countries in local currencies. Low fees, instant execution, and automated FX handling.</p>
+            </div>
+        </div>
+    </section>
+
+    <section class="api-section">
+        <div class="api-text">
+            <h2 style="font-size:36px; margin-bottom:20px;">Developer First API</h2>
+            <p style="color:#94a3b8; line-height:1.6; font-size:18px;">Build custom payment flows, automate payouts, and integrate banking data directly into your product with our REST API.</p>
+        </div>
+        <div class="api-code">
+            <span class="keyword">const</span> veltris = <span class="keyword">require</span>(<span class="string">'veltris-node'</span>);<br><br>
+            <span class="keyword">await</span> veltris.transfers.<span class="func">create</span>({<br>
+            &nbsp;&nbsp;amount: <span class="string">500000</span>,<br>
+            &nbsp;&nbsp;currency: <span class="string">'usd'</span>,<br>
+            &nbsp;&nbsp;destination: <span class="string">'acct_123456789'</span>,<br>
+            &nbsp;&nbsp;description: <span class="string">'Payroll - Oct'</span><br>
+            });
+        </div>
+    </section>
+</body>
+</html>

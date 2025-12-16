@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Security | Veltris Bank</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&display=swap" rel="stylesheet">
+    <style>
+        body { margin: 0; font-family: 'Inter', sans-serif; background: #020617; color: white; overflow-x: hidden; }
+        .nav { padding: 20px 8%; border-bottom: 1px solid rgba(255,255,255,0.1); display: flex; justify-content: space-between; }
+        .logo { font-weight: 800; font-size: 20px; color: white; text-decoration: none; }
+        
+        .hero { padding: 120px 8%; text-align: center; }
+        h1 { font-size: 56px; margin-bottom: 20px; font-weight: 800; }
+        p { color: #94a3b8; max-width: 600px; margin: 0 auto; line-height: 1.6; font-size: 20px; }
+        
+        .grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 40px; padding: 80px 8%; max-width: 1200px; margin: 0 auto; }
+        .card { background: #0f172a; padding: 40px; border-radius: 24px; border: 1px solid rgba(255,255,255,0.05); transition: 0.3s; }
+        .card:hover { border-color: #2563eb; transform: translateY(-5px); }
+        .card h3 { color: #60a5fa; margin-top: 0; font-size: 24px; }
+        
+        .badges { display: flex; justify-content: center; gap: 40px; padding: 60px 8%; background: #0b1120; border-top: 1px solid rgba(255,255,255,0.05); flex-wrap: wrap; }
+        .badge { border: 1px solid #334155; padding: 10px 20px; border-radius: 30px; font-size: 14px; color: #94a3b8; font-weight: 600; }
+        
+        @media (max-width: 768px) { .grid { grid-template-columns: 1fr; } h1 { font-size: 40px; } }
+    </style>
+</head>
+<body>
+    <nav class="nav">
+        <a href="/" class="logo">VELTRIS</a>
+        <a href="/" style="color:#94a3b8; text-decoration:none;">Back</a>
+    </nav>
+
+    <section class="hero">
+        <div style="font-size:60px; margin-bottom:30px;">🛡️</div>
+        <h1>Your security is<br>our priority.</h1>
+        <p>We use military-grade encryption, biometric authentication, and real-time fraud monitoring to ensure your money and data are always safe.</p>
+    </section>
+
+    <div class="badges">
+        <div class="badge">SOC2 Type II Compliant</div>
+        <div class="badge">PCI-DSS Certified</div>
+        <div class="badge">ISO 27001 Certified</div>
+        <div class="badge">FDIC Insured</div>
+    </div>
+
+    <div class="grid">
+        <div class="card">
+            <h3>End-to-End Encryption</h3>
+            <p>All sensitive data is encrypted at rest using AES-256 and in transit using TLS 1.3. We never store plain-text passwords or PINs.</p>
+        </div>
+        <div class="card">
+            <h3>Fraud Detection</h3>
+            <p>Our AI-driven engine monitors transactions 24/7 for suspicious activity, automatically blocking unauthorized access attempts.</p>
+        </div>
+        <div class="card">
+            <h3>Access Control</h3>
+            <p>We support Multi-Factor Authentication (MFA) via Email and Biometrics (FaceID/TouchID) on all devices.</p>
+        </div>
+        <div class="card">
+            <h3>Resilient Infrastructure</h3>
+            <p>Hosted on a distributed, fault-tolerant cloud architecture with 99.99% uptime SLA and daily off-site backups.</p>
+        </div>
+    </div>
+</body>
+</html>

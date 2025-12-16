@@ -1,0 +1,490 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Veltris Bank | The Financial OS</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #2563eb;
+            --primary-dark: #1d4ed8;
+            --dark: #020617;
+            --slate: #0f172a;
+            --text: #f8fafc;
+            --text-muted: #94a3b8;
+            --border: rgba(255, 255, 255, 0.08);
+            --glass: rgba(15, 23, 42, 0.6);
+        }
+        
+        * { box-sizing: border-box; -webkit-font-smoothing: antialiased; }
+        html { scroll-behavior: smooth; overflow-x: hidden; }
+
+        body { 
+            margin: 0; font-family: 'Inter', sans-serif; 
+            background-color: var(--dark); color: var(--text); overflow-x: hidden;
+            background-image: 
+                radial-gradient(at 0% 0%, rgba(56, 189, 248, 0.15) 0px, transparent 50%),
+                radial-gradient(at 100% 0%, rgba(99, 102, 241, 0.15) 0px, transparent 50%);
+        }
+
+        /* --- NAVBAR --- */
+        .navbar {
+            display: flex; justify-content: space-between; align-items: center;
+            padding: 20px 8%; position: sticky; top: 0; z-index: 1000;
+            background: rgba(2, 6, 23, 0.85); backdrop-filter: blur(20px);
+            border-bottom: 1px solid var(--border);
+        }
+        
+        .logo { 
+            font-size: 22px; font-weight: 800; color: white; 
+            text-decoration: none; display: flex; align-items: center; gap: 10px; 
+            letter-spacing: -0.5px;
+        }
+        .logo svg { width: 28px; height: 28px; color: var(--primary); filter: drop-shadow(0 0 10px rgba(59, 130, 246, 0.5)); }
+
+        .nav-links { display: flex; gap: 40px; }
+        .nav-links a { text-decoration: none; color: var(--text-muted); font-weight: 500; font-size: 14px; transition: 0.3s; }
+        .nav-links a:hover { color: white; text-shadow: 0 0 10px rgba(255,255,255,0.3); }
+        
+        .nav-buttons { display: flex; align-items: center; gap: 20px; }
+        .btn-login { text-decoration: none; color: white; font-weight: 600; font-size: 14px; opacity: 0.8; transition: 0.3s; }
+        .btn-login:hover { opacity: 1; }
+        
+        .btn-primary {
+            background: linear-gradient(135deg, var(--primary), #2563eb); 
+            color: white; padding: 10px 24px; border-radius: 30px; 
+            text-decoration: none; font-weight: 600; font-size: 14px;
+            transition: 0.3s; border: 1px solid rgba(255,255,255,0.1);
+            position: relative; overflow: hidden;
+        }
+        .btn-primary::before {
+            content: ''; position: absolute; top: 0; left: -100%; width: 100%; height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+            transition: 0.5s;
+        }
+        .btn-primary:hover::before { left: 100%; }
+        .btn-primary:hover { box-shadow: 0 0 30px rgba(37, 99, 235, 0.5); transform: translateY(-1px); }
+
+        /* --- HERO --- */
+        .hero {
+            display: flex; align-items: center; justify-content: space-between;
+            padding: 100px 8%; min-height: 90vh; position: relative;
+        }
+        
+        .hero-content { max-width: 600px; z-index: 2; position: relative; }
+        
+        .badge-new {
+            background: rgba(255,255,255,0.03); border: 1px solid var(--border); 
+            padding: 6px 14px; border-radius: 30px; backdrop-filter: blur(10px);
+            font-size: 12px; font-weight: 500; color: #38bdf8; 
+            display: inline-flex; align-items: center; gap: 8px; margin-bottom: 30px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+        }
+        .badge-dot { width: 6px; height: 6px; background: #38bdf8; border-radius: 50%; box-shadow: 0 0 10px #38bdf8; }
+
+        .hero h1 { 
+            font-size: 72px; line-height: 1.1; font-weight: 800; margin: 0 0 24px 0; 
+            letter-spacing: -2px; color: white;
+            background: linear-gradient(180deg, #fff 0%, #94a3b8 100%);
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+        }
+        .hero p { 
+            font-size: 18px; color: var(--text-muted); line-height: 1.7; 
+            margin: 0 auto 40px; max-width: 90%; 
+        }
+        
+        .hero-btns { display: flex; gap: 15px; align-items: center; }
+        .btn-lg { padding: 16px 36px; font-size: 16px; border-radius: 12px; }
+        .btn-outline { 
+            padding: 16px 36px; font-size: 16px; border-radius: 12px; font-weight: 600; text-decoration: none;
+            color: white; border: 1px solid var(--border); background: rgba(255,255,255,0.02); transition: 0.3s;
+        }
+        .btn-outline:hover { background: rgba(255,255,255,0.08); border-color: white; }
+
+        /* --- 3D PHONE --- */
+        .hero-visual { position: relative; z-index: 2; perspective: 1500px; display: flex; justify-content: center; }
+        
+        .phone-frame {
+            width: 320px; height: 650px; 
+            background: #000; border-radius: 50px;
+            border: 6px solid #1e293b; 
+            box-shadow: 
+                0 0 0 2px #334155, 
+                0 40px 80px rgba(0,0,0,0.6), 
+                inset 0 0 20px rgba(255,255,255,0.05);
+            transform: rotateY(-12deg) rotateX(5deg);
+            animation: float 8s ease-in-out infinite;
+            transform-style: preserve-3d;
+            position: relative;
+        }
+        
+        .notch { 
+            width: 100px; height: 25px; background: #000; position: absolute; 
+            top: 0; left: 50%; transform: translateX(-50%); 
+            border-bottom-left-radius: 16px; border-bottom-right-radius: 16px; z-index: 20;
+        }
+        .screen { 
+            width: 100%; height: 100%; background: #0f172a; 
+            border-radius: 42px; overflow: hidden; position: relative;
+            display: flex; flex-direction: column;
+        }
+
+        /* App UI */
+        .app-header { padding: 50px 20px 20px; display: flex; justify-content: space-between; align-items: center; }
+        .app-user { display: flex; gap: 10px; align-items: center; font-weight: 700; font-size: 13px; color: white; }
+        .app-avatar { width: 30px; height: 30px; background: #334155; border-radius: 50%; }
+        
+        .app-card {
+            margin: 0 20px; padding: 25px; height: 180px;
+            background: linear-gradient(135deg, var(--primary), #1e3a8a);
+            border-radius: 20px; color: white; position: relative;
+            display: flex; flex-direction: column; justify-content: space-between;
+            box-shadow: 0 20px 40px rgba(37, 99, 235, 0.25);
+            border: 1px solid rgba(255,255,255,0.15);
+            overflow: hidden;
+        }
+        .app-card::before { content:''; position:absolute; top:0; left:0; width:100%; height:100%; background: linear-gradient(45deg, transparent 40%, rgba(255,255,255,0.1) 45%, transparent 50%); }
+        
+        .app-bal { font-size: 28px; font-weight: 800; letter-spacing: -0.5px; }
+        .app-actions { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; padding: 20px; }
+        .app-btn { background: rgba(255,255,255,0.05); border: 1px solid var(--border); color: white; padding: 12px; border-radius: 12px; text-align: center; font-size: 12px; font-weight: 600; }
+        
+        .app-list { padding: 0 20px; flex: 1; }
+        .app-item { display: flex; justify-content: space-between; align-items: center; padding: 12px 0; border-bottom: 1px solid rgba(255,255,255,0.05); }
+        .app-icon { width: 36px; height: 36px; background: rgba(255,255,255,0.05); border-radius: 10px; display: flex; align-items: center; justify-content: center; }
+        .app-meta div:first-child { font-size: 13px; font-weight: 600; color: white; }
+        .app-meta div:last-child { font-size: 11px; color: var(--text-muted); }
+        .app-amt { font-weight: 600; font-size: 13px; color: #22c55e; }
+
+        /* Floating Widgets */
+        .floater {
+            position: absolute; background: rgba(15, 23, 42, 0.8); backdrop-filter: blur(12px);
+            padding: 12px 18px; border-radius: 14px; border: 1px solid var(--border);
+            display: flex; align-items: center; gap: 12px; color: white;
+            box-shadow: 0 20px 50px rgba(0,0,0,0.5); z-index: 50; animation: float 6s ease-in-out infinite reverse;
+        }
+        .f1 { top: 120px; left: -60px; }
+        .f2 { bottom: 80px; right: -40px; animation-delay: -2s; }
+        
+        /* --- FEATURES --- */
+        .features { padding: 100px 8%; background: var(--dark); }
+        .section-head { text-align: center; max-width: 600px; margin: 0 auto 80px; }
+        .section-head h2 { font-size: 42px; font-weight: 800; color: white; margin-bottom: 20px; letter-spacing: -1px; }
+        .section-head p { font-size: 18px; color: var(--text-muted); }
+        
+        .bento-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px; }
+        .bento-item { 
+            background: rgba(255,255,255,0.02); border-radius: 24px; padding: 40px; 
+            border: 1px solid var(--border); transition: 0.3s; position: relative; overflow: hidden;
+            display: flex; flex-direction: column; justify-content: space-between;
+        }
+        .bento-item:hover { border-color: var(--primary); background: rgba(255,255,255,0.04); transform: translateY(-5px); }
+        .span-2 { grid-column: span 2; }
+        
+        .b-icon { 
+            width: 50px; height: 50px; background: rgba(59, 130, 246, 0.1); 
+            color: var(--primary); border-radius: 12px; display: flex; align-items: center; 
+            justify-content: center; margin-bottom: 30px; 
+        }
+        .b-title { font-size: 22px; font-weight: 700; margin-bottom: 10px; color: white; }
+        .b-desc { color: var(--text-muted); line-height: 1.6; font-size: 15px; }
+
+        /* --- CTA --- */
+        .cta { padding: 100px 8%; }
+        .cta-card {
+            background: linear-gradient(135deg, #0056b3, #020617);
+            border-radius: 40px; padding: 80px; text-align: center; color: white;
+            position: relative; overflow: hidden; border: 1px solid var(--border);
+        }
+        .cta-card::after {
+            content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            background: radial-gradient(circle at 50% 100%, rgba(59, 130, 246, 0.3), transparent 60%);
+            pointer-events: none;
+        }
+        .cta-card h2 { font-size: 48px; font-weight: 800; margin-bottom: 20px; letter-spacing: -1px; }
+        .btn-white {
+            background: white; color: var(--dark); padding: 18px 45px; border-radius: 12px;
+            text-decoration: none; font-weight: 700; font-size: 18px; display: inline-block;
+            transition: 0.3s;
+        }
+        .btn-white:hover { transform: scale(1.05); box-shadow: 0 0 30px rgba(255,255,255,0.3); }
+
+        /* --- FOOTER --- */
+        footer { padding: 80px 8% 40px; border-top: 1px solid var(--border); background: #020617; }
+        .footer-grid { display: grid; grid-template-columns: 2fr 1fr 1fr 1fr; gap: 60px; margin-bottom: 60px; }
+        .f-logo { font-size: 24px; font-weight: 800; color: white; display: flex; align-items: center; gap: 8px; margin-bottom: 20px; text-decoration: none;}
+        .f-desc { color: var(--text-muted); line-height: 1.6; max-width: 300px; font-size: 14px; }
+        .f-col h4 { color: white; font-size: 14px; text-transform: uppercase; margin-bottom: 20px; letter-spacing: 1px; }
+        .f-col a { display: block; color: var(--text-muted); text-decoration: none; margin-bottom: 12px; font-size: 14px; transition: 0.2s; }
+        .f-col a:hover { color: white; }
+        .copy { text-align: center; color: var(--text-muted); font-size: 13px; border-top: 1px solid var(--border); padding-top: 40px; }
+
+        /* --- MOBILE MENU --- */
+        .mobile-toggle { display: none; font-size: 24px; color: white; cursor: pointer; }
+        .mobile-menu {
+            position: fixed; top: 0; right: 0; width: 100%; height: 100vh;
+            background: rgba(2, 6, 23, 0.95); backdrop-filter: blur(20px);
+            z-index: 2000; display: flex; flex-direction: column;
+            padding: 40px; gap: 30px;
+            transform: translateX(100%); transition: 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            overflow-y: auto;
+        }
+        .mobile-menu.active { transform: translateX(0); }
+        
+        .mobile-header-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+        .mobile-close { font-size: 30px; color: white; cursor: pointer; }
+        
+        .mobile-group { margin-bottom: 30px; }
+        .mobile-group span { display: block; font-size: 12px; text-transform: uppercase; color: var(--text-muted); margin-bottom: 15px; letter-spacing: 1px; font-weight: 700; }
+        .mobile-group a { display: block; color: white; text-decoration: none; font-size: 20px; font-weight: 600; margin-bottom: 15px; }
+        
+        .mobile-auth { margin-top: auto; display: grid; gap: 15px; }
+        .btn-login-mobile { border: 1px solid var(--border); padding: 15px; text-align: center; color: white; text-decoration: none; border-radius: 12px; font-weight: 600; }
+        .btn-primary-mobile { background: var(--primary); padding: 15px; text-align: center; color: white; text-decoration: none; border-radius: 12px; font-weight: 600; }
+
+        /* --- ANIMATIONS --- */
+        .reveal { opacity: 0; transform: translateY(30px); transition: all 1s cubic-bezier(0.16, 1, 0.3, 1); }
+        .reveal.active { opacity: 1; transform: translateY(0); }
+        @keyframes float { 0% { transform: translateY(0px) rotateY(-12deg) rotateX(5deg); } 50% { transform: translateY(-20px) rotateY(-8deg) rotateX(2deg); } 100% { transform: translateY(0px) rotateY(-12deg) rotateX(5deg); } }
+
+        /* --- MOBILE RESPONSIVE FIXES --- */
+        @media (max-width: 1024px) {
+            .navbar { padding: 15px 5%; }
+            .nav-links, .nav-buttons { display: none; }
+            .mobile-toggle { display: block; }
+            
+            .hero { flex-direction: column; text-align: center; padding-top: 120px; padding-left: 5%; padding-right: 5%; }
+            .hero h1 { font-size: 42px; letter-spacing: -1px; }
+            .hero-btns { justify-content: center; width: 100%; flex-direction: column; }
+            .btn-lg, .btn-outline { width: 100%; text-align: center; }
+            
+            .hero-visual { margin-top: 80px; width: 100%; display: flex; justify-content: center; perspective: none; }
+            .phone-frame { 
+                width: 280px; height: 560px; border-width: 6px; 
+                transform: rotateY(0deg) rotateX(0deg); 
+                animation: none;
+                box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            }
+            .floater { display: none; } 
+            
+            .bento-grid { grid-template-columns: 1fr; grid-auto-rows: auto; }
+            .span-2 { grid-column: span 1; }
+            .footer-grid { grid-template-columns: 1fr 1fr; gap: 30px; text-align: center; }
+            
+            .cta { padding: 60px 5%; }
+            .cta-card { padding: 40px 20px; border-radius: 24px; }
+            .cta-card h2 { font-size: 32px; }
+            .btn-white { width: 100%; padding: 16px 0; font-size: 16px; }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- NAVBAR -->
+    <nav class="navbar">
+        <a href="{% url 'home' %}" class="logo">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg>
+            VELTRIS
+        </a>
+        <div class="nav-links">
+            <a href="{% url 'business' %}">Business</a>
+            <a href="{% url 'about' %}">Company</a>
+            <a href="{% url 'security' %}">Security</a>
+        </div>
+        <div class="nav-buttons">
+            <a href="{% url 'login' %}" class="btn-login">Log In</a>
+            <a href="{% url 'register' %}" class="btn-primary">Open Account</a>
+        </div>
+        <div class="mobile-toggle" onclick="toggleMenu()">☰</div>
+    </nav>
+
+    <!-- MOBILE MENU -->
+    <div class="mobile-menu" id="mobileMenu">
+        <div class="mobile-header-row">
+            <div class="logo" style="font-size:20px;">VELTRIS</div>
+            <div class="mobile-close" onclick="toggleMenu()">&times;</div>
+        </div>
+        
+        <div class="mobile-links">
+             <div class="mobile-group">
+                <span>Products</span>
+                <a href="{% url 'register' %}">Personal Checking</a>
+                <a href="{% url 'business' %}">Business Banking</a>
+                <a href="{% url 'business' %}">Corporate Cards</a>
+             </div>
+             <div class="mobile-group">
+                <span>Company</span>
+                <a href="{% url 'about' %}">About Us</a>
+                <a href="{% url 'security' %}">Security</a>
+                <!-- CORRECTED LINK HERE -->
+                <a href="{% url 'help' %}">Support</a>
+             </div>
+        </div>
+
+        <div class="mobile-auth">
+            <a href="{% url 'login' %}" class="btn-login-mobile">Log In</a>
+            <a href="{% url 'register' %}" class="btn-primary-mobile">Open Account</a>
+        </div>
+    </div>
+
+    <!-- HERO SECTION -->
+    <section class="hero">
+        <div class="hero-content reveal">
+            <div class="badge-new"><div class="badge-dot"></div> Now available globally</div>
+            <h1>The financial OS for <br><span>ambitious builders.</span></h1>
+            <p>Veltris replaces your bank account, debit card, and expense manager with a single, powerful platform. Built for the modern world.</p>
+            <div class="hero-btns">
+                <a href="{% url 'register' %}" class="btn-primary btn-lg">Get Started</a>
+                <a href="#features" class="btn-outline">View Demo</a>
+            </div>
+        </div>
+
+        <div class="hero-visual reveal">
+            <div class="floater f1">
+                <div style="width:40px;height:40px;background:#2563eb;border-radius:10px;display:flex;align-items:center;justify-content:center;"><svg width="20" height="20" fill="none" stroke="white" stroke-width="2" viewBox="0 0 24 24"><path d="M12 2v20M2 12h20"/></svg></div>
+                <div><div style="font-size:12px;opacity:0.7">Incoming Wire</div><div style="font-weight:700">$24,500.00</div></div>
+            </div>
+            
+            <div class="floater f2">
+                <div style="width:40px;height:40px;background:#16a34a;border-radius:10px;display:flex;align-items:center;justify-content:center;"><svg width="20" height="20" fill="none" stroke="white" stroke-width="2" viewBox="0 0 24 24"><path d="M20 6L9 17l-5-5"/></svg></div>
+                <div><div style="font-size:12px;opacity:0.7">Payment Status</div><div style="font-weight:700">Completed</div></div>
+            </div>
+
+            <!-- CSS PHONE MOCKUP -->
+            <div class="phone-frame">
+                <div class="notch"></div>
+                <div class="screen">
+                    <div class="app-header">
+                        <div class="app-user">
+                            <div class="app-avatar"></div>
+                            <span>Hello, John</span>
+                        </div>
+                        <svg width="24" height="24" fill="none" stroke="white" stroke-width="2" viewBox="0 0 24 24"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path></svg>
+                    </div>
+
+                    <div class="app-card">
+                        <div>
+                            <div style="font-size:12px;opacity:0.7;margin-bottom:5px;">TOTAL BALANCE</div>
+                            <div class="app-bal">$104,230.50</div>
+                        </div>
+                        <div style="font-family:monospace; opacity:0.8;">**** 4921</div>
+                    </div>
+
+                    <div class="app-actions">
+                        <div class="app-btn">Transfer</div>
+                        <div class="app-btn">Pay Bills</div>
+                    </div>
+
+                    <div class="app-list">
+                        <div class="app-item">
+                            <div style="display:flex;gap:12px;align-items:center">
+                                <div class="app-icon"><svg width="20" height="20" fill="none" stroke="#38bdf8" stroke-width="2" viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></div>
+                                <div class="app-meta"><div>Apple Inc.</div><div>Today</div></div>
+                            </div>
+                            <div class="app-amt">+$4,200.00</div>
+                        </div>
+                        <div class="app-item">
+                            <div style="display:flex;gap:12px;align-items:center">
+                                <div class="app-icon"><svg width="20" height="20" fill="none" stroke="#f472b6" stroke-width="2" viewBox="0 0 24 24"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/></svg></div>
+                                <div class="app-meta"><div>Stripe</div><div>Yesterday</div></div>
+                            </div>
+                            <div class="app-amt">+$1,850.00</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- FEATURES BENTO GRID -->
+    <section class="features" id="features">
+        <div class="section-head reveal">
+            <h2>Everything you need.</h2>
+            <p>Banking primitives for the next generation of startups.</p>
+        </div>
+
+        <div class="bento-grid">
+            <div class="bento-item span-2 reveal" id="features">
+                <div class="b-icon"><svg width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><line x1="7" y1="17" x2="17" y2="7"></line><polyline points="7 7 17 7 17 17"></polyline></svg></div>
+                <div class="b-title">Instant Global Wires</div>
+                <div class="b-desc">Send money to over 140 countries with real-time exchange rates. Our smart routing finds the fastest path through the correspondent banking network.</div>
+            </div>
+            
+            <div class="bento-item reveal">
+                <div class="b-icon"><svg width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="1" y="4" width="22" height="16" rx="2" ry="2"></rect></svg></div>
+                <div class="b-title">Virtual Cards</div>
+                <div class="b-desc">Issue unlimited cards for your team. Control spend limits instantly.</div>
+            </div>
+
+            <div class="bento-item reveal">
+                <div class="b-icon"><svg width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M21.21 15.89A10 10 0 1 1 8 2.83"></path></svg></div>
+                <div class="b-title">Real-Time Analytics</div>
+                <div class="b-desc">Visualize your burn rate and cash flow with interactive charts. Export data to QuickBooks.</div>
+            </div>
+            
+            <div class="bento-item span-2 reveal">
+                <div class="b-icon"><svg width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path></svg></div>
+                <div class="b-title">Venture Debt & Loans</div>
+                <div class="b-desc">Access capital without dilution. Get approved for term loans and credit lines based on your revenue history, not just your credit score.</div>
+            </div>
+        </div>
+    </section>
+
+    <!-- CTA -->
+    <section class="cta">
+        <div class="cta-card reveal">
+            <h2>Ready to get started?</h2>
+            <p>Join millions of users today. No credit card required.</p>
+            <a href="{% url 'register' %}" class="btn-white">Open Free Account</a>
+        </div>
+    </section>
+
+    <!-- FOOTER -->
+    <footer>
+        <div class="footer-grid">
+            <div>
+                <a href="#" class="f-logo"><svg width="24" height="24" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg> VELTRIS</a>
+                <p class="f-desc">Veltris Bank is a financial technology company, not a bank. Banking services provided by our partner banks, Members FDIC. Equal Housing Lender.</p>
+            </div>
+            <div class="f-col">
+                <h4>Product</h4>
+                <a href="{% url 'register' %}">Checking</a>
+                <a href="{% url 'business' %}">Cards</a>
+                <a href="{% url 'business' %}">API</a>
+            </div>
+            <div class="f-col">
+                <h4>Company</h4>
+                <a href="{% url 'about' %}">About</a>
+                <a href="{% url 'register' %}">Careers</a>
+                <a href="{% url 'security' %}">Legal</a>
+            </div>
+            <div class="f-col">
+                <h4>Support</h4>
+                <!-- CORRECTED LINKS HERE -->
+                <a href="{% url 'help' %}">Help Center</a>
+                <a href="#">Status</a>
+                <a href="{% url 'help' %}">Contact</a>
+            </div>
+        </div>
+        <div class="copy">&copy; 2025 Veltris Technologies Inc. All rights reserved.</div>
+    </footer>
+
+    <script>
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('active');
+                }
+            });
+        });
+        document.querySelectorAll('.reveal').forEach((el) => observer.observe(el));
+
+        function toggleMenu() {
+            document.getElementById('mobileMenu').classList.toggle('active');
+        }
+    </script>
+
+</body>
+</html>

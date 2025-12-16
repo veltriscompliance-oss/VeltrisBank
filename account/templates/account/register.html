@@ -1,0 +1,420 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Open Account | Veltris Bank</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #2563eb;
+            --primary-dark: #1d4ed8;
+            --dark: #020617;
+            --glass-bg: rgba(15, 23, 42, 0.8);
+            --glass-border: rgba(255, 255, 255, 0.1);
+            --text-main: #f8fafc;
+            --text-muted: #94a3b8;
+            --success: #10b981;
+        }
+
+        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+
+        body { 
+            margin: 0; font-family: 'Inter', sans-serif; 
+            min-height: 100vh; background: var(--dark); color: var(--text-main);
+            display: flex; align-items: center; justify-content: center;
+            position: relative; overflow-x: hidden;
+            background-image: radial-gradient(at 0% 0%, rgba(37, 99, 235, 0.15) 0px, transparent 50%),
+                              radial-gradient(at 100% 100%, rgba(56, 189, 248, 0.15) 0px, transparent 50%);
+        }
+
+        /* --- LAYOUT --- */
+        .register-container {
+            width: 100%; max-width: 900px;
+            display: grid; grid-template-columns: 300px 1fr;
+            background: var(--glass-bg);
+            backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
+            border: 1px solid var(--glass-border);
+            border-radius: 24px;
+            box-shadow: 0 25px 60px rgba(0, 0, 0, 0.5);
+            overflow: hidden; margin: 20px;
+            min-height: 600px;
+        }
+
+        /* --- SIDEBAR --- */
+        .sidebar {
+            background: rgba(255, 255, 255, 0.03);
+            padding: 40px; border-right: 1px solid var(--glass-border);
+            display: flex; flex-direction: column; justify-content: space-between;
+        }
+
+        .logo { font-size: 24px; font-weight: 800; color: white; display: flex; align-items: center; gap: 10px; letter-spacing: -0.5px; }
+        .logo svg { width: 28px; height: 28px; color: var(--primary); }
+
+        .progress-list { list-style: none; padding: 0; margin-top: 40px; }
+        .step-item { display: flex; align-items: center; gap: 15px; margin-bottom: 25px; opacity: 0.5; transition: 0.3s; }
+        .step-item.active { opacity: 1; }
+        .step-item.completed .step-circle { background: var(--success); border-color: var(--success); color: var(--dark); }
+        
+        .step-circle {
+            width: 32px; height: 32px; border-radius: 50%;
+            border: 2px solid var(--text-muted);
+            display: flex; align-items: center; justify-content: center;
+            font-size: 12px; font-weight: 700; transition: 0.3s;
+        }
+        .active .step-circle { border-color: var(--primary); color: var(--primary); background: rgba(37, 99, 235, 0.1); }
+        .step-text { font-size: 13px; font-weight: 600; }
+        .step-sub { font-size: 11px; display: block; font-weight: 400; margin-top: 2px; }
+
+        .secure-badge {
+            font-size: 11px; color: var(--text-muted); display: flex; align-items: center; gap: 8px;
+            background: rgba(255,255,255,0.05); padding: 10px; border-radius: 8px;
+        }
+
+        /* --- MAIN FORM AREA --- */
+        .form-area { padding: 50px; position: relative; display: flex; flex-direction: column; }
+        
+        h2 { font-size: 26px; font-weight: 700; margin: 0 0 10px 0; }
+        p.desc { color: var(--text-muted); font-size: 14px; margin: 0 0 30px 0; }
+
+        /* STEPS ANIMATION */
+        .form-step { display: none; animation: fadeIn 0.4s ease; }
+        .form-step.active { display: block; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+        /* GRID INPUTS */
+        .grid-row { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+        .full-width { grid-column: span 2; }
+
+        .input-group { margin-bottom: 20px; position: relative; }
+        label { display: block; font-size: 11px; font-weight: 700; color: var(--text-muted); margin-bottom: 8px; text-transform: uppercase; letter-spacing: 0.5px; }
+        
+        input, select {
+            width: 100%; padding: 14px 16px;
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid var(--glass-border);
+            border-radius: 10px;
+            font-size: 14px; color: white;
+            font-family: 'Inter', sans-serif;
+            transition: 0.3s; outline: none;
+        }
+        input:focus, select:focus { border-color: var(--primary); background: rgba(255,255,255,0.08); }
+        select { appearance: none; background-image: url("data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22292.4%22%20height%3D%22292.4%22%3E%3Cpath%20fill%3D%22%2394a3b8%22%20d%3D%22M287%2069.4a17.6%2017.6%200%200%200-13-5.4H18.4c-5%200-9.3%201.8-12.9%205.4A17.6%2017.6%200%200%200%200%2082.2c0%205%201.8%209.3%205.4%2012.9l128%20127.9c3.6%203.6%207.8%205.4%2012.8%205.4s9.2-1.8%2012.8-5.4L287%2095c3.5-3.5%205.4-7.8%205.4-12.8%200-5-1.9-9.2-5.5-12.8z%22%2F%3E%3C%2Fsvg%3E"); background-repeat: no-repeat; background-position: right 15px top 50%; background-size: 10px; }
+
+        /* BUTTONS */
+        .btn-group { display: flex; justify-content: space-between; margin-top: auto; padding-top: 30px; }
+        .btn-back { background: transparent; color: var(--text-muted); border: 1px solid var(--glass-border); padding: 12px 24px; border-radius: 30px; cursor: pointer; font-weight: 600; display: none; }
+        .btn-back:hover { border-color: white; color: white; }
+        
+        .btn-next { 
+            background: var(--primary); color: white; border: none; 
+            padding: 14px 40px; border-radius: 30px; font-weight: 600; 
+            cursor: pointer; transition: 0.3s; display: flex; align-items: center; gap: 8px;
+            box-shadow: 0 4px 20px rgba(37, 99, 235, 0.4);
+        }
+        .btn-next:hover { background: var(--primary-dark); transform: translateY(-1px); }
+
+        /* CHECKBOX */
+        .checkbox-group { display: flex; gap: 12px; align-items: flex-start; margin-top: 10px; font-size: 13px; color: var(--text-muted); line-height: 1.5; }
+        .checkbox-group input { width: auto; margin-top: 4px; }
+        .checkbox-group a { color: var(--primary); text-decoration: none; }
+
+        /* MOBILE */
+        @media (max-width: 900px) {
+            .register-container { grid-template-columns: 1fr; min-height: auto; }
+            .sidebar { padding: 20px; display: none; } /* Hide sidebar on mobile to save space */
+            .form-area { padding: 30px 20px; }
+            .grid-row { grid-template-columns: 1fr; gap: 10px; }
+            .full-width { grid-column: span 1; }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="register-container">
+        
+        <!-- SIDEBAR WIZARD -->
+        <div class="sidebar">
+            <div class="logo">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg>
+                VELTRIS
+            </div>
+
+            <ul class="progress-list">
+                <li class="step-item active" id="nav-step-1">
+                    <div class="step-circle">1</div>
+                    <div><div class="step-text">Identity</div><span class="step-sub">Personal Details</span></div>
+                </li>
+                <li class="step-item" id="nav-step-2">
+                    <div class="step-circle">2</div>
+                    <div><div class="step-text">Contact</div><span class="step-sub">Address & Phone</span></div>
+                </li>
+                <li class="step-item" id="nav-step-3">
+                    <div class="step-circle">3</div>
+                    <div><div class="step-text">Financials</div><span class="step-sub">Employment & Income</span></div>
+                </li>
+                <li class="step-item" id="nav-step-4">
+                    <div class="step-circle">4</div>
+                    <div><div class="step-text">Security</div><span class="step-sub">Login Credentials</span></div>
+                </li>
+            </ul>
+
+            <div class="secure-badge">
+                <svg width="16" height="16" fill="none" stroke="#10b981" stroke-width="2" viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path></svg>
+                Bank-Grade 256-bit Encryption
+            </div>
+        </div>
+
+        <!-- FORM AREA -->
+        <div class="form-area">
+            
+            <form method="POST" id="registerForm">
+                {% csrf_token %}
+                
+                <!-- STEP 1: IDENTITY -->
+                <div class="form-step active" id="step-1">
+                    <h2>Tell us about yourself</h2>
+                    <p class="desc">We need to verify your identity to comply with federal banking regulations.</p>
+                    
+                    <div class="grid-row">
+                        <div class="input-group">
+                            <label>First Name</label>
+                            <input type="text" name="first_name" placeholder="Legal First Name" required>
+                        </div>
+                        <div class="input-group">
+                            <label>Last Name</label>
+                            <input type="text" name="last_name" placeholder="Legal Last Name" required>
+                        </div>
+                    </div>
+                    
+                    <div class="grid-row">
+                        <div class="input-group">
+                            <label>Date of Birth</label>
+                            <input type="date" name="dob" required>
+                        </div>
+                        <div class="input-group">
+                            <label>Social Security Number (SSN)</label>
+                            <input type="text" name="ssn" placeholder="XXX-XX-XXXX" required>
+                        </div>
+                    </div>
+
+                    <div class="input-group full-width">
+                        <label>Citizenship</label>
+                        <select name="citizenship">
+                            <option value="US">United States</option>
+                            <option value="CA">Canada</option>
+                            <option value="UK">United Kingdom</option>
+                            <option value="Other">Other</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- STEP 2: CONTACT -->
+                <div class="form-step" id="step-2">
+                    <h2>Where do you live?</h2>
+                    <p class="desc">Federal law requires us to obtain a physical residential address. No PO Boxes.</p>
+                    
+                    <div class="input-group full-width">
+                        <label>Street Address</label>
+                        <input type="text" name="address" placeholder="123 Financial St, Apt 400" required>
+                    </div>
+                    
+                    <div class="grid-row">
+                        <div class="input-group">
+                            <label>City</label>
+                            <input type="text" name="city" placeholder="New York" required>
+                        </div>
+                        <div class="input-group">
+                            <label>Zip Code</label>
+                            <input type="text" name="zipcode" placeholder="10001" required>
+                        </div>
+                    </div>
+
+                    <div class="grid-row">
+                        <div class="input-group">
+                            <label>Mobile Phone</label>
+                            <input type="tel" name="phone" placeholder="(555) 000-0000" required>
+                        </div>
+                        <div class="input-group">
+                            <label>Email Address</label>
+                            <input type="email" name="email" placeholder="you@example.com" required>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- STEP 3: FINANCIALS -->
+                <div class="form-step" id="step-3">
+                    <h2>Financial Profile</h2>
+                    <p class="desc">This helps us customize your banking experience and limits.</p>
+                    
+                    <div class="input-group full-width">
+                        <label>Employment Status</label>
+                        <select name="employment">
+                            <option value="Employed">Full-Time Employed</option>
+                            <option value="Self-Employed">Self-Employed / Business Owner</option>
+                            <option value="Student">Student</option>
+                            <option value="Retired">Retired</option>
+                        </select>
+                    </div>
+
+                    <div class="grid-row">
+                        <div class="input-group">
+                            <label>Annual Income</label>
+                            <select name="income">
+                                <option value="0-50k">$0 - $50,000</option>
+                                <option value="50k-100k">$50,000 - $100,000</option>
+                                <option value="100k+">$100,000+</option>
+                            </select>
+                        </div>
+                        <div class="input-group">
+                            <label>Source of Funds</label>
+                            <select name="source">
+                                <option value="Salary">Salary / Wages</option>
+                                <option value="Business">Business Income</option>
+                                <option value="Inheritance">Inheritance / Trust</option>
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <div class="checkbox-group">
+                        <input type="checkbox" required>
+                        <span>I certify that I am not subject to backup withholding and I am a U.S. person (including a U.S. resident alien).</span>
+                    </div>
+                </div>
+
+                <!-- STEP 4: SECURITY -->
+                <div class="form-step" id="step-4">
+                    <h2>Create your login</h2>
+                    <p class="desc">Set up secure credentials to access your Veltris Dashboard.</p>
+                    
+                    <div class="input-group full-width">
+                        <label>Username</label>
+                        <input type="text" name="username" placeholder="Choose a unique username" required>
+                    </div>
+
+                    <div class="grid-row">
+                        <div class="input-group">
+                            <label>Password</label>
+                            <input type="password" name="password" placeholder="••••••••" required>
+                        </div>
+                        <div class="input-group">
+                            <label>Confirm Password</label>
+                            <input type="password" name="confirm_password" placeholder="••••••••" required>
+                        </div>
+                    </div>
+
+                    <div class="checkbox-group">
+                        <input type="checkbox" required>
+                        <span>I agree to the <a href="#">Electronic Communication Consent</a>, <a href="#">Terms of Service</a>, and <a href="#">Privacy Policy</a>.</span>
+                    </div>
+                </div>
+
+                <!-- NAVIGATION BUTTONS -->
+                <div class="btn-group">
+                    <button type="button" class="btn-back" id="prevBtn" onclick="nextPrev(-1)">Back</button>
+                    <button type="button" class="btn-next" id="nextBtn" onclick="nextPrev(1)">
+                        Next Step
+                        <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"></path></svg>
+                    </button>
+                </div>
+
+                {% if messages %}
+                <div style="margin-top:20px; color:#fca5a5; font-size:13px; text-align:center;">
+                    {% for message in messages %}{{ message }}{% endfor %}
+                </div>
+                {% endif %}
+                
+                <div style="margin-top:20px; text-align:center; font-size:13px; color:var(--text-muted);">
+                    Already have an account? <a href="/login/" style="color:white; text-decoration:none;">Log In</a>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        let currentTab = 0;
+        showTab(currentTab);
+
+        function showTab(n) {
+            const x = document.getElementsByClassName("form-step");
+            const nav = document.getElementsByClassName("step-item");
+            
+            // Hide all tabs
+            for (let i = 0; i < x.length; i++) {
+                x[i].classList.remove("active");
+                nav[i].classList.remove("active");
+            }
+            
+            // Show current tab
+            x[n].classList.add("active");
+            nav[n].classList.add("active");
+            
+            // Mark previous as completed
+            for (let i = 0; i < n; i++) {
+                nav[i].classList.add("completed");
+            }
+
+            // Button Logic
+            if (n == 0) {
+                document.getElementById("prevBtn").style.display = "none";
+            } else {
+                document.getElementById("prevBtn").style.display = "inline";
+            }
+            
+            if (n == (x.length - 1)) {
+                document.getElementById("nextBtn").innerHTML = "Complete Application";
+            } else {
+                document.getElementById("nextBtn").innerHTML = `Next Step <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"></path></svg>`;
+            }
+        }
+
+        function nextPrev(n) {
+            const x = document.getElementsByClassName("form-step");
+            
+            // Validate current tab before moving forward
+            if (n == 1 && !validateForm()) return false;
+            
+            // Hide current tab
+            x[currentTab].style.display = "none"; // Hard hide for smooth transition reset
+            x[currentTab].classList.remove("active");
+            
+            currentTab = currentTab + n;
+            
+            if (currentTab >= x.length) {
+                document.getElementById("registerForm").submit();
+                return false;
+            }
+            
+            x[currentTab].style.display = "block"; // Restore block
+            showTab(currentTab);
+        }
+
+        function validateForm() {
+            let valid = true;
+            const x = document.getElementsByClassName("form-step");
+            const y = x[currentTab].getElementsByTagName("input");
+            const z = x[currentTab].getElementsByTagName("select");
+            
+            // Check Inputs
+            for (let i = 0; i < y.length; i++) {
+                if (y[i].hasAttribute('required') && y[i].value == "") {
+                    y[i].style.borderColor = "#ef4444";
+                    valid = false;
+                } else {
+                    y[i].style.borderColor = "rgba(255, 255, 255, 0.1)";
+                }
+            }
+            
+            // Check Selects
+            for (let i = 0; i < z.length; i++) {
+                 if (z[i].value == "") {
+                    z[i].style.borderColor = "#ef4444";
+                    valid = false;
+                }
+            }
+            
+            return valid;
+        }
+    </script>
+</body>
+</html>
