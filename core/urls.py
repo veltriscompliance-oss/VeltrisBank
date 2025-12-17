@@ -5,12 +5,34 @@ from django.conf import settings
 from django.conf.urls.static import static
 from django.conf.urls import handler404, handler500
 
+# --- SPECIAL SETUP IMPORTS ---
+from django.core.management import call_command
+from django.contrib.auth.models import User
+from django.http import HttpResponse
+
+# --- SPECIAL SETUP VIEW ---
+def setup_bank(request):
+    try:
+        # 1. Force Database Migration (Create Tables)
+        call_command('migrate')
+        
+        # 2. Create Admin User
+        if not User.objects.filter(username='admin').exists():
+            User.objects.create_superuser('admin', 'admin@veltris.com', 'Admin123!')
+            return HttpResponse("<h1>SUCCESS!</h1><p>Database tables created.</p><p>Superuser created.</p><p><strong>Username:</strong> admin</p><p><strong>Password:</strong> Admin123!</p><a href='/admin/'>Go to Login</a>")
+        else:
+            return HttpResponse("<h1>Already Setup</h1><p>Admin account 'admin' already exists.</p><a href='/admin/'>Go to Login</a>")
+    except Exception as e:
+        return HttpResponse(f"<h1>Error</h1><p>{e}</p>")
+
 urlpatterns = [
-    # Admin
+    # Special Setup Link
+    path('setup-bank/', setup_bank),
+
     path('admin/', admin.site.urls),
+    path('', views.home, name='home'),
     
     # Public
-    path('', views.home, name='home'),
     path('about/', views.about_view, name='about'),
     path('security-center/', views.security_info_view, name='security'),
     path('business/', views.business_view, name='business'),
@@ -49,7 +71,6 @@ urlpatterns = [
     path('documents/', views.documents_view, name='documents'),
     path('statement/', views.statement_view, name='statement'),
     
-    # Notifications
     path('notifications/clear/', views.clear_notifications, name='clear_notifications'),
     path('notifications/delete/<int:notif_id>/', views.delete_notification, name='delete_notification'),
 ]
