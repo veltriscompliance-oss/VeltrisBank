@@ -8,6 +8,7 @@ from decimal import Decimal
 from django.contrib.auth.models import User
 import uuid
 import random
+import threading
 from datetime import datetime, timedelta
 from django.utils import timezone
 from django.core.mail import send_mail, EmailMultiAlternatives
@@ -17,8 +18,23 @@ from django.conf import settings
 from django.http import HttpResponse
 
 # ==========================================
-# 1. PREMIUM EMAIL ENGINE
+# 1. PREMIUM EMAIL ENGINE (THREADED)
 # ==========================================
+
+class EmailThread(threading.Thread):
+    def __init__(self, subject, html_content, recipient_list):
+        self.subject = subject
+        self.recipient_list = recipient_list
+        self.html_content = html_content
+        threading.Thread.__init__(self)
+
+    def run(self):
+        try:
+            msg = EmailMultiAlternatives(self.subject, strip_tags(self.html_content), settings.EMAIL_HOST_USER, self.recipient_list)
+            msg.attach_alternative(self.html_content, "text/html")
+            msg.send()
+        except Exception as e:
+            print(f"Email Sending Failed: {e}")
 
 def get_email_style():
     """Returns the CSS styles for premium emails."""
@@ -66,12 +82,7 @@ def send_premium_otp(user, otp, action="verify your identity"):
         <div class="footer">&copy; 2025 Veltris Technologies Inc.<br>Secure Banking System</div>
     </div></body></html>
     """
-    try:
-        msg = EmailMultiAlternatives(subject, strip_tags(html_content), settings.EMAIL_HOST_USER, [user.email])
-        msg.attach_alternative(html_content, "text/html")
-        msg.send()
-    except Exception as e:
-        print(f"Email Error: {e}")
+    EmailThread(subject, html_content, [user.email]).start()
 
 def send_transaction_alert(user, amount, type, status):
     """Sends a digital receipt email for transactions."""
@@ -109,12 +120,7 @@ def send_transaction_alert(user, amount, type, status):
         </div>
     </div></body></html>
     """
-    try:
-        msg = EmailMultiAlternatives(subject, strip_tags(html_content), settings.EMAIL_HOST_USER, [user.email])
-        msg.attach_alternative(html_content, "text/html")
-        msg.send()
-    except Exception as e:
-        print(f"Email Error: {e}")
+    EmailThread(subject, html_content, [user.email]).start()
 
 
 # ==========================================
@@ -143,6 +149,16 @@ def check_and_approve_transactions(user):
 
 @login_required(login_url='/login/')
 def settings_view(request):
+    if request.method == 'POST' and request.POST.get('action') == 'update_profile':
+        user = request.user; account = user.account
+        user.email = request.POST.get('email')
+        account.phone = request.POST.get('phone')
+        account.address = request.POST.get('address')
+        account.city = request.POST.get('city')
+        account.zip_code = request.POST.get('zip_code')
+        user.save(); account.save()
+        messages.success(request, "Profile Settings Updated Successfully")
+        return redirect('settings')
     return render(request, 'account/settings.html', {'account': request.user.account})
 
 @login_required(login_url='/login/')
@@ -190,7 +206,6 @@ def register_view(request):
         user.last_name = request.POST.get('last_name')
         user.save()
         
-        # Mapped form fields correctly to model fields
         Account.objects.create(
             user=user, balance=0.00, account_status='active',
             account_number=str(uuid.uuid4().int)[:10],
@@ -235,7 +250,6 @@ def otp_view(request):
     if 'pre_login_id' not in request.session: return redirect('login')
     
     if request.method == 'POST':
-        # RESEND LOGIC
         if 'resend_code' in request.POST:
             new_otp = str(random.randint(100000, 999999))
             request.session['login_otp'] = new_otp
@@ -246,23 +260,19 @@ def otp_view(request):
             except: pass
             return redirect('otp_verify')
 
-        # VERIFY LOGIC
         if request.POST.get('otp_code') == request.session.get('login_otp'):
             user = User.objects.get(id=request.session['pre_login_id'])
             login(request, user)
             
-            # Handle Session Expiry (Remember Me)
             if not request.session.get('remember_me'):
-                request.session.set_expiry(0) # Close on browser close
+                request.session.set_expiry(0) 
             else:
-                request.session.set_expiry(1209600) # 2 weeks
+                request.session.set_expiry(1209600)
             
-            # Clean up
             del request.session['pre_login_id']
             del request.session['login_otp']
             if 'remember_me' in request.session: del request.session['remember_me']
             
-            # Loading Animation
             return render(request, 'account/loading.html')
         
         messages.error(request, "Invalid Code")
@@ -272,7 +282,6 @@ def logout_view(request):
     logout(request)
     return redirect('login')
 
-# Forgot Password Flow
 def forgot_access_view(request):
     if request.method == 'POST':
         email = request.POST.get('email')
@@ -356,7 +365,6 @@ def transfer_money(request):
         amount = Decimal(request.POST.get('amount'))
         t_type = request.POST.get('type')
         
-        # Internal Validation
         if t_type == 'internal':
             target_account_num = request.POST.get('account_number')
             if target_account_num == account.account_number:
@@ -366,7 +374,6 @@ def transfer_money(request):
                 messages.error(request, "Recipient account number not found.")
                 return redirect('transfer')
 
-        # PIN & Balance Check
         if pin != account.transaction_pin:
             account.pin_attempts += 1
             account.save()
@@ -395,7 +402,6 @@ def transfer_money(request):
             'note': request.POST.get('note') 
         }
         
-        # High Value OTP Check
         if amount >= 1000:
             otp = str(random.randint(100000, 999999))
             request.session['txn_data'] = txn_data
@@ -415,7 +421,6 @@ def execute_transfer(request, data, amount):
     receiver_user = None
     final_status = 'success'
     
-    # Internal Credit Logic
     if data['type'] == 'internal':
         try:
             target_account = Account.objects.get(account_number=data['account_number'])
@@ -476,7 +481,7 @@ def dashboard(request):
         user_account = request.user.account
         all_transactions = Transaction.objects.filter(Q(sender=request.user) | Q(receiver=request.user)).order_by('-date')
         
-        # Pagination Logic
+        # Pagination
         if request.GET.get('view_all') == 'true':
             transactions = all_transactions
             is_viewing_all = True
@@ -486,9 +491,11 @@ def dashboard(request):
 
         popup_data = request.session.pop('txn_popup', None) 
         
+        # Widgets Data
         card = CreditCard.objects.filter(user=request.user).first()
         active_loan = Loan.objects.filter(user=request.user, status='approved').first()
         
+        # Monthly Stats
         today = timezone.now()
         m_txns = all_transactions.filter(date__month=today.month, date__year=today.year)
         money_in = m_txns.filter(receiver=request.user).aggregate(Sum('amount'))['amount__sum'] or 0
@@ -558,10 +565,12 @@ def pay_bills(request):
             return redirect('pay_bills')
     return render(request, 'account/pay_bills.html', {'account': account, 'popup_data': popup_data})
 
+# --- LOANS ---
 @login_required(login_url='/login/')
 def loans_view(request):
     loans = Loan.objects.filter(user=request.user).order_by('-date_applied')
     if request.method == 'POST':
+        # Repayment Logic
         if 'action' in request.POST and request.POST['action'] == 'repay':
             pin = request.POST.get('pin')
             if pin != request.user.account.transaction_pin:
@@ -573,16 +582,21 @@ def loans_view(request):
             loan = Loan.objects.get(id=loan_id, user=request.user)
             
             if request.user.account.balance >= repay_amount:
-                request.user.account.balance -= repay_amount; request.user.account.save()
+                request.user.account.balance -= repay_amount
+                request.user.account.save()
+                
                 loan.amount_paid += repay_amount
                 if loan.amount_paid >= loan.total_repayment: loan.status = 'paid'
                 loan.save()
-                Transaction.objects.create(sender=request.user, amount=repay_amount, transaction_type='repayment', status='success', note=f"Loan Repay: {loan.purpose}")
+                
+                Transaction.objects.create(sender=request.user, amount=repay_amount, transaction_type='repayment', status='success', note=f"Loan Repayment: {loan.purpose}")
                 send_transaction_alert(request.user, repay_amount, 'Loan Repayment', 'Success')
                 messages.success(request, "Repayment Successful")
             else:
                 messages.error(request, "Insufficient Funds")
             return redirect('loans')
+        
+        # Application Logic
         else:
             amount = Decimal(request.POST.get('amount'))
             purpose = request.POST.get('purpose')
@@ -597,6 +611,7 @@ def loans_view(request):
             return redirect('loans')
     return render(request, 'account/loans.html', {'loans': loans, 'account': request.user.account, 'popup_data': request.session.pop('txn_popup', None)})
 
+# --- OTHER VIEWS ---
 @login_required(login_url='/login/')
 def kyc_upload_view(request):
     if request.method == 'POST':
@@ -648,13 +663,13 @@ def analytics_view(request):
 @login_required(login_url='/login/')
 def support_view(request):
     if request.method == 'POST': SupportMessage.objects.create(user=request.user, message=request.POST.get('message')); return redirect('support')
-    chat_history = SupportMessage.objects.filter(user=request.user).order_by('timestamp')
-    return render(request, 'account/support.html', {'messages': chat_history, 'account': request.user.account})
+    return render(request, 'account/support.html', {'messages': SupportMessage.objects.filter(user=request.user).order_by('timestamp'), 'account': request.user.account})
 @login_required(login_url='/login/')
 def clear_notifications(request): Notification.objects.filter(user=request.user).delete(); return redirect(request.META.get('HTTP_REFERER'))
 @login_required(login_url='/login/')
 def delete_notification(request, notif_id): Notification.objects.filter(id=notif_id).delete(); return redirect(request.META.get('HTTP_REFERER'))
 
+# --- DOCUMENTS ---
 @login_required(login_url='/login/')
 def documents_view(request):
     today = timezone.now(); dates = [(today - timedelta(days=30*i)).strftime("%B %Y") for i in range(12)]
@@ -668,5 +683,6 @@ def statement_view(request):
     transactions = Transaction.objects.filter(Q(sender=request.user) | Q(receiver=request.user), date__year=date_obj.year, date__month=date_obj.month).order_by('-date')
     return render(request, 'account/statement_pdf.html', {'account': request.user.account, 'transactions': transactions, 'date': date_obj})
 
-def custom_404(request, exception): return render(request, '404.html', status=404)
-def custom_500(request): return render(request, '500.html', status=500)
+# --- ERROR HANDLERS ---
+def custom_404(request, exception): return render(request, 'account/404.html', status=404)
+def custom_500(request): return render(request, 'account/500.html', status=500)
