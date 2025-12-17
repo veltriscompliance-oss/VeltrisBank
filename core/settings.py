@@ -130,7 +130,7 @@ EMAIL_USE_SSL = True
 EMAIL_USE_TLS = False        
 EMAIL_HOST_USER = 'veltris.compliance@gmail.com'
 # App Password (ensure this is valid)
-EMAIL_HOST_PASSWORD = 'yawcyqbxjjvbtcxx'
+EMAIL_HOST_PASSWORD = 'tmkkeltqzcmahjuk'
 
 # --- SECURITY: SESSION ---
 SESSION_COOKIE_AGE = 300 # 5 Minutes Auto-Logout
