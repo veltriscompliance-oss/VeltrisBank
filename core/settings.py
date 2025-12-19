@@ -1,6 +1,6 @@
 """
 Django settings for Veltris Bank project.
-Finalized Production Version for veltris.online
+PERFECT PRODUCTION VERSION - VELTRIS.ONLINE
 """
 
 from pathlib import Path
@@ -10,17 +10,17 @@ import dj_database_url
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-# --- SECURITY ---
-# In production, this should ideally be an environment variable
-SECRET_KEY = os.environ.get('SECRET_KEY', 'django-insecure-veltris-bank-production-key-9928341')
+# --- SECURITY CONFIGURATION ---
+# Use an environment variable for the secret key in production
+SECRET_KEY = os.environ.get('SECRET_KEY', 'django-insecure-veltris-bank-secure-8829-prod-key')
 
-# Debug is FALSE in production (when running on Railway)
+# Debug is FALSE in production (automatically detects Railway)
 DEBUG = 'RAILWAY_ENVIRONMENT' not in os.environ
 
-# Domain settings
-ALLOWED_HOSTS = ['*', 'veltris.online', 'www.veltris.online']
+# Domain settings for veltris.online
+ALLOWED_HOSTS = ['*', 'veltris.online', 'www.veltris.online', '.railway.app']
 
-# Crucial for Login and Transfers to work on your custom domain
+# Trust your custom domain for secure form submissions (Login/Transfers)
 CSRF_TRUSTED_ORIGINS = [
     'https://*.railway.app',
     'https://*.up.railway.app',
@@ -30,7 +30,7 @@ CSRF_TRUSTED_ORIGINS = [
 
 # --- APPLICATIONS ---
 INSTALLED_APPS = [
-    'jazzmin', # Admin theme must be first
+    'jazzmin',  # Professional Admin Theme (Must be top)
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -38,12 +38,13 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'django.contrib.humanize',
-    'account',
+    'anymail',  # Professional Email API Engine
+    'account',  # Core Banking App
 ]
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
-    'whitenoise.middleware.WhiteNoiseMiddleware', # Essential for static files on Railway
+    'whitenoise.middleware.WhiteNoiseMiddleware',  # Handles static files in production
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
@@ -72,9 +73,8 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'core.wsgi.application'
 
-# --- DATABASE (PostgreSQL for Railway) ---
-# This looks for DATABASE_URL in environment variables. 
-# If not found (locally), it falls back to SQLite.
+# --- DATABASE CONFIGURATION (PERMANENT POSTGRES) ---
+# Automatically uses Railway's Postgres URL; falls back to local SQLite for testing.
 DATABASES = {
     'default': dj_database_url.config(
         default='sqlite:///' + os.path.join(BASE_DIR, 'db.sqlite3'),
@@ -82,29 +82,46 @@ DATABASES = {
     )
 }
 
-# --- STATIC & MEDIA ---
+# --- STATIC & MEDIA FILES ---
 STATIC_URL = 'static/'
 STATIC_ROOT = BASE_DIR / 'staticfiles'
+# Compressed static files for faster loading
 STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 
 MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
-# --- HOSTINGER EMAIL SETUP ---
-EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
-EMAIL_HOST = 'smtp-relay.brevo.com'
-EMAIL_PORT = 587
-EMAIL_USE_SSL = True
-EMAIL_USE_TLS = False
-EMAIL_HOST_USER = '9e6c64001@smtp-brevo.com'
-# IMPORTANT: Put your Hostinger email password inside the quotes below
-EMAIL_HOST_PASSWORD = '3ZACFLr2YH1azM9f' 
+# --- PROFESSIONAL EMAIL API (BREVO) ---
+# Using the HTTP API (Port 443) bypasses the restricted SMTP ports (587/465)
+EMAIL_BACKEND = "anymail.backends.brevo.EmailBackend"
+DEFAULT_FROM_EMAIL = "support@veltris.online"
 
-# --- SESSION & SECURITY SETTINGS ---
-SESSION_COOKIE_AGE = 1209600 # 2 weeks
+ANYMAIL = {
+    "BREVO_API_KEY": "3ZACFLr2YH1azM9f", # <--- PASTE YOUR API KEY HERE
+}
+
+# Values for views.py compatibility
+EMAIL_HOST_USER = DEFAULT_FROM_EMAIL
+
+# --- AUTHENTICATION & SESSIONS ---
+AUTH_PASSWORD_VALIDATORS = [
+    { 'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator', },
+    { 'NAME': 'django.contrib.auth.password_validation.MinimumLengthValidator', },
+    { 'NAME': 'django.contrib.auth.password_validation.CommonPasswordValidator', },
+    { 'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator', },
+]
+
+LANGUAGE_CODE = 'en-us'
+TIME_ZONE = 'UTC'
+USE_I18N = True
+USE_TZ = True
+
+# Extended session age (2 weeks)
+SESSION_COOKIE_AGE = 1209600
 SESSION_SAVE_EVERY_REQUEST = True
 LOGIN_URL = '/login/'
 LOGIN_REDIRECT_URL = '/dashboard/'
+
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 # --- JAZZMIN ADMIN DESIGN ---
@@ -112,16 +129,25 @@ JAZZMIN_SETTINGS = {
     "site_title": "Veltris Admin",
     "site_header": "Veltris Operations",
     "site_brand": "Veltris HQ",
-    "welcome_sign": "Authorized Access Only",
+    "welcome_sign": "Authorized Personnel Only",
     "copyright": "Veltris Technologies Inc",
     "search_model": "auth.User",
     "show_sidebar": True,
     "navigation_expanded": True,
-    "theme": "darkly",
+    "order_with_respect_to": ["account", "auth"],
     "icons": {
         "auth": "fas fa-users-cog",
+        "auth.user": "fas fa-user-shield",
         "account.Account": "fas fa-university",
         "account.Transaction": "fas fa-exchange-alt",
         "account.Loan": "fas fa-hand-holding-usd",
+        "account.CreditCard": "fas fa-credit-card",
+        "account.Notification": "fas fa-bell",
+        "account.SupportMessage": "fas fa-headset",
     },
+}
+
+JAZZMIN_UI_TWEAKS = {
+    "theme": "darkly",
+    "dark_mode_theme": "darkly",
 }
