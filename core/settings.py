@@ -14,13 +14,14 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # Use an environment variable for the secret key in production
 SECRET_KEY = os.environ.get('SECRET_KEY', 'django-insecure-veltris-bank-secure-8829-prod-key')
 
-# Debug is FALSE in production (automatically detects Railway)
+# Debug is FALSE in production (automatically detects Railway environment)
 DEBUG = 'RAILWAY_ENVIRONMENT' not in os.environ
 
 # Domain settings for veltris.online
 ALLOWED_HOSTS = ['*', 'veltris.online', 'www.veltris.online', '.railway.app']
 
 # Trust your custom domain for secure form submissions (Login/Transfers)
+# This prevents "CSRF Verification Failed" errors on your custom domain
 CSRF_TRUSTED_ORIGINS = [
     'https://*.railway.app',
     'https://*.up.railway.app',
@@ -30,7 +31,7 @@ CSRF_TRUSTED_ORIGINS = [
 
 # --- APPLICATIONS ---
 INSTALLED_APPS = [
-    'jazzmin',  # Professional Admin Theme (Must be top)
+    'jazzmin',  # Professional Admin Theme (Must be above admin)
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -74,7 +75,7 @@ TEMPLATES = [
 WSGI_APPLICATION = 'core.wsgi.application'
 
 # --- DATABASE CONFIGURATION (PERMANENT POSTGRES) ---
-# Automatically uses Railway's Postgres URL; falls back to local SQLite for testing.
+# Automatically uses Railway's Postgres URL via environment variables
 DATABASES = {
     'default': dj_database_url.config(
         default='sqlite:///' + os.path.join(BASE_DIR, 'db.sqlite3'),
@@ -85,22 +86,23 @@ DATABASES = {
 # --- STATIC & MEDIA FILES ---
 STATIC_URL = 'static/'
 STATIC_ROOT = BASE_DIR / 'staticfiles'
-# Compressed static files for faster loading
+# Compressed static files for faster loading and cache management
 STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 
 MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
 # --- PROFESSIONAL EMAIL API (BREVO) ---
-# Using the HTTP API (Port 443) bypasses the restricted SMTP ports (587/465)
+# This bypasses firewalls by using HTTPS (Port 443) instead of SMTP ports.
+# It also retrieves the key from Railway variables to keep your GitHub clean.
 EMAIL_BACKEND = "anymail.backends.brevo.EmailBackend"
 DEFAULT_FROM_EMAIL = "support@veltris.online"
 
 ANYMAIL = {
-    "BREVO_API_KEY": "3ZACFLr2YH1azM9f", # <--- PASTE YOUR API KEY HERE
+    "BREVO_API_KEY": os.environ.get("BREVO_API_KEY", ""), 
 }
 
-# Values for views.py compatibility
+# Values for account/views.py compatibility
 EMAIL_HOST_USER = DEFAULT_FROM_EMAIL
 
 # --- AUTHENTICATION & SESSIONS ---
