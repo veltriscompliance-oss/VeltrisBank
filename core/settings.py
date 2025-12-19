@@ -92,13 +92,13 @@ MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
 # --- HOSTINGER EMAIL SETUP ---
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
-EMAIL_HOST = 'smtp.hostinger.com'
+EMAIL_HOST = 'smtp-relay.brevo.com'
 EMAIL_PORT = 587
 EMAIL_USE_SSL = True
 EMAIL_USE_TLS = False
-EMAIL_HOST_USER = 'support@veltris.online'
+EMAIL_HOST_USER = '9e6c64001@smtp-brevo.com'
 # IMPORTANT: Put your Hostinger email password inside the quotes below
-EMAIL_HOST_PASSWORD = '123kenUbong$' 
+EMAIL_HOST_PASSWORD = '3ZACFLr2YH1azM9f' 
 
 # --- SESSION & SECURITY SETTINGS ---
 SESSION_COOKIE_AGE = 1209600 # 2 weeks
