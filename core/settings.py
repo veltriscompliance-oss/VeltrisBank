@@ -1,6 +1,6 @@
 """
-Django settings for Veltris Bank project.
-PERFECT PRODUCTION VERSION - VELTRIS.ONLINE
+Django settings for Veltris project.
+TRULY COMPLETE & ACCURATE PRODUCTION VERSION
 """
 
 from pathlib import Path
@@ -10,18 +10,15 @@ import dj_database_url
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-# --- SECURITY CONFIGURATION ---
-# Use an environment variable for the secret key in production
-SECRET_KEY = os.environ.get('SECRET_KEY', 'django-insecure-veltris-bank-secure-8829-prod-key')
+# --- SECURITY ---
+SECRET_KEY = os.environ.get('SECRET_KEY', 'django-insecure-veltris-prod-key-fixed-9921')
 
-# Debug is FALSE in production (automatically detects Railway environment)
+# Automatically sets DEBUG to False when live on Railway
 DEBUG = 'RAILWAY_ENVIRONMENT' not in os.environ
 
-# Domain settings for veltris.online
 ALLOWED_HOSTS = ['*', 'veltris.online', 'www.veltris.online', '.railway.app']
 
 # Trust your custom domain for secure form submissions (Login/Transfers)
-# This prevents "CSRF Verification Failed" errors on your custom domain
 CSRF_TRUSTED_ORIGINS = [
     'https://*.railway.app',
     'https://*.up.railway.app',
@@ -29,9 +26,9 @@ CSRF_TRUSTED_ORIGINS = [
     'https://www.veltris.online'
 ]
 
-# --- APPLICATIONS ---
+# --- APPLICATION DEFINITION ---
 INSTALLED_APPS = [
-    'jazzmin',  # Professional Admin Theme (Must be above admin)
+    'jazzmin',  # Professional Admin UI
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -39,19 +36,21 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'django.contrib.humanize',
-    'anymail',  # Professional Email API Engine
-    'account',  # Core Banking App
+    'anymail',  # Professional Email API
+    'account',  # Your core banking app
 ]
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
-    'whitenoise.middleware.WhiteNoiseMiddleware',  # Handles static files in production
+    'whitenoise.middleware.WhiteNoiseMiddleware',  # Static files
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    # --- CUSTOM SECURITY MIDDLEWARE (BOT PROTECTION) ---
+    'core.middleware.SecurityHeadersMiddleware',
 ]
 
 ROOT_URLCONF = 'core.urls'
@@ -74,36 +73,13 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'core.wsgi.application'
 
-# --- DATABASE CONFIGURATION (PERMANENT POSTGRES) ---
-# Automatically uses Railway's Postgres URL via environment variables
+# --- DATABASE (PERMANENT POSTGRES) ---
 DATABASES = {
     'default': dj_database_url.config(
         default='sqlite:///' + os.path.join(BASE_DIR, 'db.sqlite3'),
         conn_max_age=600
     )
 }
-
-# --- STATIC & MEDIA FILES ---
-STATIC_URL = 'static/'
-STATIC_ROOT = BASE_DIR / 'staticfiles'
-# Compressed static files for faster loading and cache management
-STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
-
-MEDIA_URL = '/media/'
-MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
-
-# --- PROFESSIONAL EMAIL API (BREVO) ---
-# This bypasses firewalls by using HTTPS (Port 443) instead of SMTP ports.
-# It also retrieves the key from Railway variables to keep your GitHub clean.
-EMAIL_BACKEND = "anymail.backends.brevo.EmailBackend"
-DEFAULT_FROM_EMAIL = "support@veltris.online"
-
-ANYMAIL = {
-    "BREVO_API_KEY": os.environ.get("BREVO_API_KEY", ""), 
-}
-
-# Values for account/views.py compatibility
-EMAIL_HOST_USER = DEFAULT_FROM_EMAIL
 
 # --- AUTHENTICATION & SESSIONS ---
 AUTH_PASSWORD_VALIDATORS = [
@@ -113,43 +89,56 @@ AUTH_PASSWORD_VALIDATORS = [
     { 'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator', },
 ]
 
+SESSION_COOKIE_AGE = 1209600 # 2 weeks
+SESSION_SAVE_EVERY_REQUEST = True
+LOGIN_URL = '/login/'
+LOGIN_REDIRECT_URL = '/dashboard/'
+DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+# --- INTERNATIONALIZATION ---
 LANGUAGE_CODE = 'en-us'
 TIME_ZONE = 'UTC'
 USE_I18N = True
 USE_TZ = True
 
-# Extended session age (2 weeks)
-SESSION_COOKIE_AGE = 1209600
-SESSION_SAVE_EVERY_REQUEST = True
-LOGIN_URL = '/login/'
-LOGIN_REDIRECT_URL = '/dashboard/'
+# --- STATIC & MEDIA FILES ---
+STATIC_URL = 'static/'
+STATIC_ROOT = BASE_DIR / 'staticfiles'
+STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 
-DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+MEDIA_URL = '/media/'
+MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+
+# --- EMAIL API (BREVO) ---
+EMAIL_BACKEND = "anymail.backends.brevo.EmailBackend"
+DEFAULT_FROM_EMAIL = "support@veltris.online"
+ANYMAIL = {
+    "BREVO_API_KEY": os.environ.get("BREVO_API_KEY", ""), 
+}
+EMAIL_HOST_USER = DEFAULT_FROM_EMAIL
+
+# --- AI CONFIGURATION (GEMINI) ---
+GEMINI_API_KEY = os.environ.get("GEMINI_API_KEY", "")
 
 # --- JAZZMIN ADMIN DESIGN ---
 JAZZMIN_SETTINGS = {
     "site_title": "Veltris Admin",
-    "site_header": "Veltris Operations",
-    "site_brand": "Veltris HQ",
-    "welcome_sign": "Authorized Personnel Only",
+    "site_header": "Veltris HQ",
+    "site_brand": "Veltris Operations",
+    "welcome_sign": "Authorized Access Only",
     "copyright": "Veltris Technologies Inc",
     "search_model": "auth.User",
     "show_sidebar": True,
     "navigation_expanded": True,
-    "order_with_respect_to": ["account", "auth"],
+    "theme": "darkly",
     "icons": {
         "auth": "fas fa-users-cog",
-        "auth.user": "fas fa-user-shield",
         "account.Account": "fas fa-university",
         "account.Transaction": "fas fa-exchange-alt",
         "account.Loan": "fas fa-hand-holding-usd",
-        "account.CreditCard": "fas fa-credit-card",
-        "account.Notification": "fas fa-bell",
-        "account.SupportMessage": "fas fa-headset",
     },
 }
 
 JAZZMIN_UI_TWEAKS = {
     "theme": "darkly",
-    "dark_mode_theme": "darkly",
 }
