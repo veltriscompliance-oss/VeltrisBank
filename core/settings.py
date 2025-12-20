@@ -23,7 +23,9 @@ CSRF_TRUSTED_ORIGINS = [
     'https://*.railway.app',
     'https://*.up.railway.app',
     'https://veltris.online',
-    'https://www.veltris.online'
+    'https://www.veltris.online',
+    'https://veltrishq.online',
+    'https://www.veltrishq.online'
 ]
 
 # --- APPLICATION DEFINITION ---
