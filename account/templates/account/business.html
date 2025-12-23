@@ -10,42 +10,76 @@
         :root { --primary: #3b82f6; --dark: #020617; --slate: #0f172a; --text: #f8fafc; --border: rgba(255,255,255,0.08); }
         body { margin: 0; font-family: 'Inter', sans-serif; background: var(--dark); color: var(--text); overflow-x: hidden; }
         
+        /* --- NAVIGATION STYLES --- */
         .nav { padding: 20px 8%; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border); }
-        .logo { font-weight: 800; font-size: 20px; color: white; text-decoration: none; }
-        .btn { padding: 10px 20px; border-radius: 30px; font-weight: 600; text-decoration: none; transition: 0.2s; }
+        .logo { font-weight: 800; font-size: 20px; color: white; text-decoration: none; white-space: nowrap; }
+        
+        /* Container for nav buttons */
+        .nav-buttons { display: flex; gap: 12px; align-items: center; }
+
+        .btn { padding: 10px 20px; border-radius: 30px; font-weight: 600; text-decoration: none; transition: 0.2s; white-space: nowrap; }
         .btn-primary { background: var(--primary); color: white; }
         .btn-primary:hover { background: #2563eb; transform: translateY(-2px); }
-        .btn-outline { border: 1px solid var(--border); color: white; margin-right: 10px; }
+        .btn-outline { border: 1px solid var(--border); color: white; } /* Removed margin-right here */
         
+        /* --- HERO SECTION --- */
         .hero { padding: 120px 8%; text-align: center; }
         h1 { font-size: 64px; font-weight: 800; letter-spacing: -2px; margin: 0 0 20px; line-height: 1.1; }
         p.lead { font-size: 20px; color: #94a3b8; max-width: 600px; margin: 0 auto 40px; }
 
+        /* --- FEATURES SECTION --- */
         .features { padding: 100px 8%; background: var(--slate); }
         .f-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 30px; }
         .f-card { background: rgba(255,255,255,0.02); padding: 40px; border-radius: 20px; border: 1px solid var(--border); }
         .f-card h3 { font-size: 20px; margin-bottom: 10px; }
         .f-card p { color: #94a3b8; line-height: 1.5; }
 
-        /* CODE BLOCK */
+        /* --- API CODE BLOCK --- */
         .api-section { padding: 100px 8%; display: flex; align-items: center; gap: 60px; }
         .api-text { flex: 1; }
         .api-code { flex: 1; background: #0f172a; padding: 30px; border-radius: 16px; border: 1px solid var(--border); font-family: 'Fira Code', monospace; font-size: 14px; color: #a5b4fc; box-shadow: 0 20px 50px rgba(0,0,0,0.3); }
         
         .keyword { color: #c084fc; } .string { color: #4ade80; } .func { color: #60a5fa; }
 
+        /* --- MEDIA QUERIES --- */
+
+        /* Tablet / Small Laptop */
         @media (max-width: 900px) {
             h1 { font-size: 42px; }
+            .hero { padding: 80px 8%; }
             .f-grid { grid-template-columns: 1fr; }
-            .api-section { flex-direction: column; }
-            .api-code { width: 100%; }
+            .api-section { flex-direction: column; padding: 60px 8%; }
+            .api-code { width: 100%; box-sizing: border-box; }
+        }
+
+        /* Mobile Phones - Fixes navigation issues */
+        @media (max-width: 600px) {
+            .nav { 
+                flex-direction: column; 
+                padding: 20px 5%; 
+                gap: 20px; /* Space between logo and buttons */
+            }
+            
+            .nav-buttons {
+                width: 100%;
+                flex-direction: column; /* Stack buttons vertically */
+                gap: 10px;
+            }
+
+            .nav .btn {
+                width: 100%; /* Full width buttons */
+                text-align: center;
+                padding: 12px 20px; /* Taller for better tap targets */
+                box-sizing: border-box;
+            }
         }
     </style>
 </head>
 <body>
     <nav class="nav">
         <a href="/" class="logo">VELTRIS</a>
-        <div>
+        <!-- Added class nav-buttons here for easier styling -->
+        <div class="nav-buttons">
             <a href="{% url 'home' %}" class="btn btn-outline">Back</a>
             <a href="{% url 'register' %}" class="btn btn-primary">Open Account</a>
         </div>
@@ -82,10 +116,10 @@
         <div class="api-code">
             <span class="keyword">const</span> veltris = <span class="keyword">require</span>(<span class="string">'veltris-node'</span>);<br><br>
             <span class="keyword">await</span> veltris.transfers.<span class="func">create</span>({<br>
-            &nbsp;&nbsp;amount: <span class="string">500000</span>,<br>
-            &nbsp;&nbsp;currency: <span class="string">'usd'</span>,<br>
-            &nbsp;&nbsp;destination: <span class="string">'acct_123456789'</span>,<br>
-            &nbsp;&nbsp;description: <span class="string">'Payroll - Oct'</span><br>
+              &nbsp;&nbsp;amount: <span class="string">500000</span>,<br>
+              &nbsp;&nbsp;currency: <span class="string">'usd'</span>,<br>
+              &nbsp;&nbsp;destination: <span class="string">'acct_123456789'</span>,<br>
+              &nbsp;&nbsp;description: <span class="string">'Payroll - Oct'</span><br>
             });
         </div>
     </section>
