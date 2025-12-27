@@ -653,17 +653,35 @@ def transaction_detail(request, transaction_id):
     except: return redirect('dashboard')
 @login_required(login_url='/login/')
 def transaction_receipt(request, transaction_id): return render(request, 'account/receipt.html', {'transaction': Transaction.objects.get(id=transaction_id)})
+
 @login_required(login_url='/login/')
 def analytics_view(request):
+    # Your existing calculations
     w = Transaction.objects.filter(sender=request.user, transaction_type='wire').aggregate(Sum('amount'))['amount__sum'] or 0
     t = Transaction.objects.filter(sender=request.user, transaction_type='transfer').aggregate(Sum('amount'))['amount__sum'] or 0
     i = Transaction.objects.filter(receiver=request.user).aggregate(Sum('amount'))['amount__sum'] or 0
     o = Transaction.objects.filter(sender=request.user).aggregate(Sum('amount'))['amount__sum'] or 0
-    return render(request, 'account/analytics.html', {'wire_total': w, 'transfer_total': t, 'money_in': i, 'money_out': o, 'account': request.user.account})
+    
+    # The fix is adding 'gemini_api_key' to this dictionary below:
+    return render(request, 'account/analytics.html', {
+        'wire_total': w, 
+        'transfer_total': t, 
+        'money_in': i, 
+        'money_out': o, 
+        'account': request.user.account,
+        'gemini_api_key': settings.GEMINI_API_KEY # <--- THIS WAS MISSING
+    })
 @login_required(login_url='/login/')
 def support_view(request):
-    if request.method == 'POST': SupportMessage.objects.create(user=request.user, message=request.POST.get('message')); return redirect('support')
-    return render(request, 'account/support.html', {'messages': SupportMessage.objects.filter(user=request.user).order_by('timestamp'), 'account': request.user.account})
+    if request.method == 'POST': 
+        SupportMessage.objects.create(user=request.user, message=request.POST.get('message'))
+        return redirect('support')
+    
+    return render(request, 'account/support.html', {
+        'messages': SupportMessage.objects.filter(user=request.user).order_by('timestamp'), 
+        'account': request.user.account,
+        'gemini_api_key': settings.GEMINI_API_KEY
+    })
 @login_required(login_url='/login/')
 def clear_notifications(request): Notification.objects.filter(user=request.user).delete(); return redirect(request.META.get('HTTP_REFERER'))
 @login_required(login_url='/login/')
