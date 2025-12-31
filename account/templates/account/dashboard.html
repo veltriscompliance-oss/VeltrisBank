@@ -270,6 +270,76 @@
             
             .notif-dropdown { right: 15px; width: calc(100% - 30px); top: 70px; }
         }
+
+            #obsidian-guard-overlay {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(2, 6, 23, 0.85);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            z-index: 100000;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            opacity: 0;
+            transition: opacity 0.4s ease;
+        }
+
+        .obsidian-panel {
+            width: 90%;
+            max-width: 480px;
+            background: linear-gradient(165deg, rgba(30, 41, 59, 0.95) 0%, rgba(15, 23, 42, 1) 100%);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 28px;
+            padding: 50px 40px;
+            text-align: center;
+            box-shadow: 0 50px 100px -20px rgba(0, 0, 0, 0.8);
+            transform: translateY(20px) scale(0.95);
+            transition: 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+
+        .sentinel-active #obsidian-guard-overlay { display: flex; opacity: 1; }
+        .sentinel-active .obsidian-panel { transform: translateY(0) scale(1); }
+        /* Scales down the dashboard slightly for depth */
+        .sentinel-active .main-content-wrapper { transform: scale(0.98); filter: blur(5px); transition: 0.5s; }
+
+        .protocol-tag {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 10px;
+            letter-spacing: 3px;
+            color: #475569;
+            text-transform: uppercase;
+            margin-bottom: 25px;
+            display: block;
+        }
+
+        .shield-svg {
+            width: 70px;
+            height: 70px;
+            margin: 0 auto 30px;
+            color: #ef4444;
+            filter: drop-shadow(0 0 10px rgba(239, 68, 68, 0.3));
+        }
+
+        .res-title { font-size: 24px; font-weight: 800; color: #ffffff; margin-bottom: 12px; }
+        .res-body { font-size: 14px; color: #94a3b8; line-height: 1.7; margin-bottom: 35px; }
+
+        .compliance-btn {
+            width: 100%;
+            padding: 18px;
+            background: #ffffff;
+            color: #020617;
+            border: none;
+            border-radius: 14px;
+            font-weight: 700;
+            font-size: 13px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+
+        .compliance-btn:hover { background: #f8fafc; transform: translateY(-2px); }
     </style>
 </head>
 <body class="{% if account.dark_mode %}dark-mode{% endif %}">
@@ -292,6 +362,25 @@
         </div>
     </div>
     {% endif %}
+
+        <div id="obsidian-guard-overlay">
+        <div class="obsidian-panel">
+            <span class="protocol-tag">[ SECURITY_RESTRICTION_PROTOCOL ]</span>
+            <div class="shield-svg">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.2">
+                    <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
+                    <circle cx="12" cy="12" r="3"></circle>
+                    <path d="M12 15v2"></path>
+                </svg>
+            </div>
+            <h2 class="res-title">Access Restricted</h2>
+            <p class="res-body">
+                This account is currently under a scheduled compliance review. Access to clearing house operations and liquidity transfers has been suspended by the Veltris Security Node.
+            </p>
+            <button class="compliance-btn" onclick="window.location.href='/support/'">Contact Support</button>
+            <button style="margin-top: 25px; background:none; border:none; color:#475569; font-size:11px; cursor:pointer; text-decoration:underline;" onclick="closeGuard()">Dismiss Notification</button>
+        </div>
+    </div>
 
     <!-- TIMEOUT MODAL -->
     <div class="timeout-overlay" id="timeoutModal">
@@ -556,6 +645,35 @@
         
         window.onload = startTimers;
         document.onclick = resetTimer; document.onmousemove = resetTimer; document.onkeypress = resetTimer;
+
+        const isBlocked = "{{ account.account_status }}" === "blocked";
+        const restrictedAttempt = "{{ restricted_attempt }}" === "True";
+
+        function openGuard() { document.body.classList.add('sentinel-active'); }
+        function closeGuard() { 
+            document.body.classList.remove('sentinel-active');
+            const url = new URL(window.location);
+            url.searchParams.delete('restricted');
+            window.history.replaceState({}, '', url);
+        }
+
+        // Auto-open if redirected from a restricted URL
+        window.onload = () => { if (restrictedAttempt) openGuard(); };
+
+        // Prevent clicks on sensitive links if blocked
+        document.addEventListener('click', (e) => {
+            if (!isBlocked) return;
+            const link = e.target.closest('a');
+            if (!link) return;
+            
+            const path = link.getAttribute('href');
+            const sensitive = ['/transfer/', '/pay-bills/', '/loans/', '/deposit/'];
+            
+            if (sensitive.some(s => path && path.includes(s))) {
+                e.preventDefault();
+                openGuard();
+            }
+        });
     </script>
 </body>
 </html>

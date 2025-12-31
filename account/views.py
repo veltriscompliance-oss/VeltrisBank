@@ -126,6 +126,8 @@ def send_transaction_alert(user, amount, type, status):
 # ==========================================
 # 2. HELPER FUNCTIONS
 # ==========================================
+def is_account_blocked(user):
+    return hasattr(user, 'account') and user.account.account_status == 'blocked'
 
 def check_and_approve_transactions(user):
     """Automatically approves pending transactions older than 10 minutes (Simulation logic)."""
@@ -350,6 +352,8 @@ def create_pin(request):
 
 @login_required(login_url='/login/')
 def transfer_money(request):
+    if is_account_blocked(request.user):
+        return redirect('/dashboard/?restricted=true')
     account = request.user.account
     if not account.transaction_pin: return redirect('create_pin')
     popup_data = request.session.pop('txn_popup', None) 
@@ -479,6 +483,7 @@ def dashboard(request):
     check_and_approve_transactions(request.user)
     try:
         user_account = request.user.account
+        restricted = request.GET.get('restricted') == 'true'
         all_transactions = Transaction.objects.filter(Q(sender=request.user) | Q(receiver=request.user)).order_by('-date')
         
         # Pagination
@@ -509,13 +514,16 @@ def dashboard(request):
             'card': card,
             'active_loan': active_loan,
             'money_in': money_in,
-            'money_out': money_out
+            'money_out': money_out,
+            'restricted_attempt': restricted,
         }
         return render(request, 'account/dashboard.html', context)
     except: return render(request, 'account/dashboard.html', {'error': 'No account found'})
 
 @login_required(login_url='/login/')
 def deposit_view(request):
+    if is_account_blocked(request.user):
+        return redirect('/dashboard/?restricted=true')
     if request.method == 'POST':
         amount = Decimal(request.POST.get('amount'))
         Transaction.objects.create(
@@ -531,6 +539,8 @@ def deposit_view(request):
 
 @login_required(login_url='/login/')
 def pay_bills(request):
+    if is_account_blocked(request.user):
+        return redirect('/dashboard/?restricted=true')
     account = request.user.account
     if not account.transaction_pin: return redirect('create_pin')
     popup_data = request.session.pop('txn_popup', None)
@@ -568,6 +578,8 @@ def pay_bills(request):
 # --- LOANS ---
 @login_required(login_url='/login/')
 def loans_view(request):
+    if is_account_blocked(request.user):
+        return redirect('/dashboard/?restricted=true')
     loans = Loan.objects.filter(user=request.user).order_by('-date_applied')
     if request.method == 'POST':
         # Repayment Logic
