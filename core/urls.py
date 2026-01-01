@@ -1,9 +1,7 @@
 from django.contrib import admin
-from django.urls import path, re_path # Added re_path
-from django.views.static import serve # Added serve
+from django.urls import path
 from account import views
 from django.conf import settings
-from django.conf.urls.static import static
 from django.conf.urls import handler404, handler500
 
 urlpatterns = [
@@ -53,11 +51,6 @@ urlpatterns = [
     # --- UTILS ---
     path('notifications/clear/', views.clear_notifications, name='clear_notifications'),
     path('notifications/delete/<int:notif_id>/', views.delete_notification, name='delete_notification'),
-
-    # --- CRITICAL FIX: FORCE SERVE STATIC & MEDIA FILES ---
-    # This manually serves CSS and Images if WhiteNoise fails
-    re_path(r'^media/(?P<path>.*)$', serve, {'document_root': settings.MEDIA_ROOT}),
-    re_path(r'^static/(?P<path>.*)$', serve, {'document_root': settings.STATIC_ROOT}),
 ]
 
 handler404 = 'account.views.custom_404'

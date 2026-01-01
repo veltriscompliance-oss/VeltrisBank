@@ -108,9 +108,9 @@ USE_TZ = True
 # --- STATIC & MEDIA FILES ---
 STATIC_URL = 'static/'
 STATIC_ROOT = BASE_DIR / 'staticfiles'
-STATICFILES_STORAGE = 'django.contrib.staticfiles.storage.StaticFilesStorage'
+STATICFILES_STORAGE = 'whitenoise.storage.CompressedStaticFilesStorage'
 
-WHITENOISE_MANIFEST_STRICT = False
+WHITENOISE_USE_FINDERS = True
 
 MEDIA_URL = '/media/'
 DEFAULT_FILE_STORAGE = 'cloudinary_storage.storage.MediaCloudinaryStorage'
@@ -145,7 +145,6 @@ JAZZMIN_SETTINGS = {
     "search_model": "auth.User",
     "show_sidebar": True,
     "navigation_expanded": True,
-    "theme": "darkly",
     "icons": {
         "auth": "fas fa-users-cog",
         "account.Account": "fas fa-university",
@@ -156,4 +155,5 @@ JAZZMIN_SETTINGS = {
 
 JAZZMIN_UI_TWEAKS = {
     "theme": "darkly",
+    "dark_mode_theme": "darkly",
 }
