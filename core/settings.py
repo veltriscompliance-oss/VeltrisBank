@@ -1,6 +1,6 @@
 """
-Django settings for Veltris project.
-TRULY COMPLETE & ACCURATE PRODUCTION VERSION
+Django settings for Veltris Bank project.
+FINAL PRODUCTION CONFIGURATION
 """
 
 from pathlib import Path
@@ -16,9 +16,12 @@ SECRET_KEY = os.environ.get('SECRET_KEY', 'django-insecure-veltris-prod-key-fixe
 # Automatically sets DEBUG to False when live on Railway
 DEBUG = 'RAILWAY_ENVIRONMENT' not in os.environ
 
-ALLOWED_HOSTS = ['*', 'veltris.online', 'www.veltris.online', '.railway.app']
+ALLOWED_HOSTS = ['*', 'veltris.online', 'www.veltris.online', 'veltrishq.online', 'www.veltrishq.online', '.railway.app']
 
-# Trust your custom domain for secure form submissions (Login/Transfers)
+# CRITICAL FIX: TRUST HTTPS FROM PROXY (Prevents CSRF 403 Errors)
+SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
+
+# Trust your custom domain for secure form submissions
 CSRF_TRUSTED_ORIGINS = [
     'https://*.railway.app',
     'https://*.up.railway.app',
@@ -36,7 +39,7 @@ INSTALLED_APPS = [
     'django.contrib.contenttypes',
     'django.contrib.sessions',
     'django.contrib.messages',
-    'cloudinary_storage',
+    'cloudinary_storage', # Must be above staticfiles
     'django.contrib.staticfiles',
     'cloudinary',
     'django.contrib.humanize',
@@ -97,6 +100,7 @@ SESSION_COOKIE_AGE = 1209600 # 2 weeks
 SESSION_SAVE_EVERY_REQUEST = True
 LOGIN_URL = '/login/'
 LOGIN_REDIRECT_URL = '/dashboard/'
+
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 # --- INTERNATIONALIZATION ---
@@ -108,8 +112,9 @@ USE_TZ = True
 # --- STATIC & MEDIA FILES ---
 STATIC_URL = 'static/'
 STATIC_ROOT = BASE_DIR / 'staticfiles'
-STATICFILES_STORAGE = 'django.contrib.staticfiles.storage.StaticFilesStorage'
 
+# We use standard storage to prevent build crashes with Jazzmin
+STATICFILES_STORAGE = 'django.contrib.staticfiles.storage.StaticFilesStorage'
 WHITENOISE_USE_FINDERS = True
 
 MEDIA_URL = '/media/'
@@ -120,18 +125,22 @@ CLOUDINARY_STORAGE = {
     'API_KEY': os.environ.get('CLOUDINARY_API_KEY'),
     'API_SECRET': os.environ.get('CLOUDINARY_API_SECRET'),
 }
+
 # --- EMAIL CONFIGURATION (SMART SWITCH) ---
 DEFAULT_FROM_EMAIL = "support@veltris.online"
 EMAIL_HOST_USER = DEFAULT_FROM_EMAIL
 
 if DEBUG:
+    # Local: Print to console
     EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
     ANYMAIL = {} 
 else:
+    # Production: Use Brevo API
     EMAIL_BACKEND = "anymail.backends.brevo.EmailBackend"
     ANYMAIL = {
         "BREVO_API_KEY": os.environ.get("BREVO_API_KEY", ""), 
-}
+    }
+
 # --- AI CONFIGURATION (GEMINI) ---
 GEMINI_API_KEY = os.environ.get("GEMINI_API_KEY", "")
 
