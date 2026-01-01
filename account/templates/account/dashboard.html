@@ -224,16 +224,35 @@
         
         @keyframes slideDown { from { opacity: 0; transform: translateY(-10px); } to { opacity: 1; transform: translateY(0); } }
 
-        /* --- MOBILE MENU & RESPONSIVE --- */
-        .mobile-toggle { display: none; font-size: 24px; cursor: pointer; color: var(--text-primary); }
+        /* --- MOBILE HEADER & LAYOUT (FIXED) --- */
+        .mobile-header { 
+            display: none; 
+            justify-content: space-between; 
+            align-items: center; 
+            margin-bottom: 20px; 
+        }
+        
+        /* CORRECTED AVATAR CSS */
+        .nav-avatar {
+            width: 40px !important;
+            height: 40px !important;
+            min-width: 40px !important;
+            border-radius: 50% !important; /* Force Circular */
+            object-fit: cover !important;
+            border: 2px solid var(--border-color);
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            cursor: pointer;
+        }
+
+        /* --- OVERLAY --- */
         .overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 999; display: none; backdrop-filter: blur(4px); }
 
         /* TIMEOUT MODAL */
         .timeout-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); z-index: 9999; display: none; align-items: center; justify-content: center; backdrop-filter: blur(5px); }
         .timeout-card { background: var(--bg-card); padding: 40px; border-radius: 24px; text-align: center; width: 90%; max-width: 400px; box-shadow: 0 25px 60px rgba(0,0,0,0.5); }
         .timeout-title { font-size: 22px; font-weight: 800; color: var(--text-primary); margin-bottom: 10px; }
-        .timeout-msg { color: var(--text-secondary); font-size: 15px; margin-bottom: 30px; line-height: 1.5; }
-        .timeout-btn { background: var(--accent-color); color: white; border: none; padding: 14px 28px; border-radius: 12px; font-weight: 600; font-size: 15px; cursor: pointer; width: 100%; }
+        .timeout-msg { color: var(--text-light); font-size: 15px; margin-bottom: 30px; line-height: 1.5; }
+        .timeout-btn { background: var(--primary); color: white; border: none; padding: 14px 28px; border-radius: 12px; font-weight: 600; font-size: 15px; cursor: pointer; width: 100%; }
 
         /* --- THE CRITICAL FIX: FORCED SUCCESS MODAL CENTERING --- */
         #veltris-success-modal {
@@ -242,12 +261,12 @@
             left: 0 !important;
             width: 100vw !important;
             height: 100vh !important;
-            background: rgba(2, 6, 23, 0.9) !important;
+            background: rgba(0,0,0,0.7) !important;
             z-index: 2147483647 !important; /* Max Z-Index */
             display: flex !important;
             align-items: center !important;
             justify-content: center !important;
-            backdrop-filter: blur(8px);
+            backdrop-filter: blur(5px);
         }
 
         .success-card { 
@@ -269,33 +288,8 @@
         .modal-amount { font-size: 36px; font-weight: 800; color: var(--accent-color); margin-bottom: 30px; display: block; letter-spacing: -1px; }
         .btn-close-modal { background: var(--text-primary); color: var(--bg-card); border: none; padding: 16px; border-radius: 14px; font-weight: 600; font-size: 16px; cursor: pointer; width: 100%; transition:0.2s; }
         .btn-close-modal:hover { opacity:0.9; }
-
-        @media (max-width: 1024px) {
-            .dashboard-grid { grid-template-columns: 1fr; }
-            .right-col { display: flex; flex-direction: column; } /* Ensure widgets show on tablet/mobile */
-        }
-
-        @media (max-width: 900px) {
-            .sidebar { position: fixed; left: -280px; top: 0; height: 100%; transition: 0.3s; box-shadow: none; }
-            .sidebar.active { transform: translateX(280px); box-shadow: 10px 0 30px rgba(0,0,0,0.1); }
-            .main { padding: 20px; }
-            
-            /* SHOW MOBILE HEADER */
-            .mobile-header { display: flex; }
-            .header { display: none; }
-            
-            .balance-card { padding: 30px 20px; }
-            .balance { font-size: 32px; }
-            
-            /* FIXED: 2x2 Grid for Mobile Actions */
-            .actions-grid { grid-template-columns: 1fr 1fr; gap: 12px; }
-            .action-card { height: 90px; }
-            
-            .notif-dropdown { right: 15px; width: calc(100% - 30px); top: 70px; }
-            .nav-avatar { width: 40px !important; height: 40px !important; min-width: 40px !important; border: 2px solid var(--border-color); }
-        }
         
-        /* OBSIDIAN SENTINEL STYLES (BLOCKED ACCOUNT) */
+        /* OBSIDIAN SENTINEL CSS */
         #obsidian-guard-overlay {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
             background: rgba(2, 6, 23, 0.88); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
@@ -320,6 +314,33 @@
         .sentinel-btn { width: 100%; padding: 18px; background: #ffffff; color: #020617; border: none; border-radius: 14px; font-weight: 800; font-size: 14px; text-transform: uppercase; letter-spacing: 1px; cursor: pointer; transition: 0.3s; }
         .sentinel-btn:hover { transform: translateY(-3px); box-shadow: 0 10px 30px rgba(255,255,255,0.1); }
 
+        /* FROZEN MODE CLASS */
+        .frozen-mode { opacity: 0.5; filter: grayscale(100%); pointer-events: none; }
+        .security-banner { background: rgba(220, 38, 38, 0.15); border: 1px solid rgba(220, 38, 38, 0.3); color: #ef4444; padding: 16px; border-radius: 16px; display: flex; align-items: center; gap: 15px; margin-bottom: 30px; animation: slideDown 0.5s ease; }
+        .sec-icon { font-size: 20px; }
+
+        @media (max-width: 900px) {
+            .sidebar { position: fixed; left: -280px; top: 0; height: 100%; transition: 0.3s; box-shadow: none; }
+            .sidebar.active { transform: translateX(280px); box-shadow: 10px 0 30px rgba(0,0,0,0.1); }
+            
+            .main { padding: 20px 15px; }
+            
+            /* SHOW MOBILE HEADER */
+            .mobile-header { display: flex; }
+            .header { display: none; }
+            
+            .dashboard-grid { grid-template-columns: 1fr; }
+            .right-col { display: flex; flex-direction: column; margin-top: 30px; } /* FORCE WIDGETS VISIBLE */
+            
+            .balance-card { padding: 30px 20px; }
+            .balance { font-size: 32px; }
+            
+            /* FIXED: 2x2 Grid for Mobile Actions */
+            .actions-grid { grid-template-columns: 1fr 1fr; gap: 12px; }
+            .action-card { height: 90px; }
+            
+            .notif-dropdown { right: 15px; width: calc(100% - 30px); top: 70px; }
+        }
     </style>
 </head>
 <body class="{% if account.dark_mode %}dark-mode{% endif %}">
@@ -394,7 +415,10 @@
                         <div class="nav-avatar" style="background: #e2e8f0; color: #64748b; display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 14px;">{{ user.username|slice:":1" }}</div>
                     {% endif %}
                 </div>
-                <div class="mobile-title">DASHBOARD</div>
+                <!-- REPLACED DASHBOARD TITLE WITH WELCOME TEXT -->
+                <div style="font-size: 16px; font-weight: 700; color: var(--text-primary);">
+                    Welcome, {{ user.first_name|default:user.username }}
+                </div>
             </div>
 
             <div class="icon-btn" onclick="toggleNotifs()">
@@ -435,15 +459,26 @@
             </div>
             <div class="notif-list">
                 {% for n in notifications %}
-                    <div class="notif-item">
-                        <div class="n-msg">{{ n.message }}</div>
-                        <div class="n-time">{{ n.date|timesince }} ago</div>
-                    </div>
+                <div class="notif-item">
+                    <div class="n-msg">{{ n.message }}</div>
+                    <div class="n-time">{{ n.date|timesince }} ago</div>
+                </div>
                 {% empty %}
-                    <div style="padding:20px; text-align:center; color:var(--text-secondary); font-size:13px;">No new notifications</div>
+                <div style="padding:20px; text-align:center; color:var(--text-secondary); font-size:13px;">No new notifications</div>
                 {% endfor %}
             </div>
         </div>
+
+        <!-- SECURITY ALERT BANNER -->
+        {% if account.account_status == 'blocked' %}
+        <div class="security-banner">
+            <div class="sec-icon">🔒</div>
+            <div>
+                <div style="font-weight: 700; font-size: 14px;">ACCOUNT SUSPENDED</div>
+                <div style="font-size: 13px; opacity: 0.8;">Your account has been frozen due to a security review. Outgoing transactions are disabled. Please contact support.</div>
+            </div>
+        </div>
+        {% endif %}
 
         <div class="dashboard-grid">
             
@@ -455,9 +490,8 @@
                         <div class="bal-label">Total Balance</div>
                         <div class="bal-amount-wrapper">
                             <span style="font-size:24px; font-weight:700;">$</span>
-                            <!-- PRIVACY LOGIC -->
                             <span class="bal-amount {% if account.hide_balance %}blurred{% endif %}" id="balanceAmount">
-                                {{ account.balance|intcomma }}
+                                {{ account.balance|floatformat:2|intcomma }}
                             </span>
                             <button class="eye-toggle" onclick="toggleBalance()">
                                 <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>
@@ -471,7 +505,7 @@
                 </div>
 
                 <!-- ACTIONS GRID -->
-                <div class="actions-grid">
+                <div class="actions-grid {% if account.account_status == 'blocked' %}frozen-mode{% endif %}">
                     <a href="/transfer/" class="action-card">
                         <div class="action-icon"><svg width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><line x1="7" y1="17" x2="17" y2="7"></line><polyline points="7 7 17 7 17 17"></polyline></svg></div>
                         <span class="action-label">Transfer</span>
@@ -514,7 +548,7 @@
                         </div>
                         <div class="txn-right">
                             <span class="txn-amount {% if t.receiver == user %}text-green{% else %}text-red{% endif %}">
-                                {% if t.receiver == user %}+{% else %}-{% endif %}${{ t.amount|intcomma }}
+                                {% if t.receiver == user %}+{% else %}-{% endif %}${{ t.amount|floatformat:2|intcomma }}
                             </span>
                             <span class="txn-status">{{ t.status|upper }}</span>
                         </div>
@@ -546,11 +580,11 @@
                     <div class="widget-head">Monthly Flow</div>
                     <div class="stat-row">
                         <span class="stat-label">Income</span>
-                        <span class="stat-val text-green">+${{ money_in|default:"0.00"|intcomma }}</span>
+                        <span class="stat-val text-green">+${{ money_in|default:"0.00"|floatformat:2|intcomma }}</span>
                     </div>
                     <div class="stat-row">
                         <span class="stat-label">Expense</span>
-                        <span class="stat-val text-red">-${{ money_out|default:"0.00"|intcomma }}</span>
+                        <span class="stat-val text-red">-${{ money_out|default:"0.00"|floatformat:2|intcomma }}</span>
                     </div>
                 </div>
 
@@ -571,43 +605,30 @@
     <!-- THE OBSIDIAN SENTINEL MODAL -->
     <div id="obsidian-guard-overlay">
         <div class="obsidian-panel">
-            <span class="protocol-tag">[ SECURITY_RESTRICTION_PROTOCOL ]</span>
-            <div class="shield-svg">
+            <span class="sentinel-tag">[ COMPLIANCE_LOCK_PROTOCOL ]</span>
+            <div class="sentinel-shield">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.2">
                     <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
                     <circle cx="12" cy="12" r="3"></circle>
                     <path d="M12 15v2"></path>
                 </svg>
             </div>
-            <h2 class="res-title">Access Restricted</h2>
-            <p class="res-body">
-                This account is currently under a scheduled compliance review. Access to clearing house operations and liquidity transfers has been suspended by the Veltris Security Node.
+            <h2 class="sentinel-title">Access Restricted</h2>
+            <p class="sentinel-body">
+                This account has been flagged for a structural compliance review. Outgoing transaction nodes and clearing house requests have been suspended to preserve system integrity.
             </p>
-            <button class="compliance-btn" onclick="window.location.href='/support/'">Contact Support</button>
-            <button style="margin-top: 25px; background:none; border:none; color:#475569; font-size:11px; cursor:pointer; text-decoration:underline;" onclick="closeGuard()">Dismiss Notification</button>
+            <button class="sentinel-btn" onclick="window.location.href='/support/'">Contact Support Node</button>
+            <button style="margin-top: 25px; background: none; border: none; color: #475569; font-size: 11px; cursor: pointer; text-decoration: underline;" onclick="closeSentinel()">Dismiss Notification</button>
         </div>
     </div>
-    
-    <!-- JS LOGIC -->
+
     <script>
-        // Dark Mode
-        if("{{ account.dark_mode }}" === "True") document.body.classList.add('dark-mode');
+        // DARK MODE CHECK
+        if("{{ account.dark_mode }}" === "True") { document.body.classList.add('dark-mode'); }
 
-        // Toggle Sidebar
         function toggleSidebar() { document.getElementById('sidebar').classList.toggle('active'); document.querySelector('.overlay').style.display = document.getElementById('sidebar').classList.contains('active') ? 'block' : 'none'; }
-        
-        // Toggle Notifs
-        function toggleNotifs() { 
-            const d = document.getElementById('notif-dropdown'); 
-            d.style.display = d.style.display === 'block' ? 'none' : 'block'; 
-        }
-
-        // Close menus on click outside
-        window.onclick = function(e) {
-            if (!e.target.matches('.icon-btn') && !e.target.closest('.icon-btn') && !e.target.matches('.notif-dropdown') && !e.target.closest('.notif-dropdown')) {
-                document.getElementById('notif-dropdown').style.display = 'none';
-            }
-        }
+        function toggleNotifs() { var x = document.getElementById("notif-dropdown"); x.style.display = x.style.display === "block" ? "none" : "block"; }
+        window.onclick = function(event) { if (!event.target.matches('.icon-btn') && !event.target.closest('.icon-btn') && !event.target.matches('.notif-dropdown') && !event.target.closest('.notif-dropdown')) { document.getElementById("notif-dropdown").style.display = "none"; } }
 
         // Eye Toggle
         function toggleBalance() { document.getElementById('balanceAmount').classList.toggle('blurred'); }
@@ -615,10 +636,11 @@
         // Clear Notifications
         function clearAllNotifications() { if(confirm('Clear all?')) window.location.href="{% url 'clear_notifications' %}"; }
 
+        // Close Modal Function
         function closePopup() { 
             const m = document.getElementById('veltris-success-modal');
             if(m) {
-                m.style.display = 'none';
+                m.style.display = 'none'; // HARD CLOSE
             }
         }
 
@@ -630,31 +652,31 @@
         function doLogout() { window.location.href = '/logout/'; }
         
         // Obsidian Logic
-        const isBlocked = "{{ account.account_status }}" === "blocked";
-        const restrictedAttempt = "{{ restricted_attempt }}" === "True";
-        function openGuard() { document.getElementById('obsidian-guard-overlay').classList.add('sentinel-active'); }
-        function closeGuard() { 
-            document.getElementById('obsidian-guard-overlay').classList.remove('sentinel-active');
+        const statusBlocked = "{{ account.account_status }}" === "blocked";
+        const wasRedirected = "{{ restricted_attempt }}" === "True";
+        function openSentinel() { document.getElementById('obsidian-guard-overlay').classList.add('sentinel-active'); }
+        function closeSentinel() { 
+            document.getElementById('obsidian-guard-overlay').classList.remove('sentinel-active'); 
             const url = new URL(window.location); url.searchParams.delete('restricted'); window.history.replaceState({}, '', url);
         }
 
         window.onload = function() { 
             startTimers(); 
-            if(restrictedAttempt) openGuard();
+            if(wasRedirected) openSentinel();
             if("{{ account.dark_mode }}" === "True") document.body.classList.add('dark-mode'); 
         };
         document.onclick = resetTimer; document.onmousemove = resetTimer; document.onkeypress = resetTimer;
 
         // Blocked Interceptor
         document.addEventListener('click', (e) => {
-            if (!isBlocked) return;
+            if (!statusBlocked) return;
             const link = e.target.closest('a');
             if (!link) return;
             const href = link.getAttribute('href');
             const sensitive = ['/transfer/', '/pay-bills/', '/loans/', '/deposit/'];
             if (sensitive.some(s => href && href.includes(s))) {
                 e.preventDefault();
-                openGuard();
+                openSentinel();
             }
         });
     </script>
