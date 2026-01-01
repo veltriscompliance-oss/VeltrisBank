@@ -120,14 +120,18 @@ CLOUDINARY_STORAGE = {
     'API_KEY': os.environ.get('CLOUDINARY_API_KEY'),
     'API_SECRET': os.environ.get('CLOUDINARY_API_SECRET'),
 }
-# --- EMAIL API (BREVO) ---
-EMAIL_BACKEND = "anymail.backends.brevo.EmailBackend"
+# --- EMAIL CONFIGURATION (SMART SWITCH) ---
 DEFAULT_FROM_EMAIL = "support@veltris.online"
-ANYMAIL = {
-    "BREVO_API_KEY": os.environ.get("BREVO_API_KEY", ""), 
-}
 EMAIL_HOST_USER = DEFAULT_FROM_EMAIL
 
+if DEBUG:
+    EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
+    ANYMAIL = {} 
+else:
+    EMAIL_BACKEND = "anymail.backends.brevo.EmailBackend"
+    ANYMAIL = {
+        "BREVO_API_KEY": os.environ.get("BREVO_API_KEY", ""), 
+}
 # --- AI CONFIGURATION (GEMINI) ---
 GEMINI_API_KEY = os.environ.get("GEMINI_API_KEY", "")
 
