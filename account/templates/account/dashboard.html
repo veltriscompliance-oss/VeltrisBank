@@ -224,7 +224,7 @@
         
         @keyframes slideDown { from { opacity: 0; transform: translateY(-10px); } to { opacity: 1; transform: translateY(0); } }
 
-        /* --- MOBILE HEADER & LAYOUT --- */
+        /* --- MOBILE HEADER & LAYOUT (FIXED) --- */
         .mobile-header { 
             display: none; 
             justify-content: space-between; 
@@ -232,11 +232,16 @@
             margin-bottom: 10px; 
         }
         
-        /* Mobile Welcome Text */
-        .mobile-welcome-text {
-            display: none;
-            font-size: 16px; font-weight: 700; color: var(--text-primary);
-            margin-bottom: 20px;
+        /* CORRECTED CIRCULAR AVATAR FOR ALL SCREENS */
+        .nav-avatar {
+            width: 40px !important;
+            height: 40px !important;
+            min-width: 40px !important;
+            border-radius: 50% !important; /* Force Circular */
+            object-fit: cover !important;
+            border: 2px solid var(--border-color);
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            cursor: pointer;
         }
 
         /* --- OVERLAY --- */
@@ -283,7 +288,7 @@
         .modal-amount { font-size: 36px; font-weight: 800; color: var(--accent-color); margin-bottom: 30px; display: block; letter-spacing: -1px; }
         .btn-close-modal { background: var(--text-primary); color: var(--bg-card); border: none; padding: 16px; border-radius: 14px; font-weight: 600; font-size: 16px; cursor: pointer; width: 100%; transition:0.2s; }
         .btn-close-modal:hover { opacity:0.9; }
-
+        
         /* OBSIDIAN SENTINEL CSS */
         #obsidian-guard-overlay {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
@@ -320,10 +325,12 @@
             
             .main { padding: 20px 15px; }
             
-            /* SHOW MOBILE HEADER & WELCOME */
+            /* SHOW MOBILE HEADER */
             .mobile-header { display: flex; }
-            .mobile-welcome-text { display: block; } 
             .header { display: none; }
+            
+            /* WELCOME TEXT BELOW MOBILE HEADER */
+            .mobile-welcome-text { display: block; font-size: 18px; font-weight: 700; color: var(--text-primary); margin-bottom: 25px; }
             
             .dashboard-grid { grid-template-columns: 1fr; }
             .right-col { display: flex; flex-direction: column; margin-top: 30px; } /* FORCE WIDGETS VISIBLE */
