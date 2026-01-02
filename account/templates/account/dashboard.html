@@ -331,6 +331,7 @@
 
         /* FROZEN MODE CLASS */
         .frozen-mode { opacity: 0.5; filter: grayscale(100%); cursor: not-allowed; }
+        .frozen-mode a, .frozen-mode .action-card { pointer-events: auto !important; }
         .security-banner { background: rgba(220, 38, 38, 0.15); border: 1px solid rgba(220, 38, 38, 0.3); color: #ef4444; padding: 16px; border-radius: 16px; display: flex; align-items: center; gap: 15px; margin-bottom: 30px; animation: slideDown 0.5s ease; }
         .sec-icon { font-size: 20px; }
 
@@ -511,7 +512,7 @@
                             <span style="font-size:24px; font-weight:700;">$</span>
                             <!-- FIX: floatformat:2 ensures 2 decimals, intcomma adds commas -->
                             <span class="bal-amount {% if account.hide_balance %}blurred{% endif %}" id="balanceAmount">
-                                {{ account.balance|floatformat:2|intcomma }}
+                                {{ account.balance|floatformat:2 }}
                             </span>
                             <button class="eye-toggle" onclick="toggleBalance()">
                                 <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>
@@ -569,7 +570,7 @@
                         </div>
                         <div class="txn-right">
                             <span class="txn-amount {% if t.receiver == user %}text-green{% else %}text-red{% endif %}">
-                                {% if t.receiver == user %}+{% else %}-{% endif %}${{ t.amount|floatformat:2|intcomma }}
+                                {% if t.receiver == user %}+{% else %}-{% endif %}${{ t.amount|floatformat:2 }}
                             </span>
                             <span class="txn-status">{{ t.status|upper }}</span>
                         </div>
@@ -601,11 +602,11 @@
                     <div class="widget-head">Monthly Flow</div>
                     <div class="stat-row">
                         <span class="stat-label">Income</span>
-                        <span class="stat-val text-green">+${{ money_in|default:"0.00"|floatformat:2|intcomma }}</span>
+                        <span class="stat-val text-green">+${{ money_in|default:"0.00"|floatformat:2 }}</span>
                     </div>
                     <div class="stat-row">
                         <span class="stat-label">Expense</span>
-                        <span class="stat-val text-red">-${{ money_out|default:"0.00"|floatformat:2|intcomma }}</span>
+                        <span class="stat-val text-red">-${{ money_out|default:"0.00"|floatformat:2 }}</span>
                     </div>
                 </div>
 

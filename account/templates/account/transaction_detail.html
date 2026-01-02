@@ -37,7 +37,7 @@
             display: flex; height: 100vh; overflow: hidden; transition: background-color 0.3s ease;
         }
 
-        /* SIDEBAR */
+        /* SIDEBAR (Standardized) */
         .sidebar { width: 280px; background: var(--bg-card); border-right: 1px solid var(--border-color); padding: 30px 20px; display: flex; flex-direction: column; z-index: 1000; transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1); }
         .brand { font-size: 20px; font-weight: 800; color: var(--text-primary); display: flex; align-items: center; gap: 12px; margin-bottom: 50px; padding-left: 10px; }
         .brand-icon { width: 32px; height: 32px; background: var(--accent-color); border-radius: 8px; color: white; display: flex; align-items: center; justify-content: center; }
@@ -49,22 +49,38 @@
 
         /* MAIN CONTENT */
         .main { flex: 1; padding: 40px; overflow-y: auto; position: relative; display: flex; flex-direction: column; align-items: center; }
-        .container { width: 100%; max-width: 600px; }
-
+        
         /* HEADER */
         .mobile-header { display: none; width: 100%; justify-content: space-between; align-items: center; margin-bottom: 25px; }
-        .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 40px; width: 100%; max-width: 900px; }
+        .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 40px; width: 100%; max-width: 600px; }
         .welcome h1 { font-size: 24px; font-weight: 700; margin: 0; color: var(--text-primary); }
         .welcome p { color: var(--text-secondary); font-size: 13px; margin-top: 4px; }
         
         .header-actions { display: flex; gap: 15px; align-items: center; }
         .icon-btn { width: 44px; height: 44px; border-radius: 12px; background: var(--bg-card); border: 1px solid var(--border-color); display: flex; align-items: center; justify-content: center; color: var(--text-primary); cursor: pointer; transition: 0.2s; position: relative; }
         .notif-dot { position: absolute; top: 10px; right: 10px; width: 8px; height: 8px; background: var(--danger); border-radius: 50%; border: 2px solid var(--bg-card); }
-        .nav-avatar { width: 40px; height: 40px; min-width: 40px; min-height: 40px; border-radius: 50% !important; object-fit: cover; border: 2px solid var(--bg-card); box-shadow: 0 1px 3px rgba(0,0,0,0.1); cursor: pointer; }
+        
+        /* CRITICAL AVATAR FIX FOR DESKTOP */
+        .nav-avatar { 
+            width: 40px !important; 
+            height: 40px !important; 
+            min-width: 40px !important; 
+            min-height: 40px !important; 
+            border-radius: 50% !important; 
+            object-fit: cover !important; 
+            border: 2px solid var(--border-color); 
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1); 
+            cursor: pointer;
+            display: block; 
+        }
+
+        .user-pill { display: flex; align-items: center; gap: 10px; padding: 6px 12px 6px 6px; background: var(--bg-card); border: 1px solid var(--border-color); border-radius: 30px; cursor: pointer; transition: 0.2s; }
+        .user-pill:hover { border-color: var(--text-secondary); }
+        .user-name { font-size: 13px; font-weight: 600; color: var(--text-primary); margin-right: 5px; }
 
         /* DETAILS CARD */
         .details-card { 
-            background: var(--bg-card); width: 100%; 
+            background: var(--bg-card); width: 100%; max-width: 600px;
             border-radius: 24px; padding: 40px; 
             box-shadow: 0 10px 40px rgba(0,0,0,0.05); text-align: center;
             border: 1px solid var(--border-color);
@@ -82,7 +98,7 @@
         .info-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; text-align: left; margin-bottom: 40px; }
         .info-item { padding: 15px; border-bottom: 1px solid var(--border-color); }
         .label { font-size: 11px; text-transform: uppercase; color: var(--text-secondary); font-weight: 700; margin-bottom: 5px; }
-        .value { font-size: 14px; font-weight: 600; color: var(--text-primary); }
+        .value { font-size: 14px; font-weight: 600; color: var(--text-primary); word-break: break-word; }
 
         .btn-receipt { 
             background: var(--accent-color); color: white; padding: 16px 30px; 
@@ -116,7 +132,8 @@
             .info-grid { grid-template-columns: 1fr; gap: 10px; }
             .details-card { padding: 25px; }
             .notif-dropdown { right: 20px; top: 70px; width: calc(100% - 40px); }
-            .nav-avatar { width: 40px !important; height: 40px !important; min-width: 40px !important; border: 2px solid var(--border-color); }
+            /* Force Avatar Size on Mobile too */
+            .nav-avatar { width: 40px !important; height: 40px !important; border-radius: 50% !important; }
         }
     </style>
 </head>
@@ -139,6 +156,7 @@
         <div class="sidebar-footer">
             <a href="/profile/" class="menu-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg> Profile</a>
             <a href="/support/" class="menu-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg> Support</a>
+            <a href="/settings/" class="menu-item"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2 2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg> Settings</a>
             <a href="/logout/" class="menu-item" style="color: var(--danger);"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path><polyline points="16 17 21 12 16 7"></polyline><line x1="21" y1="12" x2="9" y2="12"></line></svg> Sign Out</a>
         </div>
     </div>
@@ -177,9 +195,9 @@
                 </div>
                 <div class="user-pill" onclick="window.location.href='/profile/'">
                     {% if account.profile_pic %}
-                        <img src="{{ account.profile_pic.url }}" class="avatar">
+                        <img src="{{ account.profile_pic.url }}" class="nav-avatar">
                     {% else %}
-                        <div class="avatar" style="display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:bold;">{{ user.username|slice:":1" }}</div>
+                        <div class="nav-avatar" style="background: #e2e8f0; color: #64748b; display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 14px;">{{ user.username|slice:":1" }}</div>
                     {% endif %}
                     <span class="user-name">{{ user.username }}</span>
                     <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M6 9l6 6 6-6"/></svg>
@@ -189,18 +207,15 @@
 
         <!-- NOTIFICATION DROPDOWN -->
         <div id="notif-dropdown" class="notif-dropdown">
-            <div class="notif-head">
-                <span>NOTIFICATIONS</span>
-                <span style="color:var(--accent-color); cursor:pointer;" onclick="clearAllNotifications()">Clear All</span>
-            </div>
-            <div class="notif-list">
+            <div style="padding: 15px; border-bottom: 1px solid var(--border); font-weight: 700; font-size: 13px; color: var(--text-main); background: var(--light);">NOTIFICATIONS</div>
+            <div style="max-height: 300px; overflow-y: auto;">
                 {% for n in notifications %}
-                <div class="notif-item">
-                    <div class="n-msg">{{ n.message }}</div>
-                    <div class="n-time">{{ n.date|timesince }} ago</div>
-                </div>
+                    <div class="notif-item">
+                        <div class="notif-msg">{{ n.message }}</div>
+                        <div class="notif-time">{{ n.date|timesince }} ago</div>
+                    </div>
                 {% empty %}
-                <div style="padding:20px; text-align:center; color:var(--text-secondary); font-size:13px;">No new notifications</div>
+                    <div style="padding: 20px; text-align: center; color: var(--text-light); font-size: 13px;">No new alerts</div>
                 {% endfor %}
             </div>
         </div>
@@ -211,8 +226,8 @@
                 <div class="txn-type">{{ t.transaction_type|title }}</div>
                 
                 <!-- Amount Color Logic -->
-                <div class="txn-amount" style="{% if t.receiver == user %}color: #10b981;{% else %}color: var(--text-primary);{% endif %}">
-                    {% if t.receiver == user %}+{% else %}-{% endif %}${{ t.amount|intcomma }}
+                <div class="txn-amount" style="{% if t.receiver == request.user %}color: #10b981;{% else %}color: var(--text-primary);{% endif %}">
+                    {% if t.receiver == request.user %}+{% else %}-{% endif %}${{ t.amount|floatformat:2|intcomma }}
                 </div>
 
                 <div class="status-badge status-{{ t.status }}">{{ t.status|upper }}</div>
@@ -244,8 +259,8 @@
                         <div class="label">To</div>
                         <div class="value">
                             {% if t.receiver %}
-                                {% if t.receiver == user %}
-                                    You ({{ user.first_name }})
+                                {% if t.receiver == request.user %}
+                                    You ({{ request.user.first_name }})
                                 {% else %}
                                     {{ t.receiver.first_name }} {{ t.receiver.last_name }}
                                 {% endif %}
