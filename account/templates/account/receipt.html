@@ -1,3 +1,4 @@
+{% load humanize %}
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -14,16 +15,65 @@
             display: flex; justify-content: center; 
             padding: 40px 20px; margin: 0;
             min-height: 100vh;
+            transition: background-color 0.3s ease;
+        }
+
+        /* --- DARK MODE STYLES --- */
+        body.dark-mode {
+            background-color: #020617;
+            color: #f8fafc;
+        }
+        body.dark-mode .receipt-paper {
+            background: #1e293b;
+            box-shadow: 0 20px 50px rgba(0,0,0,0.5);
+        }
+        body.dark-mode .receipt-paper::before {
+            background-image: radial-gradient(#ffffff 1px, transparent 1px);
+            opacity: 0.1;
+        }
+        body.dark-mode .header {
+            background: #0f172a; /* Keep header dark but slightly distinct */
+            border-bottom: 1px solid #334155;
+        }
+        body.dark-mode .footer {
+            background: #1e293b;
+            border-top: 1px solid #334155;
+        }
+        body.dark-mode .value, 
+        body.dark-mode .meta-value {
+            color: #f8fafc;
+            border-bottom-color: #334155;
+        }
+        body.dark-mode .label, 
+        body.dark-mode .meta-label, 
+        body.dark-mode .amount-label,
+        body.dark-mode .footer-text {
+            color: #94a3b8;
+        }
+        body.dark-mode .amount-value {
+            color: #60a5fa; /* Brighter blue for dark mode */
+        }
+        body.dark-mode .amount-section {
+            border-bottom-color: #334155;
+        }
+        body.dark-mode .txn-type {
+            background: rgba(37, 99, 235, 0.2);
+            color: #60a5fa;
+        }
+        body.dark-mode .section-title {
+            color: #cbd5e1;
         }
         
+        /* --- MAIN LAYOUT --- */
         .receipt-paper {
             background: white;
             width: 100%; max-width: 600px;
-            padding: 0; /* Removing padding from container to use inner layout */
+            padding: 0; 
             box-shadow: 0 20px 50px rgba(0,0,0,0.1);
             position: relative;
             border-radius: 4px;
             overflow: hidden;
+            transition: background 0.3s ease;
         }
 
         /* SECURITY WATERMARK PATTERN */
@@ -39,7 +89,7 @@
             display: flex; justify-content: space-between; align-items: flex-start;
             position: relative;
         }
-        .brand { font-size: 24px; font-weight: 800; letter-spacing: -1px; display: flex; align-items: center; gap: 10px; }
+        .brand { font-size: 24px; font-weight: 800; letter-spacing: -1px; display: flex; align-items: center; gap: 10px; color: white; }
         .brand svg { width: 28px; height: 28px; }
         
         .header-meta { text-align: right; }
@@ -54,10 +104,18 @@
             padding: 8px 20px; border-radius: 30px;
             font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px;
             box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+            z-index: 10;
         }
         .status-success { background: #dcfce7; color: #166534; border: 2px solid white; }
         .status-processing { background: #fef9c3; color: #854d0e; border: 2px solid white; }
         .status-failed { background: #fee2e2; color: #991b1b; border: 2px solid white; }
+        
+        /* Dark mode badge border adjustment */
+        body.dark-mode .status-success,
+        body.dark-mode .status-processing,
+        body.dark-mode .status-failed {
+            border-color: #1e293b;
+        }
 
         .amount-section { text-align: center; margin-bottom: 40px; border-bottom: 2px dashed var(--border); padding-bottom: 40px; }
         .amount-label { font-size: 13px; color: var(--muted); text-transform: uppercase; letter-spacing: 1px; font-weight: 600; }
@@ -85,12 +143,12 @@
             display: flex; justify-content: space-between; align-items: center;
         }
         .footer-text { font-size: 10px; color: var(--muted); line-height: 1.6; max-width: 70%; }
-        .qr-code { width: 60px; height: 60px; background: white; padding: 5px; border: 1px solid var(--border); }
+        .qr-code { width: 60px; height: 60px; background: white; padding: 5px; border: 1px solid var(--border); border-radius: 4px; }
 
         /* PRINT BUTTON */
         .print-btn {
             position: fixed; bottom: 30px; right: 30px;
-            background: var(--primary); color: white; padding: 14px 28px;
+            background: var(--accent-color); color: white; padding: 14px 28px;
             border: none; border-radius: 50px; cursor: pointer;
             font-weight: 600; box-shadow: 0 10px 25px rgba(15, 23, 42, 0.3);
             transition: 0.2s; display: flex; align-items: center; gap: 8px; z-index: 100;
@@ -99,9 +157,14 @@
 
         @media print {
             body { background: none; padding: 0; }
-            .receipt-paper { box-shadow: none; width: 100%; max-width: 100%; border: 1px solid #ddd; }
+            /* Force white paper on print even if dark mode is on */
+            .receipt-paper { box-shadow: none; width: 100%; max-width: 100%; border: 1px solid #ddd; background-color: white !important; color: black !important; }
+            .header { background-color: #0f172a !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+            .meta-value { color: white !important; }
             .print-btn { display: none; }
-            .header { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+            .value, .amount-value, .section-title { color: black !important; }
+            .label, .meta-label, .footer-text { color: #666 !important; }
+            .footer { background-color: #f9f9f9 !important; border-top: 1px solid #eee !important; }
         }
     </style>
 </head>
@@ -137,7 +200,7 @@
             <!-- AMOUNT HERO -->
             <div class="amount-section">
                 <div class="amount-label">Transfer Amount</div>
-                <div class="amount-value">${{ transaction.amount }}</div>
+                <div class="amount-value">${{ transaction.amount|intcomma }}</div>
                 <div class="txn-type">{{ transaction.transaction_type }}</div>
             </div>
 
@@ -214,7 +277,7 @@
                 <strong>Veltris Bank N.A.</strong> Member FDIC. Equal Housing Lender.<br>
                 <span style="opacity: 0.7; font-size: 9px;">Transaction ID: {{ transaction.id }}-{{ transaction.date|date:"YmdHis" }}</span>
             </div>
-            <!-- Simple CSS QR Code (Visual Only) -->
+            <!-- Visual QR -->
             <svg class="qr-code" viewBox="0 0 100 100" fill="none">
                 <rect x="0" y="0" width="100" height="100" fill="white"/>
                 <path fill="black" d="M10 10h30v30h-30z M60 10h30v30h-30z M10 60h30v30h-30z M50 50h10v10h-10z M70 70h10v10h-10z M20 20h10v10h-10z M70 20h10v10h-10z M20 70h10v10h-10z"/>
@@ -222,5 +285,11 @@
         </div>
     </div>
 
+    <!-- JS TO APPLY DARK MODE -->
+    <script>
+        if("{{ account.dark_mode }}" === "True") {
+            document.body.classList.add('dark-mode');
+        }
+    </script>
 </body>
 </html>

@@ -1,161 +1,301 @@
+{% load humanize %}
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Transaction Details | Veltris Bank</title>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@500&display=swap" rel="stylesheet">
     <style>
-        :root { --primary: #004d99; --light: #f4f6f8; --dark: #1a1a1a; --border: #e2e8f0; }
-        body { margin: 0; font-family: 'Inter', sans-serif; background-color: var(--light); display: flex; height: 100vh; overflow: hidden; }
-        
-        .sidebar { width: 260px; background: white; border-right: 1px solid var(--border); padding: 25px; display: flex; flex-direction: column; z-index: 1000; }
-        .brand { font-size: 22px; font-weight: 800; color: var(--primary); margin-bottom: 40px; }
-        .menu-item { color: #64748b; text-decoration: none; padding: 12px 15px; border-radius: 8px; font-size: 14px; font-weight: 500; display: block; margin-bottom: 5px; }
-        .menu-item:hover { background: #f1f5f9; color: var(--primary); }
-        .menu-item.active { background: #eff6ff; color: var(--primary); font-weight: 600; }
-        .sidebar-footer { margin-top: auto; border-top: 1px solid var(--border); padding-top: 20px; }
+        /* --- THEME SYSTEM --- */
+        :root {
+            --bg-body: #f8fafc;
+            --bg-card: #ffffff;
+            --text-primary: #0f172a;
+            --text-secondary: #64748b;
+            --border-color: #e2e8f0;
+            --accent-color: #2563eb;
+            --accent-hover: #1d4ed8;
+            --success: #10b981;
+            --danger: #ef4444;
+            --warning: #f59e0b;
+        }
 
-        .main { flex: 1; padding: 40px; overflow-y: auto; width: 100%; display: flex; flex-direction: column; align-items: center; }
+        body.dark-mode {
+            --bg-body: #020617;
+            --bg-card: #0f172a;
+            --text-primary: #f8fafc;
+            --text-secondary: #94a3b8;
+            --border-color: #1e293b;
+        }
+
+        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+        
+        body { 
+            margin: 0; font-family: 'Inter', sans-serif; 
+            background-color: var(--bg-body); color: var(--text-primary);
+            display: flex; height: 100vh; overflow: hidden; transition: background-color 0.3s ease;
+        }
+
+        /* SIDEBAR */
+        .sidebar { width: 280px; background: var(--bg-card); border-right: 1px solid var(--border-color); padding: 30px 20px; display: flex; flex-direction: column; z-index: 1000; transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1); }
+        .brand { font-size: 20px; font-weight: 800; color: var(--text-primary); display: flex; align-items: center; gap: 12px; margin-bottom: 50px; padding-left: 10px; }
+        .brand-icon { width: 32px; height: 32px; background: var(--accent-color); border-radius: 8px; color: white; display: flex; align-items: center; justify-content: center; }
+        .menu-group { display: flex; flex-direction: column; gap: 5px; flex: 1; }
+        .menu-item { display: flex; align-items: center; gap: 12px; padding: 12px 16px; color: var(--text-secondary); text-decoration: none; font-size: 14px; font-weight: 500; border-radius: 12px; transition: 0.2s; }
+        .menu-item:hover { background: rgba(37, 99, 235, 0.05); color: var(--accent-color); }
+        .menu-item svg { width: 20px; height: 20px; stroke-width: 2px; }
+        .sidebar-footer { border-top: 1px solid var(--border-color); padding-top: 20px; margin-top: auto; display: flex; flex-direction: column; gap: 5px; }
+
+        /* MAIN CONTENT */
+        .main { flex: 1; padding: 40px; overflow-y: auto; position: relative; display: flex; flex-direction: column; align-items: center; }
+        .container { width: 100%; max-width: 600px; }
+
+        /* HEADER */
+        .mobile-header { display: none; width: 100%; justify-content: space-between; align-items: center; margin-bottom: 25px; }
+        .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 40px; width: 100%; max-width: 900px; }
+        .welcome h1 { font-size: 24px; font-weight: 700; margin: 0; color: var(--text-primary); }
+        .welcome p { color: var(--text-secondary); font-size: 13px; margin-top: 4px; }
+        
+        .header-actions { display: flex; gap: 15px; align-items: center; }
+        .icon-btn { width: 44px; height: 44px; border-radius: 12px; background: var(--bg-card); border: 1px solid var(--border-color); display: flex; align-items: center; justify-content: center; color: var(--text-primary); cursor: pointer; transition: 0.2s; position: relative; }
+        .notif-dot { position: absolute; top: 10px; right: 10px; width: 8px; height: 8px; background: var(--danger); border-radius: 50%; border: 2px solid var(--bg-card); }
+        .nav-avatar { width: 40px; height: 40px; min-width: 40px; min-height: 40px; border-radius: 50% !important; object-fit: cover; border: 2px solid var(--bg-card); box-shadow: 0 1px 3px rgba(0,0,0,0.1); cursor: pointer; }
 
         /* DETAILS CARD */
         .details-card { 
-            background: white; width: 100%; max-width: 600px; 
+            background: var(--bg-card); width: 100%; 
             border-radius: 24px; padding: 40px; 
-            box-shadow: 0 10px 30px rgba(0,0,0,0.05); text-align: center;
-            border: 1px solid var(--border);
+            box-shadow: 0 10px 40px rgba(0,0,0,0.05); text-align: center;
+            border: 1px solid var(--border-color);
         }
 
-        .txn-amount { font-size: 42px; font-weight: 800; color: var(--dark); margin: 10px 0; }
-        .txn-type { font-size: 14px; text-transform: uppercase; color: #64748b; font-weight: 600; letter-spacing: 1px; }
+        .txn-amount { font-size: 42px; font-weight: 800; margin: 10px 0; letter-spacing: -1px; }
+        .txn-type { font-size: 13px; text-transform: uppercase; color: var(--text-secondary); font-weight: 700; letter-spacing: 1px; }
         
-        .status-badge { padding: 6px 16px; border-radius: 20px; font-size: 12px; font-weight: 600; display: inline-block; margin-bottom: 30px; letter-spacing: 0.5px; }
+        .status-badge { padding: 6px 16px; border-radius: 20px; font-size: 11px; font-weight: 700; display: inline-block; margin-bottom: 30px; letter-spacing: 0.5px; text-transform: uppercase; }
         .status-success { background: #dcfce7; color: #166534; }
         .status-processing { background: #fef9c3; color: #854d0e; }
-        .status-pending { background: #fef9c3; color: #854d0e; }
         .status-failed { background: #fee2e2; color: #991b1b; }
 
         /* GRID */
         .info-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; text-align: left; margin-bottom: 40px; }
-        .info-item { padding: 15px; border-bottom: 1px solid #f1f5f9; }
-        .label { font-size: 11px; text-transform: uppercase; color: #64748b; font-weight: 600; margin-bottom: 5px; }
-        .value { font-size: 15px; font-weight: 500; color: var(--dark); }
+        .info-item { padding: 15px; border-bottom: 1px solid var(--border-color); }
+        .label { font-size: 11px; text-transform: uppercase; color: var(--text-secondary); font-weight: 700; margin-bottom: 5px; }
+        .value { font-size: 14px; font-weight: 600; color: var(--text-primary); }
 
         .btn-receipt { 
-            background: var(--primary); color: white; padding: 15px 30px; 
+            background: var(--accent-color); color: white; padding: 16px 30px; 
             border-radius: 12px; text-decoration: none; font-weight: 600; 
-            display: inline-block; width: 100%; box-sizing: border-box;
-            transition: 0.2s; box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            display: flex; align-items: center; justify-content: center; gap: 8px;
+            width: 100%; box-sizing: border-box;
+            transition: 0.2s; box-shadow: 0 4px 12px rgba(0,0,0,0.1); font-size: 14px;
         }
-        .btn-receipt:hover { transform: translateY(-2px); }
-        .btn-back { color: #64748b; text-decoration: none; font-size: 14px; margin-top: 20px; display: inline-block; }
+        .btn-receipt:hover { transform: translateY(-2px); opacity: 0.9; }
+        
+        .btn-back { 
+            color: var(--text-secondary); text-decoration: none; font-size: 13px; 
+            margin-top: 25px; display: inline-block; font-weight: 500; 
+        }
+        .btn-back:hover { color: var(--text-primary); }
+
+        /* NOTIFICATIONS */
+        .notif-dropdown { display: none; position: absolute; top: 60px; right: 20px; background: var(--bg-card); width: 320px; max-height: 400px; overflow-y: auto; box-shadow: 0 10px 40px rgba(0,0,0,0.15); border-radius: 16px; z-index: 3000; border: 1px solid var(--border-color); }
+        .notif-item { padding: 15px; border-bottom: 1px solid var(--border-color); transition: 0.2s; cursor: default; }
+        .notif-item:hover { background: var(--bg-body); }
+        .notif-msg { font-size: 13px; color: var(--text-primary); line-height: 1.4; }
+        .notif-time { font-size: 11px; color: var(--text-secondary); margin-top: 5px; }
+        .overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 999; backdrop-filter: blur(4px); }
 
         @media (max-width: 900px) {
-            .sidebar { display: none; } 
+            .sidebar { position: fixed; left: -280px; top: 0; height: 100%; transition: 0.3s; box-shadow: none; }
+            .sidebar.active { transform: translateX(280px); box-shadow: 10px 0 30px rgba(0,0,0,0.1); }
             .main { padding: 20px; }
-            .info-grid { grid-template-columns: 1fr; }
+            .mobile-header { display: flex; }
+            .header { display: none; }
+            .info-grid { grid-template-columns: 1fr; gap: 10px; }
+            .details-card { padding: 25px; }
+            .notif-dropdown { right: 20px; top: 70px; width: calc(100% - 40px); }
+            .nav-avatar { width: 40px !important; height: 40px !important; min-width: 40px !important; border: 2px solid var(--border-color); }
         }
     </style>
 </head>
-<body>
+<body class="{% if account.dark_mode %}dark-mode{% endif %}">
+
+    <div class="overlay" onclick="toggleSidebar()"></div>
 
     <!-- SIDEBAR -->
-    <div class="sidebar">
-        <div class="brand">VELTRIS</div>
-        <a href="/dashboard/" class="menu-item">Dashboard</a>
-        <a href="/transfer/" class="menu-item">Transfers</a>
-        <a href="/cards/" class="menu-item">My Cards</a>
-        <a href="/pay-bills/" class="menu-item">Pay Bills</a>
-        <a href="/analytics/" class="menu-item">Analytics</a>
+    <div class="sidebar" id="sidebar">
+        <div class="brand"><div class="brand-icon"><svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="3" viewBox="0 0 24 24"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg></div> VELTRIS</div>
+        <div class="menu-group">
+            <a href="/dashboard/" class="menu-item"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7"></rect><rect x="14" y="3" width="7" height="7"></rect><rect x="14" y="14" width="7" height="7"></rect><rect x="3" y="14" width="7" height="7"></rect></svg> Dashboard</a>
+            <a href="/transfer/" class="menu-item"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><line x1="7" y1="17" x2="17" y2="7"></line><polyline points="7 7 17 7 17 17"></polyline></svg> Transfers</a>
+            <a href="/cards/" class="menu-item"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><rect x="1" y="4" width="22" height="16" rx="2" ry="2"></rect><line x1="1" y1="10" x2="23" y2="10"></line></svg> Cards</a>
+            <a href="/pay-bills/" class="menu-item"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"></path></svg> Payments</a>
+            <a href="/loans/" class="menu-item"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path></svg> Credit & Loans</a>
+            <a href="/analytics/" class="menu-item"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M21.21 15.89A10 10 0 1 1 8 2.83"></path><path d="M22 12A10 10 0 0 0 12 2v10z"></path></svg> Insights</a>
+            <a href="/documents/" class="menu-item"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg> Statements</a>
+        </div>
         <div class="sidebar-footer">
-            <a href="/profile/" class="menu-item">Profile</a>
-            <a href="/support/" class="menu-item">Support</a>
-            <a href="/logout/" class="menu-item" style="color: #ef4444;">Sign Out</a>
+            <a href="/profile/" class="menu-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg> Profile</a>
+            <a href="/support/" class="menu-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg> Support</a>
+            <a href="/logout/" class="menu-item" style="color: var(--danger);"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path><polyline points="16 17 21 12 16 7"></polyline><line x1="21" y1="12" x2="9" y2="12"></line></svg> Sign Out</a>
         </div>
     </div>
 
     <div class="main">
-        <div class="details-card">
-            
-            <div class="txn-type">{{ t.transaction_type }}</div>
-            
-            <!-- Amount Color Logic -->
-            <div class="txn-amount" style="{% if t.receiver == request.user %}color: #166534;{% else %}color: var(--dark);{% endif %}">
-                {% if t.receiver == request.user %}+{% else %}-{% endif %}${{ t.amount }}
+        <!-- MOBILE HEADER -->
+        <div class="mobile-header">
+            <div style="display: flex; align-items: center; gap: 15px;">
+                <div onclick="toggleSidebar()">
+                    {% if account.profile_pic %}
+                        <img src="{{ account.profile_pic.url }}" class="nav-avatar">
+                    {% else %}
+                        <div class="nav-avatar" style="background: #e2e8f0; color: #64748b; display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 14px;">{{ user.username|slice:":1" }}</div>
+                    {% endif %}
+                </div>
+                <div style="font-weight: 800; color: var(--accent-color); font-size: 20px;">DETAILS</div>
             </div>
 
-            <div class="status-badge status-{{ t.status }}">{{ t.status|title }}</div>
+            <div class="icon-btn" onclick="toggleNotifs()">
+                <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path><path d="M13.73 21a2 2 0 0 1-3.46 0"></path></svg>
+                {% if unread_count > 0 %}<div class="notif-dot"></div>{% endif %}
+            </div>
+        </div>
 
-            <div class="info-grid">
-                <div class="info-item">
-                    <div class="label">Date & Time</div>
-                    <div class="value">{{ t.date }}</div>
+        <!-- DESKTOP HEADER -->
+        <div class="header">
+            <div class="welcome-text">
+                <h1 class="page-title">Transaction Details</h1>
+                <div class="page-subtitle">View details and download receipts.</div>
+            </div>
+            
+            <div class="header-actions">
+                <div class="icon-btn" onclick="toggleNotifs()">
+                    <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path><path d="M13.73 21a2 2 0 0 1-3.46 0"></path></svg>
+                    {% if unread_count > 0 %}<div class="notif-dot"></div>{% endif %}
                 </div>
-                <div class="info-item">
-                    <div class="label">Reference ID</div>
-                    <div class="value">#TRX-{{ t.id }}9928</div>
+                <div class="user-pill" onclick="window.location.href='/profile/'">
+                    {% if account.profile_pic %}
+                        <img src="{{ account.profile_pic.url }}" class="avatar">
+                    {% else %}
+                        <div class="avatar" style="display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:bold;">{{ user.username|slice:":1" }}</div>
+                    {% endif %}
+                    <span class="user-name">{{ user.username }}</span>
+                    <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M6 9l6 6 6-6"/></svg>
                 </div>
+            </div>
+        </div>
+
+        <!-- NOTIFICATION DROPDOWN -->
+        <div id="notif-dropdown" class="notif-dropdown">
+            <div class="notif-head">
+                <span>NOTIFICATIONS</span>
+                <span style="color:var(--accent-color); cursor:pointer;" onclick="clearAllNotifications()">Clear All</span>
+            </div>
+            <div class="notif-list">
+                {% for n in notifications %}
+                <div class="notif-item">
+                    <div class="n-msg">{{ n.message }}</div>
+                    <div class="n-time">{{ n.date|timesince }} ago</div>
+                </div>
+                {% empty %}
+                <div style="padding:20px; text-align:center; color:var(--text-secondary); font-size:13px;">No new notifications</div>
+                {% endfor %}
+            </div>
+        </div>
+
+        <div class="container">
+            <div class="details-card">
                 
-                <!-- SENDER LOGIC -->
-                <div class="info-item">
-                    <div class="label">From</div>
-                    <div class="value">
-                        {% if t.sender %}
-                            {{ t.sender.username }}
-                        {% else %}
-                            External Source
-                        {% endif %}
-                    </div>
+                <div class="txn-type">{{ t.transaction_type|title }}</div>
+                
+                <!-- Amount Color Logic -->
+                <div class="txn-amount" style="{% if t.receiver == user %}color: #10b981;{% else %}color: var(--text-primary);{% endif %}">
+                    {% if t.receiver == user %}+{% else %}-{% endif %}${{ t.amount|intcomma }}
                 </div>
 
-                <!-- RECEIVER LOGIC (FIXED) -->
-                <div class="info-item">
-                    <div class="label">To</div>
-                    <div class="value">
-                        {% if t.receiver %}
-                            <!-- Internal User -->
-                            {% if t.receiver == request.user %}
-                                You ({{ request.user.first_name }})
+                <div class="status-badge status-{{ t.status }}">{{ t.status|upper }}</div>
+
+                <div class="info-grid">
+                    <div class="info-item">
+                        <div class="label">Date & Time</div>
+                        <div class="value">{{ t.date|date:"M d, Y H:i" }}</div>
+                    </div>
+                    <div class="info-item">
+                        <div class="label">Reference ID</div>
+                        <div class="value">#TRX-{{ t.id }}9928</div>
+                    </div>
+                    
+                    <!-- SENDER -->
+                    <div class="info-item">
+                        <div class="label">From</div>
+                        <div class="value">
+                            {% if t.sender %}
+                                {{ t.sender.first_name }} {{ t.sender.last_name }}
                             {% else %}
-                                {{ t.receiver.first_name }} {{ t.receiver.last_name }}
+                                External Source
                             {% endif %}
-                        {% else %}
-                            <!-- External / Wire / Bill -->
-                            {{ t.note|default:"External Beneficiary" }}
-                        {% endif %}
+                        </div>
                     </div>
-                </div>
-                
-                <!-- Extra Details for Wires -->
-                {% if t.routing_number %}
-                <div class="info-item">
-                    <div class="label">Routing Number</div>
-                    <div class="value">{{ t.routing_number }}</div>
-                </div>
-                {% endif %}
-                
-                {% if t.receiver_account_number %}
-                <div class="info-item">
-                    <div class="label">External Account</div>
-                    <div class="value">{{ t.receiver_account_number }}</div>
-                </div>
-                {% endif %}
 
-                {% if t.receiver_bank_name %}
-                <div class="info-item">
-                    <div class="label">Bank Name</div>
-                    <div class="value">{{ t.receiver_bank_name }}</div>
+                    <!-- RECEIVER -->
+                    <div class="info-item">
+                        <div class="label">To</div>
+                        <div class="value">
+                            {% if t.receiver %}
+                                {% if t.receiver == user %}
+                                    You ({{ user.first_name }})
+                                {% else %}
+                                    {{ t.receiver.first_name }} {{ t.receiver.last_name }}
+                                {% endif %}
+                            {% else %}
+                                {{ t.note|default:"External Beneficiary" }}
+                            {% endif %}
+                        </div>
+                    </div>
+                    
+                    {% if t.routing_number %}
+                    <div class="info-item">
+                        <div class="label">Routing Number</div>
+                        <div class="value">{{ t.routing_number }}</div>
+                    </div>
+                    {% endif %}
+                    
+                    {% if t.receiver_account_number %}
+                    <div class="info-item">
+                        <div class="label">Account Number</div>
+                        <div class="value">{{ t.receiver_account_number }}</div>
+                    </div>
+                    {% endif %}
+
+                    {% if t.receiver_bank_name %}
+                    <div class="info-item">
+                        <div class="label">Bank Name</div>
+                        <div class="value">{{ t.receiver_bank_name }}</div>
+                    </div>
+                    {% endif %}
                 </div>
-                {% endif %}
+
+                <!-- BUTTON TO VIEW OFFICIAL RECEIPT -->
+                <a href="/transaction/{{ t.id }}/receipt/" class="btn-receipt">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg>
+                    View Official Receipt
+                </a>
+                
+                <a href="/dashboard/" class="btn-back">← Back to Dashboard</a>
             </div>
-
-            <!-- BUTTON TO VIEW OFFICIAL RECEIPT -->
-            <a href="/transaction/{{ t.id }}/receipt/" class="btn-receipt">📄 View Official Receipt</a>
-            
-            <br>
-            <a href="/dashboard/" class="btn-back">← Back to Dashboard</a>
         </div>
     </div>
 
+    <script>
+        // DARK MODE CHECK
+        if("{{ account.dark_mode }}" === "True") { document.body.classList.add('dark-mode'); }
+
+        function toggleSidebar() { document.getElementById('sidebar').classList.toggle('active'); document.querySelector('.overlay').style.display = document.getElementById('sidebar').classList.contains('active') ? 'block' : 'none'; }
+        function toggleNotifs() { var x = document.getElementById("notif-dropdown"); x.style.display = x.style.display === "block" ? "none" : "block"; }
+        window.onclick = function(event) { if (!event.target.matches('.icon-btn') && !event.target.closest('.icon-btn') && !event.target.matches('.notif-dropdown') && !event.target.closest('.notif-dropdown')) { document.getElementById("notif-dropdown").style.display = "none"; } }
+        function clearAllNotifications() { if(confirm('Clear all?')) window.location.href="{% url 'clear_notifications' %}"; }
+    </script>
 </body>
 </html>
