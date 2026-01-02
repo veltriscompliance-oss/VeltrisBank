@@ -109,6 +109,12 @@ TIME_ZONE = 'UTC'
 USE_I18N = True
 USE_TZ = True
 
+# --- NUMBER FORMATTING FIX ---
+# This forces Django to naturally add commas (e.g., 10,000.00)
+USE_L10N = True
+USE_THOUSAND_SEPARATOR = True
+NUMBER_GROUPING = 3
+
 # --- STATIC & MEDIA FILES ---
 STATIC_URL = 'static/'
 STATIC_ROOT = BASE_DIR / 'staticfiles'
