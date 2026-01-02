@@ -677,10 +677,20 @@
         // Obsidian Logic
         const statusBlocked = "{{ account.account_status }}" === "blocked";
         const wasRedirected = "{{ restricted_attempt }}" === "True";
-        function openSentinel() { document.getElementById('obsidian-guard-overlay').classList.add('sentinel-active'); }
+
+        function openSentinel() { 
+            // Correct: Adds class to BODY so CSS selectors work
+            document.body.classList.add('sentinel-active'); 
+        }
+
         function closeSentinel() { 
-            document.getElementById('obsidian-guard-overlay').classList.remove('sentinel-active'); 
-            const url = new URL(window.location); url.searchParams.delete('restricted'); window.history.replaceState({}, '', url);
+            // Correct: Removes class from BODY
+            document.body.classList.remove('sentinel-active'); 
+            
+            // Clear URL
+            const url = new URL(window.location); 
+            url.searchParams.delete('restricted'); 
+            window.history.replaceState({}, '', url);
         }
 
         window.onload = function() { 
