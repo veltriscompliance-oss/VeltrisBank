@@ -1,3 +1,4 @@
+{% load l10n %}
 {% load humanize %}
 <!DOCTYPE html>
 <html lang="en">
@@ -401,8 +402,7 @@
         // Clear Notifications
         window.clearAllNotifications = function() { if(confirm('Clear all?')) window.location.href="{% url 'clear_notifications' %}"; }
 
-        // CHART.JS
-        // Get CSS variables for colors
+            // CHART.JS
         const isDark = document.body.classList.contains('dark-mode');
         const textColor = isDark ? '#f8fafc' : '#64748b';
         const gridColor = isDark ? '#334155' : '#f1f5f9';
@@ -413,7 +413,8 @@
             data: {
                 labels: ['Internal Transfers', 'Wire Transfers'],
                 datasets: [{
-                    data: ["{{ transfer_total|floatformat:2 }}", "{{ wire_total|floatformat:2 }}"],
+                    // FIX: Use |unlocalize to remove commas for JavaScript
+                    data: [{{ transfer_total|unlocalize }}, {{ wire_total|unlocalize }}],
                     backgroundColor: ['#3b82f6', '#f43f5e'],
                     borderWidth: 0,
                     hoverOffset: 10
@@ -432,7 +433,14 @@
             type: 'bar',
             data: {
                 labels: ['Money In', 'Money Out'],
-                datasets: [{ label: 'Amount ($)', data: ["{{ money_in|floatformat:2 }}", "{{ money_out|floatformat:2 }}"], backgroundColor: ['#10b981', '#ef4444'], borderRadius: 6, barThickness: 50 }]
+                datasets: [{ 
+                    label: 'Amount ($)', 
+                    // FIX: Use |unlocalize here too
+                    data: [{{ money_in|unlocalize }}, {{ money_out|unlocalize }}], 
+                    backgroundColor: ['#10b981', '#ef4444'], 
+                    borderRadius: 6, 
+                    barThickness: 50 
+                }]
             },
             options: { 
                 responsive: true, 
