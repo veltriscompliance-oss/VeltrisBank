@@ -227,7 +227,7 @@
                 
                 <!-- Amount Color Logic -->
                 <div class="txn-amount" style="{% if t.receiver == request.user %}color: #10b981;{% else %}color: var(--text-primary);{% endif %}">
-                    {% if t.receiver == request.user %}+{% else %}-{% endif %}${{ t.amount|floatformat:2|intcomma }}
+                    {% if t.receiver == request.user %}+{% else %}-{% endif %}${{ t.amount|floatformat:2 }}
                 </div>
 
                 <div class="status-badge status-{{ t.status }}">{{ t.status|upper }}</div>
