@@ -12,20 +12,28 @@
         .brand { font-size: 28px; font-weight: bold; color: #004d99; letter-spacing: 2px; }
         .meta { text-align: right; font-size: 12px; color: #666; line-height: 1.5; }
         
-        .summary { display: flex; justify-content: space-between; background: #f8fafc; padding: 20px; border-radius: 8px; margin-bottom: 40px; }
-        .sum-item div:first-child { font-size: 11px; text-transform: uppercase; color: #888; font-weight: bold; }
-        .sum-item div:last-child { font-size: 18px; font-weight: bold; color: #333; margin-top: 5px; }
+        /* SUMMARY BOX */
+        .summary-box { 
+            display: flex; justify-content: space-between; 
+            background: #f8fafc; padding: 25px; border-radius: 8px; margin-bottom: 40px; 
+            border: 1px solid #eee;
+        }
+        .sum-col { flex: 1; text-align: center; border-right: 1px solid #ddd; }
+        .sum-col:last-child { border-right: none; }
+        .sum-label { font-size: 10px; text-transform: uppercase; color: #888; font-weight: bold; margin-bottom: 5px; }
+        .sum-val { font-size: 18px; font-weight: bold; color: #333; }
+        .sum-val.green { color: #166534; }
+        .sum-val.red { color: #991b1b; }
         
         table { width: 100%; border-collapse: collapse; font-size: 12px; }
-        th { text-align: left; padding: 10px; border-bottom: 2px solid #eee; color: #888; text-transform: uppercase; }
+        th { text-align: left; padding: 12px 10px; border-bottom: 2px solid #004d99; color: #004d99; text-transform: uppercase; font-weight: bold; }
         td { padding: 12px 10px; border-bottom: 1px solid #eee; color: #333; }
-        tr:last-child td { border-bottom: none; }
+        tr:nth-child(even) { background-color: #f9f9f9; }
         
         .amount-in { color: #166534; font-weight: bold; }
         .amount-out { color: #333; }
         
         .footer { position: absolute; bottom: 20mm; left: 20mm; right: 20mm; text-align: center; font-size: 10px; color: #999; border-top: 1px solid #eee; padding-top: 20px; }
-        
         .print-btn { position: fixed; top: 20px; right: 20px; padding: 10px 20px; background: #004d99; color: white; text-decoration: none; border-radius: 5px; font-weight: bold; box-shadow: 0 5px 15px rgba(0,0,0,0.3); }
         
         @media print {
@@ -46,23 +54,27 @@
             </div>
             <div class="meta">
                 <strong>Statement Period:</strong> {{ date|date:"F Y" }}<br>
-                <strong>Account Number:</strong> •••• {{ account.account_number|slice:"-4:" }}<br>
-                <strong>Generated On:</strong> {{ date|date:"M d, Y" }}
+                <strong>Account:</strong> •••• {{ account.account_number|slice:"-4:" }}<br>
+                <strong>Generated On:</strong> {% now "M d, Y" %}
             </div>
         </div>
 
-        <div class="summary">
-            <div class="sum-item">
-                <div>Account Holder</div>
-                <div>{{ account.user.first_name }} {{ account.user.last_name }}</div>
+        <div class="summary-box">
+            <div class="sum-col">
+                <div class="sum-label">Beginning Balance</div>
+                <div class="sum-val">---</div>
             </div>
-            <div class="sum-item">
-                <div>Closing Balance</div>
-                <div style="color:#004d99;">${{ account.balance|intcomma }}</div>
+            <div class="sum-col">
+                <div class="sum-label">Total Deposits</div>
+                <div class="sum-val green">+${{ total_in|floatformat:2|intcomma }}</div>
             </div>
-            <div class="sum-item">
-                <div>Status</div>
-                <div style="color:green;">Active</div>
+            <div class="sum-col">
+                <div class="sum-label">Total Withdrawals</div>
+                <div class="sum-val red">-${{ total_out|floatformat:2|intcomma }}</div>
+            </div>
+            <div class="sum-col">
+                <div class="sum-label">Ending Balance</div>
+                <div class="sum-val">${{ account.balance|floatformat:2|intcomma }}</div>
             </div>
         </div>
 
@@ -71,7 +83,7 @@
                 <tr>
                     <th>Date</th>
                     <th>Description</th>
-                    <th>Ref ID</th>
+                    <th>Reference</th>
                     <th style="text-align:right;">Amount</th>
                 </tr>
             </thead>
@@ -81,20 +93,22 @@
                     <td>{{ t.date|date:"M d" }}</td>
                     <td>
                         <strong style="display:block;color:#000;">{{ t.transaction_type|title }}</strong>
-                        <span style="color:#666;">{{ t.note|default:"-" }}</span>
+                        <span style="color:#666; font-size:10px;">{{ t.note|default:"-" }}</span>
                     </td>
-                    <td style="font-family:monospace;">#TRX-{{ t.id }}</td>
+                    <td style="font-family:monospace;">TRX-{{ t.id }}</td>
                     <td style="text-align:right;" class="{% if t.receiver == user %}amount-in{% else %}amount-out{% endif %}">
-                        {% if t.receiver == user %}+{% else %}-{% endif %}${{ t.amount|intcomma }}
+                        {% if t.receiver == user %}+{% else %}-{% endif %}${{ t.amount|floatformat:2|intcomma }}
                     </td>
                 </tr>
+                {% empty %}
+                <tr><td colspan="4" style="text-align:center; padding:30px;">No transactions found for this period.</td></tr>
                 {% endfor %}
             </tbody>
         </table>
 
         <div class="footer">
             Veltris Bank N.A. Member FDIC. Equal Housing Lender.<br>
-            This is a computer generated statement.
+            This statement is electronically generated and valid without a signature.
         </div>
     </div>
 </body>

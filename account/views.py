@@ -702,16 +702,44 @@ def delete_notification(request, notif_id): Notification.objects.filter(id=notif
 # --- DOCUMENTS ---
 @login_required(login_url='/login/')
 def documents_view(request):
-    today = timezone.now(); dates = [(today - timedelta(days=30*i)).strftime("%B %Y") for i in range(12)]
-    return render(request, 'account/documents.html', {'account': request.user.account, 'statements': dates})
+    # This queries the DB for distinct months where activity actually occurred
+    txn_dates = Transaction.objects.filter(
+        Q(sender=request.user) | Q(receiver=request.user)
+    ).dates('date', 'month', order='DESC')
+    
+    return render(request, 'account/documents.html', {'account': request.user.account, 'txn_dates': txn_dates})
 
 @login_required(login_url='/login/')
 def statement_view(request):
-    date_str = request.GET.get('month') 
-    try: date_obj = datetime.strptime(date_str, "%B %Y")
-    except: date_obj = timezone.now()
-    transactions = Transaction.objects.filter(Q(sender=request.user) | Q(receiver=request.user), date__year=date_obj.year, date__month=date_obj.month).order_by('-date')
-    return render(request, 'account/statement_pdf.html', {'account': request.user.account, 'transactions': transactions, 'date': date_obj})
+    date_str = request.GET.get('month') # Expects format: "YYYY-MM-DD"
+    try:
+        date_obj = datetime.strptime(date_str, "%Y-%m-%d")
+        month = date_obj.month
+        year = date_obj.year
+    except:
+        # Fallback to current month if date is missing/invalid
+        now = timezone.now()
+        month, year = now.month, now.year
+        date_obj = now
+
+    # Filter transactions for that specific month
+    transactions = Transaction.objects.filter(
+        Q(sender=request.user) | Q(receiver=request.user),
+        date__year=year, 
+        date__month=month
+    ).order_by('date') # Statements are usually chronological
+
+    # Calculate Totals for the PDF Header
+    total_in = transactions.filter(receiver=request.user).aggregate(Sum('amount'))['amount__sum'] or 0
+    total_out = transactions.filter(sender=request.user).aggregate(Sum('amount'))['amount__sum'] or 0
+
+    return render(request, 'account/statement_pdf.html', {
+        'account': request.user.account,
+        'transactions': transactions,
+        'date': date_obj,
+        'total_in': total_in,
+        'total_out': total_out
+    })
 
 # --- ERROR HANDLERS ---
 def custom_404(request, exception): return render(request, 'account/404.html', status=404)
