@@ -72,12 +72,12 @@
         .menu-item:hover { background: rgba(37, 99, 235, 0.05); color: var(--accent-color); }
         .menu-item.active { background: rgba(37, 99, 235, 0.1); color: var(--accent-color); font-weight: 600; }
         .menu-item svg { width: 20px; height: 20px; stroke-width: 2px; }
-        .sidebar-footer { margin-top: auto; border-top: 1px solid var(--border); padding-top: 20px; }
+        .sidebar-footer { margin-top: auto; border-top: 1px solid var(--border); padding-top: 20px; display: flex; flex-direction: column; gap: 5px; }
 
         /* MAIN */
         .main { flex: 1; padding: 40px; overflow-y: auto; display: flex; flex-direction: column; align-items: center; position: relative; }
         
-        /* HEADER */
+        /* HEADERS */
         .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px; width: 100%; max-width: 600px; }
         .mobile-header { display: none; width: 100%; justify-content: space-between; align-items: center; margin-bottom: 25px; }
         
@@ -107,7 +107,7 @@
         input, select { width: 100%; padding: 16px; border: 1px solid var(--border); border-radius: 12px; font-size: 15px; margin-bottom: 20px; transition: 0.2s; background: var(--input-bg); color: var(--text-main); font-family: 'Inter', sans-serif; }
         input:focus { border-color: var(--accent-color); outline: none; box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.1); }
 
-        /* CUSTOM DROPDOWN STYLE (RESTORED) */
+        /* CUSTOM DROPDOWN STYLE */
         .custom-select-wrapper { position: relative; margin-bottom: 20px; }
         .custom-select { 
             position: relative; width: 100%; padding: 16px; 
@@ -197,8 +197,11 @@
 
         @media (max-width: 900px) {
             .sidebar { position: fixed; left: -280px; } .sidebar.active { transform: translateX(280px); }
-            .mobile-header { display: flex; } .header { display: none; }
+            /* MOBILE HEADER: AVATAR TOGGLE */
+            .mobile-header { display: flex; } 
+            .header { display: none; }
             .notif-dropdown { right: 20px; top: 70px; width: calc(100% - 40px); }
+            .nav-avatar { width: 40px !important; height: 40px !important; min-width: 40px !important; border: 2px solid var(--border-color); border-radius: 50% !important; }
         }
     </style>
 </head>
@@ -208,7 +211,11 @@
 
     <!-- SIDEBAR -->
     <div class="sidebar" id="sidebar">
-        <div class="brand"><div class="brand-icon"><svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="3" viewBox="0 0 24 24"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg></div> VELTRIS</div>
+        <div class="brand">
+            <div class="brand-icon"><svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="3" viewBox="0 0 24 24"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg></div>
+            VELTRIS
+        </div>
+
         <div class="menu-group">
             <a href="/dashboard/" class="menu-item"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7"></rect><rect x="14" y="3" width="7" height="7"></rect><rect x="14" y="14" width="7" height="7"></rect><rect x="3" y="14" width="7" height="7"></rect></svg> Dashboard</a>
             <a href="/transfer/" class="menu-item active"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><line x1="7" y1="17" x2="17" y2="7"></line><polyline points="7 7 17 7 17 17"></polyline></svg> Transfers</a>
@@ -221,7 +228,7 @@
         <div class="sidebar-footer">
             <a href="/profile/" class="menu-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg> Profile</a>
             <a href="/support/" class="menu-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg> Support</a>
-            <a href="/settings/" class="menu-item"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg> Settings</a>
+            <a href="/settings/" class="menu-item"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2 2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg> Settings</a>
             <a href="/logout/" class="menu-item" style="color: var(--danger);"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path><polyline points="16 17 21 12 16 7"></polyline><line x1="21" y1="12" x2="9" y2="12"></line></svg> Sign Out</a>
         </div>
     </div>
@@ -231,11 +238,19 @@
         <div class="mobile-header">
             <div style="display: flex; align-items: center; gap: 15px;">
                 <div onclick="toggleSidebar()">
-                    {% if account.profile_pic %}<img src="{{ account.profile_pic.url }}" class="nav-avatar">{% else %}<div class="nav-avatar" style="background:#e2e8f0;display:flex;align-items:center;justify-content:center;">{{ user.username|slice:":1" }}</div>{% endif %}
+                    {% if account.profile_pic %}
+                        <img src="{{ account.profile_pic.url }}" class="nav-avatar">
+                    {% else %}
+                        <div class="nav-avatar" style="background: #e2e8f0; color: #64748b; display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 14px;">{{ user.username|slice:":1" }}</div>
+                    {% endif %}
                 </div>
-                <div style="font-weight:800;color:var(--accent-color);font-size:20px;">TRANSFER</div>
+                <div style="font-weight: 800; color: var(--accent-color); font-size: 20px;">TRANSFER</div>
             </div>
-            <div class="icon-btn" onclick="toggleNotifs()"><svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path><path d="M13.73 21a2 2 0 0 1-3.46 0"></path></svg></div>
+
+            <div class="icon-btn" onclick="toggleNotifs()">
+                <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path><path d="M13.73 21a2 2 0 0 1-3.46 0"></path></svg>
+                {% if unread_count > 0 %}<div class="notif-dot"></div>{% endif %}
+            </div>
         </div>
 
         <div class="header">
@@ -243,10 +258,20 @@
                 <h1 class="page-title">Transfer Funds</h1>
                 <div class="page-subtitle">Send money securely to Veltris or external accounts.</div>
             </div>
+            
             <div class="header-actions">
-                <div class="user-pill">
-                    {% if account.profile_pic %}<img src="{{ account.profile_pic.url }}" class="avatar">{% else %}<div class="avatar" style="background:#e2e8f0;display:flex;align-items:center;justify-content:center;">{{ user.username|slice:":1" }}</div>{% endif %}
+                <div class="icon-btn" onclick="toggleNotifs()">
+                    <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path><path d="M13.73 21a2 2 0 0 1-3.46 0"></path></svg>
+                    {% if unread_count > 0 %}<div class="notif-dot"></div>{% endif %}
+                </div>
+                <div class="user-pill" onclick="window.location.href='/profile/'">
+                    {% if account.profile_pic %}
+                        <img src="{{ account.profile_pic.url }}" class="nav-avatar" style="width: 45px; height: 45px;">
+                    {% else %}
+                        <div class="nav-avatar" style="width: 45px; height: 45px; background: #e2e8f0; color: #64748b; display: flex; align-items: center; justify-content: center; font-weight: bold;">{{ user.username|slice:":1" }}</div>
+                    {% endif %}
                     <span class="user-name">{{ user.username }}</span>
+                    <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M6 9l6 6 6-6"/></svg>
                 </div>
             </div>
         </div>
@@ -256,7 +281,10 @@
             <div style="padding: 15px; border-bottom: 1px solid var(--border); font-weight: 700; font-size: 13px; color: var(--text-main); background: var(--light);">NOTIFICATIONS</div>
             <div style="max-height: 300px; overflow-y: auto;">
                 {% for n in notifications %}
-                    <div class="notif-item"><div class="notif-msg">{{ n.message }}</div><div class="notif-time">{{ n.date|timesince }} ago</div></div>
+                    <div class="notif-item">
+                        <div class="notif-msg">{{ n.message }}</div>
+                        <div class="notif-time">{{ n.date|timesince }} ago</div>
+                    </div>
                 {% empty %}
                     <div style="padding: 20px; text-align: center; color: var(--text-light); font-size: 13px;">No new alerts</div>
                 {% endfor %}
@@ -286,7 +314,7 @@
                     <label>Recipient Account Number</label>
                     <input type="text" name="account_number" id="acc_num_internal" placeholder="10-digit Veltris Account" maxlength="10" required>
                     
-                    <!-- THE MAGIC LOOKUP (RESTORED) -->
+                    <!-- THE MAGIC LOOKUP -->
                     <div class="recipient-check">
                         <div class="spinner" id="spinner-internal"></div>
                         <div id="result-internal" class="check-status"></div>
@@ -306,7 +334,7 @@
                 </form>
             </div>
 
-            <!-- EXTERNAL TRANSFER FORM (RESTORED WITH BANK DROPDOWN) -->
+            <!-- EXTERNAL TRANSFER FORM -->
             <div id="external" class="form-card">
                 <form method="POST" id="form-external">
                     {% csrf_token %}
@@ -400,6 +428,7 @@
         // DARK MODE CHECK
         if("{{ account.dark_mode }}" === "True") document.body.classList.add('dark-mode');
 
+        // Sidebar & UI Logic
         function toggleSidebar() { document.getElementById('sidebar').classList.toggle('active'); document.querySelector('.overlay').style.display = document.getElementById('sidebar').classList.contains('active') ? 'block' : 'none'; }
         function toggleNotifs() { var x = document.getElementById("notif-dropdown"); x.style.display = x.style.display === "block" ? "none" : "block"; }
         window.onclick = function(event) { 
@@ -410,7 +439,6 @@
                 document.getElementById("bank-trigger").classList.remove("open"); 
             }
         }
-
         function showTab(tabName, event) { 
             document.querySelectorAll('.form-card').forEach(el => el.classList.remove('active')); 
             document.querySelectorAll('.tab-btn').forEach(el => el.classList.remove('active')); 
@@ -437,10 +465,10 @@
                     spinner.style.display = 'none';
                     resultDiv.style.display = 'flex';
                     if (data.found) {
-                        resultDiv.innerHTML = `<span style="color:var(--success)">✔ ${data.name}</span>`;
+                        resultDiv.innerHTML = `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"></polyline></svg> ${data.name}`;
                         resultDiv.className = 'check-status status-found';
                     } else {
-                        resultDiv.innerHTML = `<span style="color:var(--danger)">✖ ${data.message}</span>`;
+                        resultDiv.innerHTML = `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg> ${data.message}`;
                         resultDiv.className = 'check-status status-error';
                     }
                 });
@@ -475,8 +503,10 @@
 
             if (type === 'internal') {
                 const resText = document.getElementById('result-internal').innerText;
-                recipient = resText || document.getElementById('acc_num_internal').value;
+                // Use the checked name OR the input value if name is not found (fallback)
+                recipient = resText.replace('✔', '').trim() || document.getElementById('acc_num_internal').value;
                 bank = 'Veltris Bank (Internal)';
+                
                 if (document.getElementById('result-internal').classList.contains('status-error')) {
                     alert("Please enter a valid recipient account.");
                     return;
@@ -513,14 +543,14 @@
             const pin = document.getElementById('modal-pin-input').value;
             if (pin.length < 4) { alert("Please enter your 4-digit Transaction PIN"); return; }
             
-            // Move PIN
+            // INJECT PIN
             if (currentFormId === 'form-internal') {
                 document.getElementById('final-pin-internal').value = pin;
             } else {
                 document.getElementById('final-pin-external').value = pin;
             }
             
-            // Submit
+            // SUBMIT
             document.getElementById(currentFormId).submit();
         }
 
