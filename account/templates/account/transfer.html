@@ -47,7 +47,14 @@
         body.dark-mode .tab-btn.active { background: var(--card-bg); color: #60a5fa; }
         body.dark-mode .tabs-wrapper { background: var(--light); border-color: var(--border); }
         
-        /* Modal Dark Mode */
+        /* Dark Mode for Custom Dropdown */
+        body.dark-mode .custom-select { background: var(--input-bg); border-color: var(--border); color: white; }
+        body.dark-mode .custom-options { background: var(--card-bg); border-color: var(--border); }
+        body.dark-mode .custom-option { color: var(--text-main); }
+        body.dark-mode .custom-option:hover { background: var(--light); }
+        body.dark-mode .arrow { border-color: white; }
+
+        /* Dark Mode for Modal */
         body.dark-mode .ticket-card { background: var(--card-bg); border-color: var(--border); }
         body.dark-mode .detail-val { color: white; }
         body.dark-mode .pin-input { background: var(--input-bg); color: white; border-color: var(--border); }
@@ -70,10 +77,9 @@
         /* MAIN */
         .main { flex: 1; padding: 40px; overflow-y: auto; display: flex; flex-direction: column; align-items: center; position: relative; }
         
-        /* HEADERS */
+        /* HEADER */
         .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px; width: 100%; max-width: 600px; }
-        .mobile-header { display: none; width: 100%; justify-content: space-between; align-items: center; margin-bottom: 10px; }
-        .mobile-welcome-text { display: none; font-size: 16px; font-weight: 700; color: var(--text-primary); margin-bottom: 20px; }
+        .mobile-header { display: none; width: 100%; justify-content: space-between; align-items: center; margin-bottom: 25px; }
         
         .page-title { margin: 0; font-size: 24px; font-weight: 700; }
         .page-subtitle { color: var(--text-light); font-size: 13px; margin-top: 4px; }
@@ -100,6 +106,40 @@
         label { display: block; font-size: 11px; font-weight: 700; color: var(--text-light); margin-bottom: 8px; text-transform: uppercase; letter-spacing: 0.5px; }
         input, select { width: 100%; padding: 16px; border: 1px solid var(--border); border-radius: 12px; font-size: 15px; margin-bottom: 20px; transition: 0.2s; background: var(--input-bg); color: var(--text-main); font-family: 'Inter', sans-serif; }
         input:focus { border-color: var(--accent-color); outline: none; box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.1); }
+
+        /* CUSTOM DROPDOWN STYLE (RESTORED) */
+        .custom-select-wrapper { position: relative; margin-bottom: 20px; }
+        .custom-select { 
+            position: relative; width: 100%; padding: 16px; 
+            border: 1px solid var(--border); border-radius: 12px; 
+            background: var(--input-bg); cursor: pointer; 
+            display: flex; align-items: center; justify-content: space-between; 
+            font-size: 15px; color: var(--text-main); transition: 0.2s; 
+        }
+        .custom-select:hover { border-color: var(--text-light); }
+        .custom-select.open { border-color: var(--accent-color); box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.1); }
+        
+        .custom-options { 
+            position: absolute; top: 110%; left: 0; right: 0; 
+            background: var(--card-bg); border: 1px solid var(--border); border-radius: 12px; 
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1); z-index: 100; 
+            overflow: hidden; display: none; max-height: 250px; overflow-y: auto; 
+        }
+        .custom-options.show { display: block; }
+        
+        .custom-option { 
+            padding: 12px 16px; display: flex; align-items: center; gap: 12px; 
+            cursor: pointer; transition: 0.1s; font-size: 14px; color: var(--text-main); 
+        }
+        .custom-option:hover { background: var(--light); }
+        
+        .custom-option img, .custom-select img { 
+            width: 24px !important; height: 24px !important; 
+            object-fit: contain; border-radius: 50%; border: 1px solid #eee; flex-shrink: 0;
+        }
+
+        .arrow { width: 10px; height: 10px; border-left: 2px solid var(--text-light); border-bottom: 2px solid var(--text-light); transform: rotate(-45deg); transition: 0.2s; }
+        .custom-select.open .arrow { transform: rotate(135deg); margin-top: 5px; }
 
         .submit-btn { width: 100%; padding: 16px; background: var(--accent-color); color: white; border: none; border-radius: 12px; font-size: 16px; font-weight: 600; cursor: pointer; transition: 0.2s; display: flex; align-items: center; justify-content: center; gap: 8px; box-shadow: 0 4px 12px rgba(37, 99, 235, 0.2); }
         .submit-btn:hover { transform: translateY(-1px); background: var(--accent-hover); }
@@ -134,7 +174,7 @@
 
         .pin-input { letter-spacing: 8px; text-align: center; font-size: 24px; font-weight: 800; }
 
-        .confirm-btn { width: 100%; padding: 16px; background: var(--text-main); color: var(--bg-card); border: none; border-radius: 12px; font-size: 15px; font-weight: 600; cursor: pointer; margin-top: 20px; transition: 0.2s; }
+        .confirm-btn { width: 100%; padding: 16px; background: var(--text-main); color: var(--card-bg); border: none; border-radius: 12px; font-size: 15px; font-weight: 600; cursor: pointer; margin-top: 20px; transition: 0.2s; }
         .confirm-btn:hover { opacity: 0.9; }
         .cancel-btn { background: transparent; color: var(--text-light); width: 100%; border: none; margin-top: 15px; cursor: pointer; font-size: 13px; text-decoration: underline; }
 
@@ -157,10 +197,7 @@
 
         @media (max-width: 900px) {
             .sidebar { position: fixed; left: -280px; } .sidebar.active { transform: translateX(280px); }
-            /* MOBILE HEADER */
-            .mobile-header { display: flex; } 
-            .mobile-welcome-text { display: block; margin-left: 15px; margin-top: -10px; }
-            .header { display: none; }
+            .mobile-header { display: flex; } .header { display: none; }
             .notif-dropdown { right: 20px; top: 70px; width: calc(100% - 40px); }
         }
     </style>
@@ -184,6 +221,7 @@
         <div class="sidebar-footer">
             <a href="/profile/" class="menu-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg> Profile</a>
             <a href="/support/" class="menu-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg> Support</a>
+            <a href="/settings/" class="menu-item"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg> Settings</a>
             <a href="/logout/" class="menu-item" style="color: var(--danger);"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path><polyline points="16 17 21 12 16 7"></polyline><line x1="21" y1="12" x2="9" y2="12"></line></svg> Sign Out</a>
         </div>
     </div>
@@ -193,57 +231,30 @@
         <div class="mobile-header">
             <div style="display: flex; align-items: center; gap: 15px;">
                 <div onclick="toggleSidebar()">
-                    {% if account.profile_pic %}
-                        <img src="{{ account.profile_pic.url }}" class="nav-avatar">
-                    {% else %}
-                        <div class="nav-avatar" style="background: #e2e8f0; color: #64748b; display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 14px;">{{ user.username|slice:":1" }}</div>
-                    {% endif %}
+                    {% if account.profile_pic %}<img src="{{ account.profile_pic.url }}" class="nav-avatar">{% else %}<div class="nav-avatar" style="background:#e2e8f0;display:flex;align-items:center;justify-content:center;">{{ user.username|slice:":1" }}</div>{% endif %}
                 </div>
-                <div style="font-weight: 800; color: var(--accent-color); font-size: 20px;">TRANSFER</div>
+                <div style="font-weight:800;color:var(--accent-color);font-size:20px;">TRANSFER</div>
             </div>
-
-            <div class="icon-btn" onclick="toggleNotifs()">
-                <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path><path d="M13.73 21a2 2 0 0 1-3.46 0"></path></svg>
-                {% if unread_count > 0 %}<div class="notif-dot"></div>{% endif %}
-            </div>
+            <div class="icon-btn" onclick="toggleNotifs()"><svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path><path d="M13.73 21a2 2 0 0 1-3.46 0"></path></svg></div>
         </div>
 
-        <!-- MOBILE WELCOME -->
-        <div class="mobile-welcome-text">
-            Welcome, {{ user.first_name|default:user.username }}
-        </div>
-
-        <!-- DESKTOP HEADER -->
         <div class="header">
             <div class="welcome-text">
                 <h1 class="page-title">Transfer Funds</h1>
                 <div class="page-subtitle">Send money securely to Veltris or external accounts.</div>
             </div>
-            
             <div class="header-actions">
-                <div class="icon-btn" onclick="toggleNotifs()">
-                    <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path><path d="M13.73 21a2 2 0 0 1-3.46 0"></path></svg>
-                    {% if unread_count > 0 %}<div class="notif-dot"></div>{% endif %}
-                </div>
-                <div class="user-pill" onclick="window.location.href='/profile/'">
-                    {% if account.profile_pic %}
-                        <img src="{{ account.profile_pic.url }}" class="avatar">
-                    {% else %}
-                        <div class="avatar" style="display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:bold;">{{ user.username|slice:":1" }}</div>
-                    {% endif %}
+                <div class="user-pill">
+                    {% if account.profile_pic %}<img src="{{ account.profile_pic.url }}" class="avatar">{% else %}<div class="avatar" style="background:#e2e8f0;display:flex;align-items:center;justify-content:center;">{{ user.username|slice:":1" }}</div>{% endif %}
                     <span class="user-name">{{ user.username }}</span>
-                    <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M6 9l6 6 6-6"/></svg>
                 </div>
             </div>
         </div>
 
         <!-- NOTIFICATION DROPDOWN -->
         <div id="notif-dropdown" class="notif-dropdown">
-            <div class="notif-head">
-                <span>NOTIFICATIONS</span>
-                <span style="color:var(--accent-color); cursor:pointer;" onclick="clearAllNotifications()">Clear All</span>
-            </div>
-            <div class="notif-list">
+            <div style="padding: 15px; border-bottom: 1px solid var(--border); font-weight: 700; font-size: 13px; color: var(--text-main); background: var(--light);">NOTIFICATIONS</div>
+            <div style="max-height: 300px; overflow-y: auto;">
                 {% for n in notifications %}
                     <div class="notif-item"><div class="notif-msg">{{ n.message }}</div><div class="notif-time">{{ n.date|timesince }} ago</div></div>
                 {% empty %}
@@ -275,7 +286,7 @@
                     <label>Recipient Account Number</label>
                     <input type="text" name="account_number" id="acc_num_internal" placeholder="10-digit Veltris Account" maxlength="10" required>
                     
-                    <!-- THE MAGIC LOOKUP -->
+                    <!-- THE MAGIC LOOKUP (RESTORED) -->
                     <div class="recipient-check">
                         <div class="spinner" id="spinner-internal"></div>
                         <div id="result-internal" class="check-status"></div>
@@ -295,15 +306,32 @@
                 </form>
             </div>
 
-            <!-- EXTERNAL TRANSFER FORM -->
+            <!-- EXTERNAL TRANSFER FORM (RESTORED WITH BANK DROPDOWN) -->
             <div id="external" class="form-card">
                 <form method="POST" id="form-external">
                     {% csrf_token %}
                     <input type="hidden" name="type" value="external">
                     <input type="hidden" name="pin" id="final-pin-external">
 
-                    <label>Bank Name</label>
-                    <input type="text" name="bank_name" id="bank-external" placeholder="e.g. Chase, Bank of America" required>
+                    <label>Destination Bank</label>
+                    <input type="hidden" name="bank_name" id="selected-bank" required>
+                    
+                    <!-- CUSTOM BANK DROPDOWN -->
+                    <div class="custom-select-wrapper" onclick="toggleBankDropdown()">
+                        <div class="custom-select" id="bank-trigger"><span>Select Bank Institution</span><div class="arrow"></div></div>
+                        <div class="custom-options" id="bank-options">
+                            <!-- BANK OPTIONS WITH LOGOS -->
+                            <div class="custom-option" onclick="selectBank('JPMorgan Chase', 'https://www.google.com/s2/favicons?domain=chase.com&sz=128')"><img src="https://www.google.com/s2/favicons?domain=chase.com&sz=128"> JPMorgan Chase</div>
+                            <div class="custom-option" onclick="selectBank('Bank of America', 'https://www.google.com/s2/favicons?domain=bankofamerica.com&sz=128')"><img src="https://www.google.com/s2/favicons?domain=bankofamerica.com&sz=128"> Bank of America</div>
+                            <div class="custom-option" onclick="selectBank('Wells Fargo', 'https://www.google.com/s2/favicons?domain=wellsfargo.com&sz=128')"><img src="https://www.google.com/s2/favicons?domain=wellsfargo.com&sz=128"> Wells Fargo</div>
+                            <div class="custom-option" onclick="selectBank('Citibank', 'https://www.google.com/s2/favicons?domain=citi.com&sz=128')"><img src="https://www.google.com/s2/favicons?domain=citi.com&sz=128"> Citibank</div>
+                            <div class="custom-option" onclick="selectBank('U.S. Bank', 'https://www.google.com/s2/favicons?domain=usbank.com&sz=128')"><img src="https://www.google.com/s2/favicons?domain=usbank.com&sz=128"> U.S. Bank</div>
+                            <div class="custom-option" onclick="selectBank('PNC Bank', 'https://www.google.com/s2/favicons?domain=pnc.com&sz=128')"><img src="https://www.google.com/s2/favicons?domain=pnc.com&sz=128"> PNC Bank</div>
+                            <div class="custom-option" onclick="selectBank('Goldman Sachs', 'https://www.google.com/s2/favicons?domain=goldmansachs.com&sz=128')"><img src="https://www.google.com/s2/favicons?domain=goldmansachs.com&sz=128"> Goldman Sachs</div>
+                            <div class="custom-option" onclick="selectBank('Capital One', 'https://www.google.com/s2/favicons?domain=capitalone.com&sz=128')"><img src="https://www.google.com/s2/favicons?domain=capitalone.com&sz=128"> Capital One</div>
+                            <div class="custom-option" onclick="selectBank('TD Bank', 'https://www.google.com/s2/favicons?domain=td.com&sz=128')"><img src="https://www.google.com/s2/favicons?domain=td.com&sz=128"> TD Bank</div>
+                        </div>
+                    </div>
 
                     <label>Routing Number</label>
                     <input type="text" name="routing_number" placeholder="9-Digit ABA Routing" maxlength="9" required>
@@ -374,7 +402,14 @@
 
         function toggleSidebar() { document.getElementById('sidebar').classList.toggle('active'); document.querySelector('.overlay').style.display = document.getElementById('sidebar').classList.contains('active') ? 'block' : 'none'; }
         function toggleNotifs() { var x = document.getElementById("notif-dropdown"); x.style.display = x.style.display === "block" ? "none" : "block"; }
-        window.onclick = function(event) { if (!event.target.matches('.icon-btn') && !event.target.closest('.icon-btn') && !event.target.matches('.notif-dropdown') && !event.target.closest('.notif-dropdown')) { document.getElementById("notif-dropdown").style.display = "none"; } }
+        window.onclick = function(event) { 
+            if (!event.target.matches('.icon-btn') && !event.target.closest('.icon-btn') && !event.target.matches('.notif-dropdown') && !event.target.closest('.notif-dropdown')) { document.getElementById("notif-dropdown").style.display = "none"; }
+            // Close bank dropdown if clicked outside
+            if (!event.target.closest('.custom-select-wrapper')) { 
+                document.getElementById("bank-options").classList.remove("show"); 
+                document.getElementById("bank-trigger").classList.remove("open"); 
+            }
+        }
 
         function showTab(tabName, event) { 
             document.querySelectorAll('.form-card').forEach(el => el.classList.remove('active')); 
@@ -402,10 +437,10 @@
                     spinner.style.display = 'none';
                     resultDiv.style.display = 'flex';
                     if (data.found) {
-                        resultDiv.innerHTML = `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"></polyline></svg> ${data.name}`;
+                        resultDiv.innerHTML = `<span style="color:var(--success)">✔ ${data.name}</span>`;
                         resultDiv.className = 'check-status status-found';
                     } else {
-                        resultDiv.innerHTML = `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg> ${data.message}`;
+                        resultDiv.innerHTML = `<span style="color:var(--danger)">✖ ${data.message}</span>`;
                         resultDiv.className = 'check-status status-error';
                     }
                 });
@@ -413,6 +448,18 @@
                 resultDiv.style.display = 'none';
             }
         });
+
+        // --- DROPDOWN LOGIC ---
+        function toggleBankDropdown() { 
+            document.getElementById("bank-options").classList.toggle("show"); 
+            document.getElementById("bank-trigger").classList.toggle("open"); 
+        }
+        function selectBank(name, imgUrl) { 
+            document.getElementById("selected-bank").value = name; 
+            document.getElementById("bank-trigger").innerHTML = `<div style="display:flex;align-items:center;gap:10px;"><img src="${imgUrl}" style="width:24px;height:24px;object-fit:contain;border-radius:50%;border:1px solid #eee;"> ${name}</div><div class="arrow"></div>`; 
+            document.getElementById("bank-options").classList.remove("show"); 
+            document.getElementById("bank-trigger").classList.remove("open"); 
+        }
 
         // --- PHASE 2: REVIEW MODAL LOGIC ---
         let currentFormId = '';
@@ -428,16 +475,15 @@
 
             if (type === 'internal') {
                 const resText = document.getElementById('result-internal').innerText;
-                // If we found a name, use it. If not (unlikely if they passed validity), use the number
                 recipient = resText || document.getElementById('acc_num_internal').value;
                 bank = 'Veltris Bank (Internal)';
-                
-                // Block if account invalid
                 if (document.getElementById('result-internal').classList.contains('status-error')) {
                     alert("Please enter a valid recipient account.");
                     return;
                 }
             } else {
+                // External
+                if (!document.getElementById('selected-bank').value) { alert("Please select a bank"); return; }
                 recipient = document.getElementById('note-external').value;
                 bank = document.getElementById('bank-external').value;
             }
@@ -446,16 +492,14 @@
             document.getElementById('review-amount').innerText = '$' + parseFloat(amount).toLocaleString('en-US', {minimumFractionDigits: 2});
             document.getElementById('review-recipient').innerText = recipient;
             document.getElementById('review-bank').innerText = bank;
-            document.getElementById('modal-pin-input').value = ''; // Clear PIN
+            document.getElementById('modal-pin-input').value = '';
             
             currentFormId = 'form-' + type;
-            
-            // Show Modal
             const modal = document.getElementById('reviewModal');
             modal.style.display = 'flex';
             setTimeout(() => modal.classList.add('active'), 10);
             
-            // Focus PIN input automatically for better UX
+            // Auto-focus PIN
             setTimeout(() => document.getElementById('modal-pin-input').focus(), 100);
         }
 
@@ -467,19 +511,16 @@
 
         function submitTransfer() {
             const pin = document.getElementById('modal-pin-input').value;
-            if (pin.length < 4) {
-                alert("Please enter your 4-digit Transaction PIN");
-                return;
-            }
+            if (pin.length < 4) { alert("Please enter your 4-digit Transaction PIN"); return; }
             
-            // Move PIN to hidden field in the real form
+            // Move PIN
             if (currentFormId === 'form-internal') {
                 document.getElementById('final-pin-internal').value = pin;
             } else {
                 document.getElementById('final-pin-external').value = pin;
             }
             
-            // Submit the actual form
+            // Submit
             document.getElementById(currentFormId).submit();
         }
 
