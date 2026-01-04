@@ -5,7 +5,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Transfer | Veltris Bank</title>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@500&display=swap" rel="stylesheet">
     <style>
         /* --- GLOBAL THEME VARIABLES --- */
         :root { 
@@ -13,12 +13,13 @@
             --light: #f4f6f8; 
             --dark: #1a1a1a; 
             --border: #e2e8f0; 
-            --card-bg: #ffffff;
-            --text-main: #1a1a1a;
-            --text-light: #64748b;
-            --input-bg: #ffffff;
-            --accent-color: #2563eb;
-            --danger: #ef4444;
+            --card-bg: #ffffff; 
+            --text-main: #1a1a1a; 
+            --text-light: #64748b; 
+            --input-bg: #ffffff; 
+            --accent-color: #2563eb; 
+            --danger: #ef4444; 
+            --success: #10b981;
         }
 
         /* DARK MODE OVERRIDES */
@@ -26,13 +27,13 @@
             --light: #0f172a; 
             --card-bg: #1e293b; 
             --text-main: #f8fafc; 
-            --text-light: #94a3b8;
-            --border: #334155;
+            --text-light: #94a3b8; 
+            --border: #334155; 
             --dark: #f8fafc; 
             --input-bg: #0f172a;
         }
 
-        /* Specific Dark Mode Fixes */
+        /* Dark Mode Specifics */
         body.dark-mode .sidebar { background: #1e293b; border-right: 1px solid #334155; }
         body.dark-mode .menu-item { color: #94a3b8; }
         body.dark-mode .menu-item:hover { background: #334155; }
@@ -40,57 +41,46 @@
         body.dark-mode .notif-item { border-bottom: 1px solid #334155; }
         body.dark-mode .notif-item:hover { background: #0f172a; }
         body.dark-mode .notif-msg { color: #f8fafc; }
-        
-        /* Dark Mode for Form Elements */
         body.dark-mode .form-card { background: var(--card-bg); border-color: var(--border); }
         body.dark-mode input, body.dark-mode select { background: var(--input-bg); border-color: var(--border); color: white; }
         body.dark-mode .tab-btn { color: var(--text-light); }
         body.dark-mode .tab-btn.active { background: var(--card-bg); color: #60a5fa; }
         body.dark-mode .tabs-wrapper { background: var(--light); border-color: var(--border); }
         
-        /* Dark Mode for Custom Dropdown */
-        body.dark-mode .custom-select { background: var(--input-bg); border-color: var(--border); color: white; }
-        body.dark-mode .custom-options { background: var(--card-bg); border-color: var(--border); }
-        body.dark-mode .custom-option { color: var(--text-main); }
-        body.dark-mode .custom-option:hover { background: var(--light); }
-        body.dark-mode .arrow { border-color: white; }
-        
-        /* Dark Mode for Modal */
-        body.dark-mode .pin-card { background: var(--card-bg); border: 1px solid var(--border); }
-        body.dark-mode .key { background: rgba(255,255,255,0.05); border-color: var(--border); color: white; }
-        body.dark-mode .pin-title { color: var(--text-main); }
-        body.dark-mode .success-card { background: var(--card-bg); }
-        body.dark-mode .btn-close-modal { background: var(--text-main); color: var(--card-bg); }
-        body.dark-mode .submit-btn { background: var(--primary); color: white; }
+        /* Modal Dark Mode */
+        body.dark-mode .ticket-card { background: var(--card-bg); border-color: var(--border); }
+        body.dark-mode .detail-val { color: white; }
+        body.dark-mode .pin-input { background: var(--input-bg); color: white; border-color: var(--border); }
         body.dark-mode .timeout-card { background: var(--card-bg); }
 
         * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
         body { margin: 0; font-family: 'Inter', sans-serif; background-color: var(--light); color: var(--text-main); display: flex; height: 100vh; overflow: hidden; transition: 0.3s; }
         
         /* SIDEBAR */
-        .sidebar { width: 260px; background: var(--card-bg); border-right: 1px solid var(--border); padding: 25px; display: flex; flex-direction: column; z-index: 2000; transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1); }
+        .sidebar { width: 260px; background: var(--card-bg); border-right: 1px solid var(--border); padding: 25px; display: flex; flex-direction: column; z-index: 1000; transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1); }
         .brand { font-size: 20px; font-weight: 800; color: var(--primary); margin-bottom: 40px; display: flex; align-items: center; gap: 10px; }
-        .brand-icon { width: 32px; height: 32px; background: var(--primary); border-radius: 8px; color: white; display: flex; align-items: center; justify-content: center; }
+        .brand-icon { width: 32px; height: 32px; background: var(--accent-color); border-radius: 8px; color: white; display: flex; align-items: center; justify-content: center; }
         .menu-group { display: flex; flex-direction: column; gap: 5px; flex: 1; }
-        .menu-item { color: var(--text-light); text-decoration: none; padding: 12px 15px; border-radius: 12px; font-size: 14px; font-weight: 500; display: flex; align-items: center; gap: 12px; margin-bottom: 5px; transition: 0.2s; }
+        .menu-item { display: flex; align-items: center; gap: 12px; padding: 12px 16px; color: var(--text-secondary); text-decoration: none; font-size: 14px; font-weight: 500; border-radius: 12px; transition: 0.2s; }
+        .menu-item:hover { background: rgba(37, 99, 235, 0.05); color: var(--accent-color); }
+        .menu-item.active { background: rgba(37, 99, 235, 0.1); color: var(--accent-color); font-weight: 600; }
         .menu-item svg { width: 20px; height: 20px; stroke-width: 2px; }
-        .menu-item:hover { background: var(--light); color: var(--primary); }
-        .menu-item.active { background: #eff6ff; color: var(--primary); font-weight: 600; }
-        /* Dark mode active fix */
-        body.dark-mode .menu-item.active { background: rgba(37, 99, 235, 0.2); color: #60a5fa; }
         .sidebar-footer { margin-top: auto; border-top: 1px solid var(--border); padding-top: 20px; }
 
-        .main { flex: 1; padding: 40px; overflow-y: auto; width: 100%; display: flex; flex-direction: column; align-items: center; position: relative; }
-
-        /* HEADER */
-        .mobile-header { display: none; width: 100%; justify-content: space-between; align-items: center; margin-bottom: 25px; }
-        .nav-avatar { width: 40px; height: 40px; border-radius: 50%; object-fit: cover; border: 2px solid var(--card-bg); box-shadow: 0 2px 8px rgba(0,0,0,0.1); cursor: pointer; }
-        .icon-btn { background: var(--card-bg); width: 40px; height: 40px; border-radius: 50%; display: flex; align-items: center; justify-content: center; box-shadow: 0 2px 8px rgba(0,0,0,0.05); position: relative; cursor: pointer; color: var(--text-main); border: 1px solid var(--border); }
-        .notif-badge { position: absolute; top: 0; right: 0; background: #ef4444; color: white; width: 16px; height: 16px; border-radius: 50%; font-size: 10px; display: flex; align-items: center; justify-content: center; font-weight: bold; border: 2px solid var(--card-bg); }
-
+        /* MAIN */
+        .main { flex: 1; padding: 40px; overflow-y: auto; display: flex; flex-direction: column; align-items: center; position: relative; }
+        
+        /* HEADERS */
         .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px; width: 100%; max-width: 600px; }
-        .page-title { margin: 0; font-size: 24px; font-weight: 700; color: var(--text-main); }
+        .mobile-header { display: none; width: 100%; justify-content: space-between; align-items: center; margin-bottom: 10px; }
+        .mobile-welcome-text { display: none; font-size: 16px; font-weight: 700; color: var(--text-primary); margin-bottom: 20px; }
+        
+        .page-title { margin: 0; font-size: 24px; font-weight: 700; }
         .page-subtitle { color: var(--text-light); font-size: 13px; margin-top: 4px; }
+        
+        .nav-avatar { width: 40px; height: 40px; border-radius: 50% !important; object-fit: cover; border: 2px solid var(--border); cursor: pointer; }
+        .icon-btn { width: 40px; height: 40px; border-radius: 12px; background: var(--card-bg); border: 1px solid var(--border); display: flex; align-items: center; justify-content: center; position: relative; cursor: pointer; color: var(--text-main); }
+        .notif-dot { position: absolute; top: 10px; right: 10px; width: 8px; height: 8px; background: var(--danger); border-radius: 50%; }
         
         .user-pill { display: flex; align-items: center; gap: 10px; padding: 6px 12px 6px 6px; background: var(--card-bg); border: 1px solid var(--border); border-radius: 30px; cursor: pointer; transition: 0.2s; }
         .user-pill:hover { border-color: var(--text-light); }
@@ -101,177 +91,87 @@
         .transfer-container { max-width: 600px; width: 100%; margin: 0 auto; padding-bottom: 50px; }
         .tabs-wrapper { background: var(--light); padding: 5px; border-radius: 12px; display: flex; margin-bottom: 30px; border: 1px solid var(--border); }
         .tab-btn { flex: 1; padding: 12px; border: none; background: transparent; font-weight: 600; color: var(--text-light); cursor: pointer; border-radius: 8px; transition: 0.2s; font-size: 13px; }
-        .tab-btn.active { background: var(--card-bg); color: var(--primary); box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
+        .tab-btn.active { background: var(--card-bg); color: var(--accent-color); box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
 
         .form-card { background: var(--card-bg); padding: 35px; border-radius: 24px; box-shadow: 0 10px 30px rgba(0,0,0,0.05); border: 1px solid var(--border); display: none; animation: fadeIn 0.3s ease; }
         .form-card.active { display: block; }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
 
-        label { display: block; font-size: 12px; font-weight: 600; color: var(--text-light); margin-bottom: 8px; text-transform: uppercase; letter-spacing: 0.5px; }
+        label { display: block; font-size: 11px; font-weight: 700; color: var(--text-light); margin-bottom: 8px; text-transform: uppercase; letter-spacing: 0.5px; }
         input, select { width: 100%; padding: 16px; border: 1px solid var(--border); border-radius: 12px; font-size: 15px; margin-bottom: 20px; transition: 0.2s; background: var(--input-bg); color: var(--text-main); font-family: 'Inter', sans-serif; }
-        input:focus, select:focus { border-color: var(--primary); outline: none; box-shadow: 0 0 0 4px rgba(0, 77, 153, 0.1); }
+        input:focus { border-color: var(--accent-color); outline: none; box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.1); }
 
-        /* CUSTOM DROPDOWN STYLE */
-        .custom-select-wrapper { position: relative; margin-bottom: 20px; }
-        .custom-select { 
-            position: relative; width: 100%; padding: 16px; 
-            border: 1px solid var(--border); border-radius: 12px; 
-            background: var(--input-bg); cursor: pointer; 
+        .submit-btn { width: 100%; padding: 16px; background: var(--accent-color); color: white; border: none; border-radius: 12px; font-size: 16px; font-weight: 600; cursor: pointer; transition: 0.2s; display: flex; align-items: center; justify-content: center; gap: 8px; box-shadow: 0 4px 12px rgba(37, 99, 235, 0.2); }
+        .submit-btn:hover { transform: translateY(-1px); background: var(--accent-hover); }
+
+        /* RECIPIENT CHECKER STYLE */
+        .recipient-check { 
             display: flex; align-items: center; justify-content: space-between; 
-            font-size: 15px; color: var(--text-main); transition: 0.2s; 
+            margin-top: -10px; margin-bottom: 20px; font-size: 13px; height: 20px;
         }
-        .custom-select:hover { border-color: var(--text-light); }
-        .custom-select.open { border-color: var(--primary); box-shadow: 0 0 0 4px rgba(0, 77, 153, 0.1); }
-        
-        .custom-options { 
-            position: absolute; top: 110%; left: 0; right: 0; 
-            background: var(--card-bg); border: 1px solid var(--border); border-radius: 12px; 
-            box-shadow: 0 10px 30px rgba(0,0,0,0.1); z-index: 100; 
-            overflow: hidden; display: none; max-height: 250px; overflow-y: auto; 
-        }
-        .custom-options.show { display: block; }
-        
-        .custom-option { 
-            padding: 12px 16px; display: flex; align-items: center; gap: 12px; 
-            cursor: pointer; transition: 0.1s; font-size: 14px; color: var(--text-main); 
-        }
-        .custom-option:hover { background: var(--light); }
-        
-        .custom-option img, .custom-select img { 
-            width: 24px !important; height: 24px !important; 
-            object-fit: contain; border-radius: 50%; border: 1px solid #eee; flex-shrink: 0;
-        }
+        .check-status { font-weight: 600; display: none; align-items: center; gap: 5px; }
+        .status-found { color: var(--success); display: flex; }
+        .status-error { color: var(--danger); display: flex; }
+        .spinner { width: 14px; height: 14px; border: 2px solid var(--border); border-top-color: var(--accent-color); border-radius: 50%; animation: spin 1s linear infinite; display: none; }
+        @keyframes spin { to { transform: rotate(360deg); } }
 
-        .arrow { width: 10px; height: 10px; border-left: 2px solid var(--text-light); border-bottom: 2px solid var(--text-light); transform: rotate(-45deg); transition: 0.2s; }
-        .custom-select.open .arrow { transform: rotate(135deg); margin-top: 5px; }
-
-        .submit-btn { width: 100%; padding: 16px; background: var(--primary); color: white; border: none; border-radius: 12px; font-size: 16px; font-weight: 600; cursor: pointer; transition: 0.2s; display: flex; align-items: center; justify-content: center; gap: 8px; box-shadow: 0 4px 12px rgba(0, 77, 153, 0.2); }
-        .submit-btn:hover { background: #003d80; transform: translateY(-1px); }
-
-        .messages { background: #fee2e2; color: #991b1b; padding: 15px; border-radius: 12px; margin-bottom: 20px; font-size: 14px; }
+        /* REVIEW MODAL (The Ticket) */
+        .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); backdrop-filter: blur(8px); z-index: 5000; display: none; align-items: center; justify-content: center; opacity: 0; transition: opacity 0.3s ease; }
+        .modal-overlay.active { opacity: 1; }
         
-        /* NOTIFICATIONS */
+        .ticket-card { width: 90%; max-width: 400px; background: var(--card-bg); border-radius: 24px; overflow: hidden; box-shadow: 0 25px 50px -12px rgba(0,0,0,0.5); transform: translateY(20px); transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); border: 1px solid var(--border); }
+        .modal-overlay.active .ticket-card { transform: translateY(0); }
+
+        .ticket-header { background: var(--accent-color); padding: 25px; text-align: center; color: white; }
+        .ticket-title { font-size: 16px; font-weight: 600; letter-spacing: 1px; text-transform: uppercase; margin-bottom: 5px; }
+        .ticket-amount { font-size: 36px; font-weight: 800; letter-spacing: -1px; }
+
+        .ticket-body { padding: 30px; }
+        .detail-row { display: flex; justify-content: space-between; margin-bottom: 15px; font-size: 14px; border-bottom: 1px dashed var(--border); padding-bottom: 15px; }
+        .detail-row:last-of-type { border-bottom: none; }
+        .detail-label { color: var(--text-light); font-weight: 500; }
+        .detail-val { color: var(--text-main); font-weight: 700; text-align: right; }
+
+        .pin-input { letter-spacing: 8px; text-align: center; font-size: 24px; font-weight: 800; }
+
+        .confirm-btn { width: 100%; padding: 16px; background: var(--text-main); color: var(--bg-card); border: none; border-radius: 12px; font-size: 15px; font-weight: 600; cursor: pointer; margin-top: 20px; transition: 0.2s; }
+        .confirm-btn:hover { opacity: 0.9; }
+        .cancel-btn { background: transparent; color: var(--text-light); width: 100%; border: none; margin-top: 15px; cursor: pointer; font-size: 13px; text-decoration: underline; }
+
+        /* NOTIFICATIONS & MESSAGES */
         .notif-dropdown { display: none; position: absolute; top: 60px; right: 20px; background: var(--card-bg); width: 320px; max-height: 400px; overflow-y: auto; box-shadow: 0 10px 40px rgba(0,0,0,0.15); border-radius: 16px; z-index: 3000; border: 1px solid var(--border); }
-        .notif-item { padding: 15px; border-bottom: 1px solid var(--border); transition: 0.2s; }
+        .notif-item { padding: 15px; border-bottom: 1px solid var(--border); transition: 0.2s; cursor: default; }
         .notif-item:hover { background: var(--light); }
         .notif-msg { font-size: 13px; color: var(--text-main); line-height: 1.4; }
         .notif-time { font-size: 11px; color: var(--text-light); margin-top: 5px; }
-
-        .overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 1500; backdrop-filter: blur(4px); transition: opacity 0.3s; }
-
-        /* SUCCESS MODAL */
-        .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); backdrop-filter: blur(5px); z-index: 5000; display: flex; align-items: center; justify-content: center; opacity: 0; visibility: hidden; transition: 0.3s; }
-        .modal-overlay.show { opacity: 1; visibility: visible; }
-        .success-card { background: var(--card-bg); width: 90%; max-width: 400px; padding: 45px 30px; border-radius: 24px; text-align: center; transform: translateY(20px); transition: 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); box-shadow: 0 25px 60px rgba(0,0,0,0.3); display: flex; flex-direction: column; align-items: center; }
-        .modal-overlay.show .success-card { transform: translateY(0); }
-        .icon-circle { width: 80px; height: 80px; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin-bottom: 25px; font-size: 40px; }
-        .icon-success { background: #dcfce7; color: #166534; box-shadow: 0 10px 20px rgba(22, 101, 52, 0.1); }
-        .icon-processing { background: #fef9c3; color: #854d0e; box-shadow: 0 10px 20px rgba(133, 77, 14, 0.1); }
-        .modal-title { font-size: 24px; font-weight: 800; color: var(--text-main); margin-bottom: 10px; letter-spacing: -0.5px; }
-        .modal-sub { color: var(--text-light); font-size: 15px; margin-bottom: 30px; line-height: 1.5; }
-        .modal-amount { font-size: 36px; font-weight: 800; color: var(--primary); margin-bottom: 30px; display: block; letter-spacing: -1px; }
-        .btn-close-modal { background: var(--text-main); color: var(--card-bg); border: none; padding: 16px; border-radius: 14px; font-weight: 600; font-size: 16px; cursor: pointer; width: 100%; transition: 0.2s; box-shadow: 0 5px 15px rgba(0,0,0,0.1); }
-        .btn-close-modal:hover { transform: translateY(-2px); box-shadow: 0 8px 25px rgba(0,0,0,0.15); }
-
-        /* PIN KEYPAD MODAL */
-        .pin-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(15, 23, 42, 0.9); backdrop-filter: blur(15px); z-index: 6000; display: none; flex-direction: column; align-items: center; justify-content: center; }
-        .pin-card { width: 100%; max-width: 360px; padding: 30px; text-align: center; color: white; animation: slideUp 0.3s; background: var(--card-bg); border-radius: 24px; border: 1px solid var(--border); }
-        @keyframes slideUp { from { transform: translateY(50px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
-        .pin-title { font-size: 20px; font-weight: 700; margin-bottom: 30px; color: var(--text-main); }
-        .pin-dots { display: flex; justify-content: center; gap: 15px; margin-bottom: 40px; }
-        .pin-dot { width: 16px; height: 16px; border-radius: 50%; border: 2px solid rgba(148, 163, 184, 0.3); transition: 0.2s; }
-        .pin-dot.filled { background: var(--text-main); border-color: var(--text-main); transform: scale(1.1); }
-        .keypad { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; max-width: 300px; margin: 0 auto; }
-        .key { width: 75px; height: 75px; border-radius: 50%; background: rgba(148, 163, 184, 0.1); border: 1px solid rgba(148, 163, 184, 0.1); display: flex; align-items: center; justify-content: center; font-size: 24px; font-weight: 600; cursor: pointer; transition: 0.1s; color: var(--text-main); }
-        .key:active { background: rgba(148, 163, 184, 0.3); transform: scale(0.95); }
-        .key-action { font-size: 14px; background: transparent; border: none; color: var(--text-light); }
-        .forgot-link { margin-top: 40px; font-size: 13px; color: var(--text-light); cursor: pointer; text-decoration: underline; }
+        .overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 999; backdrop-filter: blur(4px); transition: opacity 0.3s; }
+        
+        .alert-box { background: #fee2e2; border-left: 4px solid #ef4444; color: #b91c1c; padding: 15px; margin-bottom: 20px; border-radius: 8px; font-size: 13px; }
 
         /* TIMEOUT MODAL */
         .timeout-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); z-index: 9999; display: none; align-items: center; justify-content: center; backdrop-filter: blur(5px); }
         .timeout-card { background: var(--card-bg); padding: 40px; border-radius: 24px; text-align: center; width: 90%; max-width: 400px; box-shadow: 0 25px 60px rgba(0,0,0,0.5); }
         .timeout-title { font-size: 22px; font-weight: 800; color: var(--text-main); margin-bottom: 10px; }
         .timeout-msg { color: var(--text-light); font-size: 15px; margin-bottom: 30px; line-height: 1.5; }
-        .timeout-btn { background: var(--primary); color: white; border: none; padding: 14px 28px; border-radius: 12px; font-weight: 600; font-size: 15px; cursor: pointer; width: 100%; }
+        .timeout-btn { background: var(--accent-color); color: white; border: none; padding: 14px 28px; border-radius: 12px; font-weight: 600; font-size: 15px; cursor: pointer; width: 100%; }
 
         @media (max-width: 900px) {
-            .sidebar { position: fixed; left: 0; top: 0; height: 100%; transform: translateX(-100%); transition: 0.3s; box-shadow: none; }
-            .sidebar.active { transform: translateX(0); box-shadow: 10px 0 30px rgba(0,0,0,0.1); }
-            .main { padding: 20px; }
-            
-            /* SHOW MOBILE HEADER (Avatar as Toggle) */
-            .mobile-header { display: flex; }
+            .sidebar { position: fixed; left: -280px; } .sidebar.active { transform: translateX(280px); }
+            /* MOBILE HEADER */
+            .mobile-header { display: flex; } 
+            .mobile-welcome-text { display: block; margin-left: 15px; margin-top: -10px; }
             .header { display: none; }
-            .nav-avatar { width: 40px !important; height: 40px !important; min-width: 40px !important; border: 2px solid var(--border-color); }
-            
             .notif-dropdown { right: 20px; top: 70px; width: calc(100% - 40px); }
-            .bill-container { padding: 25px; }
         }
     </style>
 </head>
 <body class="{% if account.dark_mode %}dark-mode{% endif %}">
 
-    <!-- SUCCESS POPUP MODAL -->
-    {% if popup_data %}
-    <div class="modal-overlay show" id="txnModal">
-        <div class="success-card">
-            {% if popup_data.status == 'success' %}
-                <div class="icon-circle icon-success">
-                    <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
-                </div>
-                <div class="modal-title">Transfer Successful</div>
-                <div class="modal-sub">{{ popup_data.msg }}</div>
-            {% else %}
-                <div class="icon-circle icon-processing">
-                    <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
-                </div>
-                <div class="modal-title">Processing</div>
-                <div class="modal-sub">Transaction under review.</div>
-            {% endif %}
-            <span class="modal-amount">${{ popup_data.amount|intcomma }}</span>
-            <button class="btn-close-modal" onclick="finishTransfer()">Done</button>
-        </div>
-    </div>
-    {% endif %}
-
-    <!-- TIMEOUT MODAL -->
-    <div class="timeout-overlay" id="timeoutModal">
-        <div class="timeout-card">
-            <div style="font-size: 40px; margin-bottom: 20px;">⏰</div>
-            <div class="timeout-title">Session Expiring</div>
-            <div class="timeout-msg">You will be logged out in <span id="timeLeft" style="font-weight:bold; color:var(--primary);">30</span> seconds due to inactivity.</div>
-            <button class="timeout-btn" onclick="resetTimer()">Keep me signed in</button>
-        </div>
-    </div>
-
-    <!-- PIN KEYPAD MODAL -->
-    <div class="pin-overlay" id="pinModal">
-        <div class="pin-card">
-            <div class="pin-title">Enter Transaction PIN</div>
-            <div class="pin-dots">
-                <div class="pin-dot" id="d1"></div><div class="pin-dot" id="d2"></div><div class="pin-dot" id="d3"></div><div class="pin-dot" id="d4"></div>
-            </div>
-            <div class="keypad">
-                <div class="key" onclick="pressKey(1)">1</div><div class="key" onclick="pressKey(2)">2</div><div class="key" onclick="pressKey(3)">3</div>
-                <div class="key" onclick="pressKey(4)">4</div><div class="key" onclick="pressKey(5)">5</div><div class="key" onclick="pressKey(6)">6</div>
-                <div class="key" onclick="pressKey(7)">7</div><div class="key" onclick="pressKey(8)">8</div><div class="key" onclick="pressKey(9)">9</div>
-                <div class="key key-action" onclick="closePin()">Cancel</div><div class="key" onclick="pressKey(0)">0</div><div class="key key-action" onclick="clearPin()">⌫</div>
-            </div>
-            <div class="forgot-link" onclick="submitForgotPin()">Forgot PIN?</div>
-        </div>
-    </div>
-    
-    <form method="POST" id="forgot-form">{% csrf_token %}<input type="hidden" name="forgot_pin" value="true"></form>
-
     <div class="overlay" onclick="toggleSidebar()"></div>
 
     <!-- SIDEBAR -->
     <div class="sidebar" id="sidebar">
-        <div class="brand">
-            <div class="brand-icon"><svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="3" viewBox="0 0 24 24"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg></div>
-            VELTRIS
-        </div>
-
+        <div class="brand"><div class="brand-icon"><svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="3" viewBox="0 0 24 24"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg></div> VELTRIS</div>
         <div class="menu-group">
             <a href="/dashboard/" class="menu-item"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7"></rect><rect x="14" y="3" width="7" height="7"></rect><rect x="14" y="14" width="7" height="7"></rect><rect x="3" y="14" width="7" height="7"></rect></svg> Dashboard</a>
             <a href="/transfer/" class="menu-item active"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><line x1="7" y1="17" x2="17" y2="7"></line><polyline points="7 7 17 7 17 17"></polyline></svg> Transfers</a>
@@ -284,7 +184,6 @@
         <div class="sidebar-footer">
             <a href="/profile/" class="menu-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg> Profile</a>
             <a href="/support/" class="menu-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg> Support</a>
-            <a href="/settings/" class="menu-item"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg> Settings</a>
             <a href="/logout/" class="menu-item" style="color: var(--danger);"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path><polyline points="16 17 21 12 16 7"></polyline><line x1="21" y1="12" x2="9" y2="12"></line></svg> Sign Out</a>
         </div>
     </div>
@@ -300,44 +199,53 @@
                         <div class="nav-avatar" style="background: #e2e8f0; color: #64748b; display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 14px;">{{ user.username|slice:":1" }}</div>
                     {% endif %}
                 </div>
-                <div style="font-weight: 800; color: var(--primary); font-size: 20px;">TRANSFERS</div>
+                <div style="font-weight: 800; color: var(--accent-color); font-size: 20px;">TRANSFER</div>
             </div>
 
             <div class="icon-btn" onclick="toggleNotifs()">
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path><path d="M13.73 21a2 2 0 0 1-3.46 0"></path></svg>
+                <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path><path d="M13.73 21a2 2 0 0 1-3.46 0"></path></svg>
                 {% if unread_count > 0 %}<div class="notif-dot"></div>{% endif %}
             </div>
+        </div>
+
+        <!-- MOBILE WELCOME -->
+        <div class="mobile-welcome-text">
+            Welcome, {{ user.first_name|default:user.username }}
         </div>
 
         <!-- DESKTOP HEADER -->
         <div class="header">
             <div class="welcome-text">
-                <h1 class="page-title">Move Money</h1>
-                <div class="page-subtitle">Send funds securely to Veltris users or external banks.</div>
+                <h1 class="page-title">Transfer Funds</h1>
+                <div class="page-subtitle">Send money securely to Veltris or external accounts.</div>
             </div>
             
-            <div style="display: flex; gap: 20px; align-items: center;">
+            <div class="header-actions">
                 <div class="icon-btn" onclick="toggleNotifs()">
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path><path d="M13.73 21a2 2 0 0 1-3.46 0"></path></svg>
+                    <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path><path d="M13.73 21a2 2 0 0 1-3.46 0"></path></svg>
                     {% if unread_count > 0 %}<div class="notif-dot"></div>{% endif %}
                 </div>
-                {% if account.profile_pic %}
-                    <img src="{{ account.profile_pic.url }}" class="nav-avatar" style="width: 45px; height: 45px;">
-                {% else %}
-                    <div class="nav-avatar" style="width: 45px; height: 45px; background: #e2e8f0; color: #64748b; display: flex; align-items: center; justify-content: center; font-weight: bold;">{{ user.username|slice:":1" }}</div>
-                {% endif %}
+                <div class="user-pill" onclick="window.location.href='/profile/'">
+                    {% if account.profile_pic %}
+                        <img src="{{ account.profile_pic.url }}" class="avatar">
+                    {% else %}
+                        <div class="avatar" style="display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:bold;">{{ user.username|slice:":1" }}</div>
+                    {% endif %}
+                    <span class="user-name">{{ user.username }}</span>
+                    <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M6 9l6 6 6-6"/></svg>
+                </div>
             </div>
         </div>
 
-       <!-- NOTIFICATION DROPDOWN -->
+        <!-- NOTIFICATION DROPDOWN -->
         <div id="notif-dropdown" class="notif-dropdown">
-            <div style="padding: 15px; border-bottom: 1px solid var(--border); font-weight: 700; font-size: 13px; color: var(--text-main); background: var(--light);">NOTIFICATIONS</div>
-            <div style="max-height: 300px; overflow-y: auto;">
+            <div class="notif-head">
+                <span>NOTIFICATIONS</span>
+                <span style="color:var(--accent-color); cursor:pointer;" onclick="clearAllNotifications()">Clear All</span>
+            </div>
+            <div class="notif-list">
                 {% for n in notifications %}
-                    <div class="notif-item">
-                        <div class="notif-msg">{{ n.message }}</div>
-                        <div class="notif-time">{{ n.date|timesince }} ago</div>
-                    </div>
+                    <div class="notif-item"><div class="notif-msg">{{ n.message }}</div><div class="notif-time">{{ n.date|timesince }} ago</div></div>
                 {% empty %}
                     <div style="padding: 20px; text-align: center; color: var(--text-light); font-size: 13px;">No new alerts</div>
                 {% endfor %}
@@ -345,9 +253,10 @@
         </div>
 
         <div class="transfer-container">
-            {% if messages and not popup_data %}
+            <!-- ERROR MESSAGES -->
+            {% if messages %}
                 {% for message in messages %}
-                    <div class="messages">{{ message }}</div>
+                    <div class="alert-box">{{ message }}</div>
                 {% endfor %}
             {% endif %}
 
@@ -356,159 +265,231 @@
                 <button class="tab-btn" onclick="showTab('external', event)">External Wire</button>
             </div>
 
-            <!-- INTERNAL -->
+            <!-- INTERNAL TRANSFER FORM -->
             <div id="internal" class="form-card active">
                 <form method="POST" id="form-internal">
                     {% csrf_token %}
                     <input type="hidden" name="type" value="internal">
-                    <input type="hidden" name="pin" id="pin-internal">
+                    <input type="hidden" name="pin" id="final-pin-internal">
                     
                     <label>Recipient Account Number</label>
-                    <input type="text" name="account_number" placeholder="10-digit Veltris Account" required>
+                    <input type="text" name="account_number" id="acc_num_internal" placeholder="10-digit Veltris Account" maxlength="10" required>
+                    
+                    <!-- THE MAGIC LOOKUP -->
+                    <div class="recipient-check">
+                        <div class="spinner" id="spinner-internal"></div>
+                        <div id="result-internal" class="check-status"></div>
+                    </div>
 
                     <label>Amount</label>
                     <div style="position: relative;">
                         <span style="position: absolute; left: 15px; top: 16px; color: #64748b; font-weight: bold;">$</span>
-                        <input type="number" name="amount" step="0.01" placeholder="0.00" style="padding-left: 30px;" required>
+                        <input type="number" name="amount" id="amount-internal" step="0.01" placeholder="0.00" style="padding-left: 30px;" required>
                     </div>
 
-                    <button type="button" class="submit-btn" onclick="openPin('internal')">
-                        <svg style="width:16px;height:16px;margin-right:5px;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg> Send Securely
-                    </button>
+                    <label>Reference Note (Optional)</label>
+                    <input type="text" name="note" id="note-internal" placeholder="e.g. Rent Payment">
+
+                    <!-- TRIGGER REVIEW MODAL -->
+                    <button type="button" class="submit-btn" onclick="openReview('internal')">Continue</button>
                 </form>
             </div>
 
-            <!-- EXTERNAL -->
+            <!-- EXTERNAL TRANSFER FORM -->
             <div id="external" class="form-card">
                 <form method="POST" id="form-external">
                     {% csrf_token %}
                     <input type="hidden" name="type" value="external">
-                    <input type="hidden" name="pin" id="pin-external">
+                    <input type="hidden" name="pin" id="final-pin-external">
 
-                    <label>Destination Bank</label>
-                    <input type="hidden" name="bank_name" id="selected-bank" required>
-                    <div class="custom-select-wrapper" onclick="toggleBankDropdown()">
-                        <div class="custom-select" id="bank-trigger"><span>Select Bank Institution</span><div class="arrow"></div></div>
-                        <div class="custom-options" id="bank-options">
-                            <!-- GOOGLE FAVICONS -->
-                            <div class="custom-option" onclick="selectBank('JPMorgan Chase', 'https://www.google.com/s2/favicons?domain=chase.com&sz=128')"><img src="https://www.google.com/s2/favicons?domain=chase.com&sz=128"> JPMorgan Chase</div>
-                            <div class="custom-option" onclick="selectBank('Bank of America', 'https://www.google.com/s2/favicons?domain=bankofamerica.com&sz=128')"><img src="https://www.google.com/s2/favicons?domain=bankofamerica.com&sz=128"> Bank of America</div>
-                            <div class="custom-option" onclick="selectBank('Wells Fargo', 'https://www.google.com/s2/favicons?domain=wellsfargo.com&sz=128')"><img src="https://www.google.com/s2/favicons?domain=wellsfargo.com&sz=128"> Wells Fargo</div>
-                            <div class="custom-option" onclick="selectBank('Citibank', 'https://www.google.com/s2/favicons?domain=citi.com&sz=128')"><img src="https://www.google.com/s2/favicons?domain=citi.com&sz=128"> Citibank</div>
-                            <div class="custom-option" onclick="selectBank('U.S. Bank', 'https://www.google.com/s2/favicons?domain=usbank.com&sz=128')"><img src="https://www.google.com/s2/favicons?domain=usbank.com&sz=128"> U.S. Bank</div>
-                            <div class="custom-option" onclick="selectBank('PNC Bank', 'https://www.google.com/s2/favicons?domain=pnc.com&sz=128')"><img src="https://www.google.com/s2/favicons?domain=pnc.com&sz=128"> PNC Bank</div>
-                            <div class="custom-option" onclick="selectBank('Goldman Sachs', 'https://www.google.com/s2/favicons?domain=goldmansachs.com&sz=128')"><img src="https://www.google.com/s2/favicons?domain=goldmansachs.com&sz=128"> Goldman Sachs</div>
-                            <div class="custom-option" onclick="selectBank('Capital One', 'https://www.google.com/s2/favicons?domain=capitalone.com&sz=128')"><img src="https://www.google.com/s2/favicons?domain=capitalone.com&sz=128"> Capital One</div>
-                            <div class="custom-option" onclick="selectBank('TD Bank', 'https://www.google.com/s2/favicons?domain=td.com&sz=128')"><img src="https://www.google.com/s2/favicons?domain=td.com&sz=128"> TD Bank</div>
-                        </div>
-                    </div>
-
-                    <label>Wire Purpose</label>
-                    <input type="hidden" name="wire_purpose" id="wire-purpose-val">
-                    <select id="wire_purpose_select" onchange="checkPurpose()" required>
-                        <option value="" disabled selected>Select Purpose</option>
-                        <option value="Family Support">Family Support / Living Expenses</option>
-                        <option value="Property Purchase">Real Estate / Property Purchase</option>
-                        <option value="Investment">Investment / Securities</option>
-                        <option value="Education">Education / Tuition Payment</option>
-                        <option value="Medical">Medical Expenses</option>
-                        <option value="Business Services">Business Services / Payroll</option>
-                        <option value="Others">Others (Specify)</option>
-                    </select>
-
-                    <div id="other-purpose-div" style="display: none; margin-top: 10px;">
-                        <input type="text" id="other-purpose-input" placeholder="Specify Purpose" style="margin-bottom: 20px;">
-                    </div>
+                    <label>Bank Name</label>
+                    <input type="text" name="bank_name" id="bank-external" placeholder="e.g. Chase, Bank of America" required>
 
                     <label>Routing Number</label>
                     <input type="text" name="routing_number" placeholder="9-Digit ABA Routing" maxlength="9" required>
 
                     <label>Account Number</label>
-                    <input type="text" name="account_number" placeholder="Beneficiary Account Number" required>
+                    <input type="text" name="account_number" id="acc-external" placeholder="Beneficiary Account Number" required>
 
                     <label>Beneficiary Name</label>
-                    <input type="text" name="note" placeholder="Legal Name on Account" required>
+                    <input type="text" name="note" id="note-external" placeholder="Legal Name on Account" required>
 
                     <label>Amount</label>
                     <div style="position: relative;">
                         <span style="position: absolute; left: 15px; top: 16px; color: #64748b; font-weight: bold;">$</span>
-                        <input type="number" name="amount" step="0.01" placeholder="0.00" style="padding-left: 30px;" required>
+                        <input type="number" name="amount" id="amount-external" step="0.01" placeholder="0.00" style="padding-left: 30px;" required>
                     </div>
 
-                    <button type="button" class="submit-btn" onclick="openPin('external')">
-                        <svg style="width:16px;height:16px;margin-right:5px;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg> Initiate Wire Transfer
-                    </button>
+                    <button type="button" class="submit-btn" onclick="openReview('external')">Continue</button>
                 </form>
             </div>
         </div>
     </div>
 
+    <!-- REVIEW TICKET MODAL -->
+    <div class="modal-overlay" id="reviewModal">
+        <div class="ticket-card">
+            <div class="ticket-header">
+                <div class="ticket-title">Confirm Transfer</div>
+                <div class="ticket-amount" id="review-amount">$0.00</div>
+            </div>
+            <div class="ticket-body">
+                <div class="detail-row">
+                    <span class="detail-label">Recipient</span>
+                    <span class="detail-val" id="review-recipient">---</span>
+                </div>
+                <div class="detail-row">
+                    <span class="detail-label">Bank</span>
+                    <span class="detail-val" id="review-bank">Veltris Internal</span>
+                </div>
+                <div class="detail-row">
+                    <span class="detail-label">Processing Fee</span>
+                    <span class="detail-val">$0.00</span>
+                </div>
+
+                <div style="margin-top: 25px; margin-bottom: 10px;">
+                    <label style="text-align:center;">ENTER TRANSACTION PIN</label>
+                    <input type="password" id="modal-pin-input" class="pin-input" maxlength="4" placeholder="••••">
+                </div>
+
+                <button class="confirm-btn" onclick="submitTransfer()">Authorize Transfer</button>
+                <button class="cancel-btn" onclick="closeReview()">Cancel</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- TIMEOUT MODAL -->
+    <div class="timeout-overlay" id="timeoutModal">
+        <div class="timeout-card">
+            <div style="font-size: 40px; margin-bottom: 20px;">⏰</div>
+            <div class="timeout-title">Session Expiring</div>
+            <div class="timeout-msg">You will be logged out in <span id="timeLeft" style="font-weight:bold; color:var(--accent-color);">30</span> seconds due to inactivity.</div>
+            <button class="timeout-btn" onclick="resetTimer()">Keep me signed in</button>
+        </div>
+    </div>
+
     <script>
         // DARK MODE CHECK
-        if("{{ account.dark_mode }}" === "True") { document.body.classList.add('dark-mode'); }
+        if("{{ account.dark_mode }}" === "True") document.body.classList.add('dark-mode');
 
-        // --- UI LOGIC ---
         function toggleSidebar() { document.getElementById('sidebar').classList.toggle('active'); document.querySelector('.overlay').style.display = document.getElementById('sidebar').classList.contains('active') ? 'block' : 'none'; }
         function toggleNotifs() { var x = document.getElementById("notif-dropdown"); x.style.display = x.style.display === "block" ? "none" : "block"; }
-        window.onclick = function(event) { 
-            if (!event.target.matches('.icon-btn') && !event.target.closest('.icon-btn') && !event.target.matches('.notif-dropdown') && !event.target.closest('.notif-dropdown')) { document.getElementById("notif-dropdown").style.display = "none"; }
-            if (!event.target.closest('.custom-select-wrapper')) { document.getElementById("bank-options").classList.remove("show"); document.getElementById("bank-trigger").classList.remove("open"); }
+        window.onclick = function(event) { if (!event.target.matches('.icon-btn') && !event.target.closest('.icon-btn') && !event.target.matches('.notif-dropdown') && !event.target.closest('.notif-dropdown')) { document.getElementById("notif-dropdown").style.display = "none"; } }
+
+        function showTab(tabName, event) { 
+            document.querySelectorAll('.form-card').forEach(el => el.classList.remove('active')); 
+            document.querySelectorAll('.tab-btn').forEach(el => el.classList.remove('active')); 
+            document.getElementById(tabName).classList.add('active'); 
+            event.target.classList.add('active'); 
         }
-        function showTab(tabName, event) { document.querySelectorAll('.form-card').forEach(el => el.classList.remove('active')); document.querySelectorAll('.tab-btn').forEach(el => el.classList.remove('active')); document.getElementById(tabName).classList.add('active'); event.target.classList.add('active'); }
-        function finishTransfer() { window.location.href = '/dashboard/'; }
 
-        // --- DROPDOWN LOGIC ---
-        function toggleBankDropdown() { document.getElementById("bank-options").classList.toggle("show"); document.getElementById("bank-trigger").classList.toggle("open"); }
-        function selectBank(name, imgUrl) { document.getElementById("selected-bank").value = name; document.getElementById("bank-trigger").innerHTML = `<div style="display:flex;align-items:center;gap:10px;"><img src="${imgUrl}" style="width:24px;height:24px;object-fit:contain;border-radius:50%;border:1px solid #eee;"> ${name}</div><div class="arrow"></div>`; document.getElementById("bank-options").classList.remove("show"); document.getElementById("bank-trigger").classList.remove("open"); }
+        function clearAllNotifications() { if(confirm('Clear all?')) window.location.href="{% url 'clear_notifications' %}"; }
 
-        // --- WIRE PURPOSE LOGIC ---
-        function checkPurpose() {
-            const select = document.getElementById('wire_purpose_select');
-            const otherDiv = document.getElementById('other-purpose-div');
-            const otherInput = document.getElementById('other-purpose-input');
-            const hiddenVal = document.getElementById('wire-purpose-val');
+        // --- PHASE 1: ACCOUNT LOOKUP (AJAX) ---
+        const accInput = document.getElementById('acc_num_internal');
+        const spinner = document.getElementById('spinner-internal');
+        const resultDiv = document.getElementById('result-internal');
 
-            if (select.value === 'Others') {
-                otherDiv.style.display = 'block';
-                otherInput.required = true;
-                hiddenVal.value = otherInput.value; 
-                otherInput.onkeyup = function() { hiddenVal.value = this.value; };
+        accInput.addEventListener('keyup', function() {
+            const val = this.value;
+            if (val.length === 10) {
+                spinner.style.display = 'block';
+                resultDiv.style.display = 'none';
+                
+                fetch(`/search-account/?account_number=${val}`)
+                .then(response => response.json())
+                .then(data => {
+                    spinner.style.display = 'none';
+                    resultDiv.style.display = 'flex';
+                    if (data.found) {
+                        resultDiv.innerHTML = `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"></polyline></svg> ${data.name}`;
+                        resultDiv.className = 'check-status status-found';
+                    } else {
+                        resultDiv.innerHTML = `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg> ${data.message}`;
+                        resultDiv.className = 'check-status status-error';
+                    }
+                });
             } else {
-                otherDiv.style.display = 'none';
-                otherInput.required = false;
-                hiddenVal.value = select.value;
+                resultDiv.style.display = 'none';
             }
-        }
+        });
 
-        // --- PIN LOGIC ---
-        let currentPin = "";
-        let activeForm = "";
+        // --- PHASE 2: REVIEW MODAL LOGIC ---
+        let currentFormId = '';
 
-        function openPin(type) {
+        function openReview(type) {
             const form = document.getElementById('form-' + type);
-            if (type === 'external') {
-                const select = document.getElementById('wire_purpose_select');
-                if (!select.value) { select.setCustomValidity("Please select a purpose"); select.reportValidity(); return; }
-                else { select.setCustomValidity(""); }
-                checkPurpose();
-                if (!document.getElementById('selected-bank').value) { alert("Please select a bank"); return; }
-            }
+            // Basic HTML Validation
             if (!form.checkValidity()) { form.reportValidity(); return; }
-            activeForm = type; currentPin = ""; updateDots(); document.getElementById('pinModal').style.display = 'flex';
+
+            const amount = document.getElementById('amount-' + type).value;
+            let recipient = '';
+            let bank = '';
+
+            if (type === 'internal') {
+                const resText = document.getElementById('result-internal').innerText;
+                // If we found a name, use it. If not (unlikely if they passed validity), use the number
+                recipient = resText || document.getElementById('acc_num_internal').value;
+                bank = 'Veltris Bank (Internal)';
+                
+                // Block if account invalid
+                if (document.getElementById('result-internal').classList.contains('status-error')) {
+                    alert("Please enter a valid recipient account.");
+                    return;
+                }
+            } else {
+                recipient = document.getElementById('note-external').value;
+                bank = document.getElementById('bank-external').value;
+            }
+
+            // Populate Modal
+            document.getElementById('review-amount').innerText = '$' + parseFloat(amount).toLocaleString('en-US', {minimumFractionDigits: 2});
+            document.getElementById('review-recipient').innerText = recipient;
+            document.getElementById('review-bank').innerText = bank;
+            document.getElementById('modal-pin-input').value = ''; // Clear PIN
+            
+            currentFormId = 'form-' + type;
+            
+            // Show Modal
+            const modal = document.getElementById('reviewModal');
+            modal.style.display = 'flex';
+            setTimeout(() => modal.classList.add('active'), 10);
+            
+            // Focus PIN input automatically for better UX
+            setTimeout(() => document.getElementById('modal-pin-input').focus(), 100);
         }
-        function closePin() { document.getElementById('pinModal').style.display = 'none'; }
-        function pressKey(num) { if (currentPin.length < 4) { currentPin += num; updateDots(); if (currentPin.length === 4) { document.getElementById('pin-' + activeForm).value = currentPin; document.getElementById('form-' + activeForm).submit(); } } }
-        function clearPin() { currentPin = currentPin.slice(0, -1); updateDots(); }
-        function updateDots() { for (let i = 1; i <= 4; i++) { const dot = document.getElementById('d' + i); if (i <= currentPin.length) dot.classList.add('filled'); else dot.classList.remove('filled'); } }
-        function submitForgotPin() { document.getElementById('forgot-form').submit(); }
-        
-        // --- TIMEOUT LOGIC (5 MINS) ---
+
+        function closeReview() {
+            const modal = document.getElementById('reviewModal');
+            modal.classList.remove('active');
+            setTimeout(() => modal.style.display = 'none', 300);
+        }
+
+        function submitTransfer() {
+            const pin = document.getElementById('modal-pin-input').value;
+            if (pin.length < 4) {
+                alert("Please enter your 4-digit Transaction PIN");
+                return;
+            }
+            
+            // Move PIN to hidden field in the real form
+            if (currentFormId === 'form-internal') {
+                document.getElementById('final-pin-internal').value = pin;
+            } else {
+                document.getElementById('final-pin-external').value = pin;
+            }
+            
+            // Submit the actual form
+            document.getElementById(currentFormId).submit();
+        }
+
+        // Timeout Logic
         let warningTimer, logoutTimer;
         function startTimers() { warningTimer = setTimeout(showWarning, 300000); logoutTimer = setTimeout(doLogout, 270000); }
         function resetTimer() { clearTimeout(warningTimer); clearTimeout(logoutTimer); document.getElementById('timeoutModal').style.display = 'none'; startTimers(); }
         function showWarning() { document.getElementById('timeoutModal').style.display = 'flex'; }
         function doLogout() { window.location.href = '/logout/'; }
-        window.onload = startTimers;
+        window.onload = function() { startTimers(); if("{{ account.dark_mode }}" === "True") document.body.classList.add('dark-mode'); };
         document.onclick = resetTimer; document.onmousemove = resetTimer; document.onkeypress = resetTimer;
     </script>
 </body>

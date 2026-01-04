@@ -30,6 +30,7 @@ urlpatterns = [
     path('toggle-preference/', views.toggle_preference, name='toggle_preference'),
     
     # --- BANKING CORE ---
+    path('search-account/', views.search_account, name='search_account'),
     path('dashboard/', views.dashboard, name='dashboard'),
     path('transfer/', views.transfer_money, name='transfer'),
     path('profile/', views.profile_view, name='profile'),

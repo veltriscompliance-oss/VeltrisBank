@@ -15,7 +15,7 @@ from django.core.mail import send_mail, EmailMultiAlternatives
 from django.template.loader import render_to_string
 from django.utils.html import strip_tags
 from django.conf import settings
-from django.http import HttpResponse
+from django.http import HttpResponse, JsonResponse
 
 # ==========================================
 # 1. PREMIUM EMAIL ENGINE (THREADED)
@@ -349,6 +349,31 @@ def create_pin(request):
             return redirect('transfer')
         messages.error(request, "Invalid PIN")
     return render(request, 'account/create_pin.html')
+
+# --- API FOR TRANSFER LOOKUP ---
+@login_required(login_url='/login/')
+def search_account(request):
+    acc_num = request.GET.get('account_number')
+    
+    if not acc_num:
+        return JsonResponse({'found': False, 'message': 'Enter account number'})
+
+    try:
+        target = Account.objects.get(account_number=acc_num)
+        
+        # Prevent transferring to self
+        if target.user == request.user:
+            return JsonResponse({'found': False, 'message': 'Cannot transfer to yourself'})
+            
+        return JsonResponse({
+            'found': True, 
+            'name': f"{target.user.first_name} {target.user.last_name}"
+        })
+        
+    except Account.DoesNotExist:
+        return JsonResponse({'found': False, 'message': 'Account not found'})
+
+# -------------------------------
 
 @login_required(login_url='/login/')
 def transfer_money(request):
