@@ -733,12 +733,20 @@ def statement_view(request):
     total_in = transactions.filter(receiver=request.user).aggregate(Sum('amount'))['amount__sum'] or 0
     total_out = transactions.filter(sender=request.user).aggregate(Sum('amount'))['amount__sum'] or 0
 
+    start_of_month = date_obj.replace(day=1)
+    
+    history_in = Transaction.objects.filter(receiver=request.user, date__lt=start_of_month).aggregate(Sum('amount'))['amount__sum'] or 0
+    history_out = Transaction.objects.filter(sender=request.user, date__lt=start_of_month).aggregate(Sum('amount'))['amount__sum'] or 0
+    
+    beginning_balance = history_in - history_out
+    
     return render(request, 'account/statement_pdf.html', {
         'account': request.user.account,
         'transactions': transactions,
         'date': date_obj,
         'total_in': total_in,
-        'total_out': total_out
+        'total_out': total_out,
+        'beginning_balance': beginning_balance
     })
 
 # --- ERROR HANDLERS ---
