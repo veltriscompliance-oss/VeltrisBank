@@ -247,7 +247,7 @@
             <div class="modal-sub">{{ popup_data.msg }}</div>
             
             <!-- AMOUNT -->
-            <span class="modal-amount">${{ popup_data.amount|floatformat:2|intcomma }}</span>
+            <span class="modal-amount">${{ popup_data.amount|floatformat:2 }}</span>
             
             <button class="btn-close-modal" onclick="finishTransfer()">Done</button>
         </div>

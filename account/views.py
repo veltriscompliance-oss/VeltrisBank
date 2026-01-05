@@ -452,42 +452,53 @@ def execute_transfer(request, data, amount):
     sender.balance -= amount
     sender.save()
     
-    receiver_user = None
-    final_status = 'success'
+    # 1. Determine Status: 'processing' if Wire OR High Value (>= 1000)
+    if data['type'] == 'wire' or amount >= 1000:
+        status = 'processing'
+    else:
+        status = 'success'
     
-    if data['type'] == 'internal':
+    receiver = None
+    
+    # 2. Handle Internal Transfer Logic
+    if data['type'] == 'transfer': 
         try:
-            target_account = Account.objects.get(account_number=data['account_number'])
-            target_account.balance += amount
-            target_account.save()
-            receiver_user = target_account.user
-            Notification.objects.create(user=receiver_user, message=f"Credit Alert: You received ${amount} from {request.user.username}.")
-            send_transaction_alert(receiver_user, amount, "Incoming Transfer", "Successful")
+            target = Account.objects.get(account_number=data['account_number'])
+            receiver = target.user
+            
+            # CRITICAL: Only credit receiver immediately if status is SUCCESS
+            # If processing, the background task will credit them later
+            if status == 'success':
+                target.balance += amount
+                target.save()
+                Notification.objects.create(user=receiver, message=f"Credit Alert: Received ${amount} from {request.user.username}.")
+                send_transaction_alert(receiver, amount, "Incoming Transfer", "Successful")
         except: pass
-    
-    if data['type'] == 'external':
-        final_status = 'processing'
-    
+
+    # 3. Create Transaction Record
     Transaction.objects.create(
         sender=request.user, 
-        receiver=receiver_user, 
-        amount=amount, 
+        receiver=receiver, 
+        amount=amount,
         transaction_type=data['type'], 
-        status=final_status, 
+        status=status, 
         receiver_account_number=data.get('account_number'), 
         routing_number=data.get('routing'), 
         receiver_bank_name=data.get('bank_name'), 
         note=data.get('note')
     )
     
-    send_transaction_alert(request.user, amount, data['type'], final_status)
-    if final_status == 'success':
+    # 4. Send Sender Alert
+    send_transaction_alert(request.user, amount, data['type'], status)
+    
+    # 5. Set Popup Message
+    if status == 'success':
         msg_text = "Your transfer has been completed."
     else:
         msg_text = "Transaction is currently under review."
 
     request.session['txn_popup'] = {
-        'status': final_status, 
+        'status': status, 
         'amount': str(amount), 
         'msg': msg_text
     }
