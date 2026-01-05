@@ -346,11 +346,8 @@
 
         <!-- NOTIFICATION DROPDOWN -->
         <div id="notif-dropdown" class="notif-dropdown">
-            <div class="notif-head">
-                <span>NOTIFICATIONS</span>
-                <span style="color:var(--accent-color); cursor:pointer;" onclick="clearAllNotifications()">Clear All</span>
-            </div>
-            <div class="notif-list">
+            <div style="padding: 15px; border-bottom: 1px solid var(--border); font-weight: 700; font-size: 13px; color: var(--text-main); background: var(--light);">NOTIFICATIONS</div>
+            <div style="max-height: 300px; overflow-y: auto;">
                 {% for n in notifications %}
                     <div class="notif-item">
                         <div class="notif-msg">{{ n.message }}</div>
