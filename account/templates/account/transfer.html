@@ -224,7 +224,18 @@
         .forgot-link { margin-top: 40px; font-size: 13px; color: var(--text-light); cursor: pointer; text-decoration: underline; }
 
         @media (max-width: 900px) {
-            .sidebar { position: fixed; left: -280px; } .sidebar.active { transform: translateX(280px); }
+        .sidebar { 
+            position: fixed; 
+            left: -280px; 
+            top: 0; 
+            height: 100%; 
+            transition: 0.3s; 
+            box-shadow: none; 
+        } 
+        .sidebar.active { 
+            transform: translateX(280px); 
+            box-shadow: 10px 0 30px rgba(0,0,0,0.1); 
+        }
             .mobile-header { display: flex; } .header { display: none; }
             .notif-dropdown { right: 20px; top: 70px; width: calc(100% - 40px); }
             .nav-avatar { width: 40px !important; height: 40px !important; min-width: 40px !important; border: 2px solid var(--border); }
