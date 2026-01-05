@@ -618,16 +618,28 @@
 
         function submitTransfer() {
             const pin = document.getElementById('modal-pin-input').value;
-            if (pin.length < 4) { alert("Please enter your 4-digit Transaction PIN"); return; }
             
-            // Inject PIN
+            // Validation first
+            if (pin.length < 4) { 
+                alert("Please enter your 4-digit Transaction PIN"); 
+                return; 
+            }
+            
+            // --- THE FIX: DISABLE BUTTON IMMEDIATELY ---
+            const btn = document.querySelector('.confirm-btn');
+            btn.disabled = true;                // Make it unclickable
+            btn.innerText = "Processing...";    // Change text
+            btn.style.opacity = "0.7";          // Dim it visually
+            btn.style.cursor = "not-allowed";   // Show 'stop' cursor
+            
+            // Move PIN to hidden field
             if (currentFormId === 'form-internal') {
                 document.getElementById('final-pin-internal').value = pin;
             } else {
                 document.getElementById('final-pin-external').value = pin;
             }
             
-            // Submit
+            // Submit the form
             document.getElementById(currentFormId).submit();
         }
 
