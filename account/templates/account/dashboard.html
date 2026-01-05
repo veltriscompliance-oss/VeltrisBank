@@ -390,7 +390,7 @@
                 <div class="modal-sub">Transaction under review.</div>
             {% endif %}
             <!-- FIXED: AMOUNT RENDERING & FORMATTING -->
-            <span class="modal-amount">${{ popup_data.amount|floatformat:2|intcomma }}</span>
+            <span class="modal-amount">${{ popup_data.amount|floatformat:2 }}</span>
             <button class="btn-close-modal" onclick="closePopup()">Done</button>
         </div>
     </div>
