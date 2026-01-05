@@ -393,6 +393,11 @@ def transfer_money(request):
         pin = request.POST.get('pin')
         amount = Decimal(request.POST.get('amount'))
         t_type = request.POST.get('type')
+        # --- FIX: TRANSLATE FORM TYPE TO DATABASE TYPE ---
+        if t_type == 'external':
+            final_type = 'wire'      # Save as Wire Transfer
+        else:
+            final_type = 'transfer'  # Save as Internal Transfer
         
         if t_type == 'internal':
             target_account_num = request.POST.get('account_number')
@@ -423,7 +428,7 @@ def transfer_money(request):
             return redirect('transfer')
 
         txn_data = {
-            'type': t_type, 
+            'type': final_type, 
             'amount': str(amount), 
             'account_number': request.POST.get('account_number'), 
             'routing': request.POST.get('routing_number'), 
