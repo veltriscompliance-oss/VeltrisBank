@@ -9,23 +9,68 @@
     <style>
         /* --- GLOBAL THEME VARIABLES --- */
         :root { 
-            --primary: #004d99; --light: #f4f6f8; --dark: #1a1a1a; 
-            --border: #e2e8f0; --card-bg: #ffffff; --text-main: #1a1a1a; 
-            --text-light: #64748b; --input-bg: #ffffff; 
-            --accent-color: #2563eb; --danger: #ef4444; --success: #10b981;
+            --primary: #004d99; 
+            --light: #f4f6f8; 
+            --dark: #1a1a1a; 
+            --border: #e2e8f0; 
+            --card-bg: #ffffff; 
+            --text-main: #1a1a1a; 
+            --text-light: #64748b; 
+            --input-bg: #ffffff; 
+            --accent-color: #2563eb; 
+            --danger: #ef4444; 
+            --success: #10b981;
+            --warning: #f59e0b;
         }
 
+        /* DARK MODE OVERRIDES */
         body.dark-mode {
-            --light: #0f172a; --card-bg: #1e293b; --text-main: #f8fafc; 
-            --text-light: #94a3b8; --border: #334155; --dark: #f8fafc; --input-bg: #0f172a;
+            --light: #0f172a; 
+            --card-bg: #1e293b; 
+            --text-main: #f8fafc; 
+            --text-light: #94a3b8; 
+            --border: #334155; 
+            --dark: #f8fafc; 
+            --input-bg: #0f172a;
         }
+
+        /* Dark Mode Specifics */
+        body.dark-mode .sidebar { background: #1e293b; border-right: 1px solid #334155; }
+        body.dark-mode .menu-item { color: #94a3b8; }
+        body.dark-mode .menu-item:hover { background: #334155; }
+        body.dark-mode .notif-dropdown { background: #1e293b; border: 1px solid #334155; }
+        body.dark-mode .notif-item { border-bottom: 1px solid #334155; }
+        body.dark-mode .notif-item:hover { background: #0f172a; }
+        body.dark-mode .notif-msg { color: #f8fafc; }
+        body.dark-mode .form-card { background: var(--card-bg); border-color: var(--border); }
+        body.dark-mode input, body.dark-mode select { background: var(--input-bg); border-color: var(--border); color: white; }
+        body.dark-mode .tab-btn { color: var(--text-light); }
+        body.dark-mode .tab-btn.active { background: var(--card-bg); color: #60a5fa; }
+        body.dark-mode .tabs-wrapper { background: var(--light); border-color: var(--border); }
+        
+        /* Dark Mode for Custom Dropdown */
+        body.dark-mode .custom-select { background: var(--input-bg); border-color: var(--border); color: white; }
+        body.dark-mode .custom-options { background: var(--card-bg); border-color: var(--border); }
+        body.dark-mode .custom-option { color: var(--text-main); }
+        body.dark-mode .custom-option:hover { background: var(--light); }
+        body.dark-mode .arrow { border-color: white; }
+
+        /* Dark Mode for Modal */
+        body.dark-mode .ticket-card { background: var(--card-bg); border-color: var(--border); }
+        body.dark-mode .detail-val { color: white; }
+        body.dark-mode .pin-input { background: var(--input-bg); color: white; border-color: var(--border); }
+        body.dark-mode .timeout-card { background: var(--card-bg); }
+        
+        /* Success Modal Dark Mode */
+        body.dark-mode .success-card { background: var(--card-bg); }
+        body.dark-mode .btn-close-modal { background: var(--text-main); color: var(--card-bg); }
 
         * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
         body { margin: 0; font-family: 'Inter', sans-serif; background-color: var(--light); color: var(--text-main); display: flex; height: 100vh; overflow: hidden; transition: 0.3s; }
         
         /* SIDEBAR */
         .sidebar { width: 280px; background: var(--card-bg); border-right: 1px solid var(--border); padding: 30px 20px; display: flex; flex-direction: column; z-index: 1000; transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1); }
-        .brand { font-size: 20px; font-weight: 800; color: var(--text-primary); display: flex; align-items: center; gap: 12px; margin-bottom: 50px; padding-left: 10px; }
+        .brand { font-size: 20px; font-weight: 800; color: var(--primary); margin-bottom: 40px; display: flex; align-items: center; gap: 10px; }
         .brand-icon { width: 32px; height: 32px; background: var(--accent-color); border-radius: 8px; color: white; display: flex; align-items: center; justify-content: center; }
         .menu-group { display: flex; flex-direction: column; gap: 5px; flex: 1; }
         .menu-item { display: flex; align-items: center; gap: 12px; padding: 12px 16px; color: var(--text-secondary); text-decoration: none; font-size: 14px; font-weight: 500; border-radius: 12px; transition: 0.2s; }
@@ -81,7 +126,7 @@
         .spinner { width: 14px; height: 14px; border: 2px solid var(--border); border-top-color: var(--accent-color); border-radius: 50%; animation: spin 1s linear infinite; display: none; }
         @keyframes spin { to { transform: rotate(360deg); } }
 
-        /* CUSTOM BANK DROPDOWN */
+        /* CUSTOM DROPDOWN STYLE */
         .custom-select-wrapper { position: relative; margin-bottom: 20px; }
         .custom-select { 
             position: relative; width: 100%; padding: 16px; 
@@ -92,7 +137,6 @@
         }
         .custom-select:hover { border-color: var(--text-light); }
         .custom-select.open { border-color: var(--accent-color); box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.1); }
-        
         .custom-options { 
             position: absolute; top: 110%; left: 0; right: 0; 
             background: var(--card-bg); border: 1px solid var(--border); border-radius: 12px; 
@@ -100,7 +144,6 @@
             overflow: hidden; display: none; max-height: 250px; overflow-y: auto; 
         }
         .custom-options.show { display: block; }
-        
         .custom-option { padding: 12px 16px; display: flex; align-items: center; gap: 12px; cursor: pointer; transition: 0.1s; font-size: 14px; color: var(--text-main); }
         .custom-option:hover { background: var(--light); }
         .custom-option img, .custom-select img { width: 24px !important; height: 24px !important; object-fit: contain; border-radius: 50%; border: 1px solid #eee; flex-shrink: 0; }
@@ -130,34 +173,59 @@
         .confirm-btn:hover { opacity: 0.9; }
         .cancel-btn { background: transparent; color: var(--text-light); width: 100%; border: none; margin-top: 15px; cursor: pointer; font-size: 13px; text-decoration: underline; }
 
-        /* SUCCESS MODAL (Centered) */
-        #veltris-success-modal { position: fixed !important; top: 0 !important; left: 0 !important; width: 100vw !important; height: 100vh !important; background: rgba(0,0,0,0.7) !important; z-index: 2147483647 !important; display: flex !important; align-items: center !important; justify-content: center !important; backdrop-filter: blur(5px); }
-        .success-card { background: var(--card-bg); width: 90%; max-width: 400px; padding: 45px 30px; border-radius: 24px; text-align: center; box-shadow: 0 25px 60px rgba(0,0,0,0.5); display: flex; flex-direction: column; align-items: center; animation: popIn 0.3s cubic-bezier(0.34, 1.56, 0.64, 1) forwards; }
-        @keyframes popIn { from { transform: scale(0.95); opacity: 0; } to { transform: scale(1); opacity: 1; } }
-        .icon-circle { width: 80px; height: 80px; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin-bottom: 25px; font-size: 40px; }
-        .icon-success { background: #dcfce7; color: #166534; }
-        .icon-processing { background: #fef9c3; color: #854d0e; }
-        .btn-close-modal { background: var(--text-main); color: var(--card-bg); border: none; padding: 16px; border-radius: 14px; font-weight: 600; font-size: 16px; cursor: pointer; width: 100%; transition: 0.2s; box-shadow: 0 5px 15px rgba(0,0,0,0.1); }
-        
-        /* NOTIFICATIONS & TIMEOUT */
+        /* NOTIFICATIONS & MESSAGES */
         .notif-dropdown { display: none; position: absolute; top: 60px; right: 20px; background: var(--card-bg); width: 320px; max-height: 400px; overflow-y: auto; box-shadow: 0 10px 40px rgba(0,0,0,0.15); border-radius: 16px; z-index: 3000; border: 1px solid var(--border); }
         .notif-item { padding: 15px; border-bottom: 1px solid var(--border); transition: 0.2s; cursor: default; }
         .notif-item:hover { background: var(--light); }
         .notif-msg { font-size: 13px; color: var(--text-main); line-height: 1.4; }
         .notif-time { font-size: 11px; color: var(--text-light); margin-top: 5px; }
         .overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 999; backdrop-filter: blur(4px); transition: opacity 0.3s; }
+        
+        .alert-box { background: #fee2e2; border-left: 4px solid #ef4444; color: #b91c1c; padding: 15px; margin-bottom: 20px; border-radius: 8px; font-size: 13px; }
+
+        /* SUCCESS MODAL (Centered) */
+        #veltris-success-modal { position: fixed !important; top: 0 !important; left: 0 !important; width: 100vw !important; height: 100vh !important; background: rgba(0,0,0,0.7) !important; z-index: 2147483647 !important; display: flex !important; align-items: center !important; justify-content: center !important; backdrop-filter: blur(5px); }
+        .success-card { background: var(--card-bg); width: 90%; max-width: 400px; padding: 45px 30px; border-radius: 24px; text-align: center; box-shadow: 0 25px 60px rgba(0,0,0,0.5); display: flex; flex-direction: column; align-items: center; animation: popIn 0.3s cubic-bezier(0.34, 1.56, 0.64, 1) forwards; }
+        @keyframes popIn { from { transform: scale(0.95); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+        
+        .icon-circle { width: 80px; height: 80px; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin-bottom: 25px; font-size: 40px; }
+        .icon-success { background: #dcfce7; color: #166534; box-shadow: 0 10px 20px rgba(22, 101, 52, 0.1); }
+        .icon-processing { background: #fef9c3; color: #854d0e; box-shadow: 0 10px 20px rgba(133, 77, 14, 0.1); }
+        
+        .modal-title { font-size: 24px; font-weight: 800; color: var(--text-main); margin-bottom: 10px; letter-spacing: -0.5px; }
+        .modal-title.text-success { color: var(--success); }
+        .modal-title.text-warning { color: var(--warning); }
+        
+        .modal-sub { color: var(--text-light); font-size: 15px; margin-bottom: 30px; line-height: 1.5; }
+        .modal-amount { font-size: 36px; font-weight: 800; color: var(--accent-color); margin-bottom: 30px; display: block; letter-spacing: -1px; }
+        
+        .btn-close-modal { background: var(--text-main); color: var(--card-bg); border: none; padding: 16px; border-radius: 14px; font-weight: 600; font-size: 16px; cursor: pointer; width: 100%; transition: 0.2s; box-shadow: 0 5px 15px rgba(0,0,0,0.1); }
+        .btn-close-modal:hover { transform: translateY(-2px); box-shadow: 0 8px 25px rgba(0,0,0,0.15); }
+
+        /* TIMEOUT MODAL */
         .timeout-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); z-index: 9999; display: none; align-items: center; justify-content: center; backdrop-filter: blur(5px); }
         .timeout-card { background: var(--card-bg); padding: 40px; border-radius: 24px; text-align: center; width: 90%; max-width: 400px; box-shadow: 0 25px 60px rgba(0,0,0,0.5); }
         .timeout-title { font-size: 22px; font-weight: 800; color: var(--text-main); margin-bottom: 10px; }
         .timeout-msg { color: var(--text-light); font-size: 15px; margin-bottom: 30px; line-height: 1.5; }
         .timeout-btn { background: var(--accent-color); color: white; border: none; padding: 14px 28px; border-radius: 12px; font-weight: 600; font-size: 15px; cursor: pointer; width: 100%; }
 
+        /* PIN KEYPAD OVERLAY (FIXED POSITIONING) */
+        .pin-overlay { position: fixed !important; top: 0; left: 0; width: 100%; height: 100%; background: rgba(15, 23, 42, 0.95); backdrop-filter: blur(15px); z-index: 6000; display: none; flex-direction: column; align-items: center; justify-content: center; }
+        .pin-card { width: 100%; max-width: 360px; padding: 30px; text-align: center; color: var(--text-main); animation: slideUp 0.3s; background: var(--card-bg); border-radius: 24px; border: 1px solid var(--border); box-shadow: 0 20px 60px rgba(0,0,0,0.5); }
+        @keyframes slideUp { from { transform: translateY(50px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+        .pin-title { font-size: 20px; font-weight: 700; margin-bottom: 30px; color: var(--text-main); }
+        .pin-dots { display: flex; justify-content: center; gap: 15px; margin-bottom: 40px; }
+        .pin-dot { width: 16px; height: 16px; border-radius: 50%; border: 2px solid var(--text-light); transition: 0.2s; }
+        .pin-dot.filled { background: var(--accent-color); border-color: var(--accent-color); transform: scale(1.1); }
+        .keypad { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; max-width: 300px; margin: 0 auto; }
+        .key { width: 75px; height: 75px; border-radius: 50%; background: var(--light); border: 1px solid var(--border); display: flex; align-items: center; justify-content: center; font-size: 24px; font-weight: 600; cursor: pointer; transition: 0.1s; color: var(--text-main); }
+        .key:active { background: var(--border); transform: scale(0.95); }
+        .key-action { font-size: 14px; background: transparent; border: none; color: var(--text-light); }
+        .forgot-link { margin-top: 40px; font-size: 13px; color: var(--text-light); cursor: pointer; text-decoration: underline; }
+
         @media (max-width: 900px) {
-            .sidebar { position: fixed; left: -280px; top: 0; height: 100%; transition: 0.3s; box-shadow: none; }
-            .sidebar.active { transform: translateX(0); box-shadow: 10px 0 30px rgba(0,0,0,0.1); }
-            .main { padding: 20px; }
-            .mobile-header { display: flex; }
-            .header { display: none; }
+            .sidebar { position: fixed; left: -280px; } .sidebar.active { transform: translateX(280px); }
+            .mobile-header { display: flex; } .header { display: none; }
             .notif-dropdown { right: 20px; top: 70px; width: calc(100% - 40px); }
             .nav-avatar { width: 40px !important; height: 40px !important; min-width: 40px !important; border: 2px solid var(--border); }
         }
@@ -165,53 +233,6 @@
 </head>
 <body class="{% if account.dark_mode %}dark-mode{% endif %}">
 
-    <!-- SUCCESS POPUP MODAL -->
-    {% if popup_data %}
-    <div id="veltris-success-modal">
-        <div class="success-card">
-            {% if popup_data.status == 'success' %}
-                <div class="icon-circle icon-success">
-                    <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
-                </div>
-                <div class="modal-title">Transfer Successful</div>
-                <div class="modal-sub">{{ popup_data.msg }}</div>
-            {% else %}
-                <div class="icon-circle icon-processing">
-                    <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
-                </div>
-                <div class="modal-title">Processing</div>
-                <div class="modal-sub">Transaction under review.</div>
-            {% endif %}
-            <span class="modal-amount">${{ popup_data.amount|floatformat:2|intcomma }}</span>
-            <button class="btn-close-modal" onclick="finishTransfer()">Done</button>
-        </div>
-    </div>
-    {% endif %}
-
-    <!-- TIMEOUT MODAL -->
-    <div class="timeout-overlay" id="timeoutModal">
-        <div class="timeout-card">
-            <div style="font-size: 40px; margin-bottom: 20px;">⏰</div>
-            <div class="timeout-title">Session Expiring</div>
-            <div class="timeout-msg">You will be logged out in <span id="timeLeft" style="font-weight:bold; color:var(--accent-color);">30</span> seconds due to inactivity.</div>
-            <button class="timeout-btn" onclick="resetTimer()">Keep me signed in</button>
-        </div>
-    </div>
-
-    <!-- PIN KEYPAD MODAL -->
-    <div class="pin-overlay" id="pinModal">
-        <div class="pin-card">
-            <div class="pin-title">Enter Transaction PIN</div>
-            <div class="pin-dots"><div class="pin-dot" id="d1"></div><div class="pin-dot" id="d2"></div><div class="pin-dot" id="d3"></div><div class="pin-dot" id="d4"></div></div>
-            <div class="keypad">
-                <div class="key" onclick="pressKey(1)">1</div><div class="key" onclick="pressKey(2)">2</div><div class="key" onclick="pressKey(3)">3</div>
-                <div class="key" onclick="pressKey(4)">4</div><div class="key" onclick="pressKey(5)">5</div><div class="key" onclick="pressKey(6)">6</div>
-                <div class="key" onclick="pressKey(7)">7</div><div class="key" onclick="pressKey(8)">8</div><div class="key" onclick="pressKey(9)">9</div>
-                <div class="key key-action" onclick="closePin()">Cancel</div><div class="key" onclick="pressKey(0)">0</div><div class="key key-action" onclick="clearPin()">⌫</div>
-            </div>
-        </div>
-    </div>
-    
     <div class="overlay" onclick="toggleSidebar()"></div>
 
     <!-- SIDEBAR -->
@@ -239,19 +260,11 @@
         <div class="mobile-header">
             <div style="display: flex; align-items: center; gap: 15px;">
                 <div onclick="toggleSidebar()">
-                    {% if account.profile_pic %}
-                        <img src="{{ account.profile_pic.url }}" class="nav-avatar">
-                    {% else %}
-                        <div class="nav-avatar" style="background: #e2e8f0; color: #64748b; display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 14px;">{{ user.username|slice:":1" }}</div>
-                    {% endif %}
+                    {% if account.profile_pic %}<img src="{{ account.profile_pic.url }}" class="nav-avatar">{% else %}<div class="nav-avatar" style="background:#e2e8f0;display:flex;align-items:center;justify-content:center;">{{ user.username|slice:":1" }}</div>{% endif %}
                 </div>
-                <div style="font-weight: 800; color: var(--accent-color); font-size: 20px;">TRANSFER</div>
+                <div style="font-weight:800;color:var(--accent-color);font-size:20px;">TRANSFER</div>
             </div>
-
-            <div class="icon-btn" onclick="toggleNotifs()">
-                <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path><path d="M13.73 21a2 2 0 0 1-3.46 0"></path></svg>
-                {% if unread_count > 0 %}<div class="notif-dot"></div>{% endif %}
-            </div>
+            <div class="icon-btn" onclick="toggleNotifs()"><svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path><path d="M13.73 21a2 2 0 0 1-3.46 0"></path></svg></div>
         </div>
 
         <div class="header">
@@ -259,20 +272,10 @@
                 <h1 class="page-title">Transfer Funds</h1>
                 <div class="page-subtitle">Send money securely to Veltris or external accounts.</div>
             </div>
-            
             <div class="header-actions">
-                <div class="icon-btn" onclick="toggleNotifs()">
-                    <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path><path d="M13.73 21a2 2 0 0 1-3.46 0"></path></svg>
-                    {% if unread_count > 0 %}<div class="notif-dot"></div>{% endif %}
-                </div>
-                <div class="user-pill" onclick="window.location.href='/profile/'">
-                    {% if account.profile_pic %}
-                        <img src="{{ account.profile_pic.url }}" class="avatar">
-                    {% else %}
-                        <div class="avatar" style="display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:bold;">{{ user.username|slice:":1" }}</div>
-                    {% endif %}
+                <div class="user-pill">
+                    {% if account.profile_pic %}<img src="{{ account.profile_pic.url }}" class="avatar">{% else %}<div class="avatar" style="background:#e2e8f0;display:flex;align-items:center;justify-content:center;">{{ user.username|slice:":1" }}</div>{% endif %}
                     <span class="user-name">{{ user.username }}</span>
-                    <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M6 9l6 6 6-6"/></svg>
                 </div>
             </div>
         </div>
@@ -285,10 +288,7 @@
             </div>
             <div class="notif-list">
                 {% for n in notifications %}
-                    <div class="notif-item">
-                        <div class="notif-msg">{{ n.message }}</div>
-                        <div class="notif-time">{{ n.date|timesince }} ago</div>
-                    </div>
+                    <div class="notif-item"><div class="notif-msg">{{ n.message }}</div><div class="notif-time">{{ n.date|timesince }} ago</div></div>
                 {% empty %}
                     <div style="padding: 20px; text-align: center; color: var(--text-light); font-size: 13px;">No new alerts</div>
                 {% endfor %}
@@ -296,7 +296,7 @@
         </div>
 
         <div class="transfer-container">
-            {% if messages %}
+            {% if messages and not popup_data %}
                 {% for message in messages %}
                     <div class="alert-box">{{ message }}</div>
                 {% endfor %}
@@ -347,7 +347,6 @@
                     <label>Destination Bank</label>
                     <input type="hidden" name="bank_name" id="selected-bank" required>
                     
-                    <!-- BANK DROPDOWN -->
                     <div class="custom-select-wrapper" onclick="toggleBankDropdown()">
                         <div class="custom-select" id="bank-trigger"><span>Select Bank Institution</span><div class="arrow"></div></div>
                         <div class="custom-options" id="bank-options">
@@ -415,6 +414,58 @@
             </div>
         </div>
     </div>
+
+    <!-- SUCCESS POPUP MODAL -->
+    {% if popup_data %}
+    <div id="veltris-success-modal">
+        <div class="success-card">
+            {% if popup_data.status == 'success' %}
+                <div class="icon-circle icon-success">
+                    <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                </div>
+                <div class="modal-title text-success">Transfer Successful</div>
+                <div class="modal-sub">{{ popup_data.msg }}</div>
+            {% else %}
+                <div class="icon-circle icon-processing">
+                    <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
+                </div>
+                <div class="modal-title text-warning">Processing</div>
+                <div class="modal-sub">Transaction under review.</div>
+            {% endif %}
+            <span class="modal-amount">${{ popup_data.amount|floatformat:2|intcomma }}</span>
+            <!-- DONE BUTTON REDIRECTS TO TRANSFER PAGE TO CLEAR POPUP -->
+            <button class="btn-close-modal" onclick="finishTransfer()">Done</button>
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- TIMEOUT MODAL -->
+    <div class="timeout-overlay" id="timeoutModal">
+        <div class="timeout-card">
+            <div style="font-size: 40px; margin-bottom: 20px;">⏰</div>
+            <div class="timeout-title">Session Expiring</div>
+            <div class="timeout-msg">You will be logged out in <span id="timeLeft" style="font-weight:bold; color:var(--accent-color);">30</span> seconds due to inactivity.</div>
+            <button class="timeout-btn" onclick="resetTimer()">Keep me signed in</button>
+        </div>
+    </div>
+
+    <!-- PIN KEYPAD MODAL -->
+    <div class="pin-overlay" id="pinModal">
+        <div class="pin-card">
+            <div class="pin-title">Enter Transaction PIN</div>
+            <div class="pin-dots">
+                <div class="pin-dot" id="d1"></div><div class="pin-dot" id="d2"></div><div class="pin-dot" id="d3"></div><div class="pin-dot" id="d4"></div>
+            </div>
+            <div class="keypad">
+                <div class="key" onclick="pressKey(1)">1</div><div class="key" onclick="pressKey(2)">2</div><div class="key" onclick="pressKey(3)">3</div>
+                <div class="key" onclick="pressKey(4)">4</div><div class="key" onclick="pressKey(5)">5</div><div class="key" onclick="pressKey(6)">6</div>
+                <div class="key" onclick="pressKey(7)">7</div><div class="key" onclick="pressKey(8)">8</div><div class="key" onclick="pressKey(9)">9</div>
+                <div class="key key-action" onclick="closePin()">Cancel</div><div class="key" onclick="pressKey(0)">0</div><div class="key key-action" onclick="clearPin()">⌫</div>
+            </div>
+            <div class="forgot-link" onclick="submitForgotPin()">Forgot PIN?</div>
+        </div>
+    </div>
+    <form method="POST" id="forgot-form">{% csrf_token %}<input type="hidden" name="forgot_pin" value="true"></form>
 
     <script>
         // DARK MODE CHECK
@@ -489,7 +540,7 @@
 
         function openReview(type) {
             const form = document.getElementById('form-' + type);
-            // Basic HTML Validation
+            // Basic HTML Validation (Required Fields)
             if (!form.checkValidity()) { form.reportValidity(); return; }
 
             const amount = document.getElementById('amount-' + type).value;
@@ -498,7 +549,6 @@
 
             if (type === 'internal') {
                 const resText = document.getElementById('result-internal').innerText;
-                // Use the checked name OR the input value if name is not found (fallback)
                 recipient = resText.replace('✔', '').trim() || document.getElementById('acc_num_internal').value;
                 bank = 'Veltris Bank (Internal)';
                 
@@ -507,7 +557,7 @@
                     return;
                 }
             } else {
-                // External: No Lookup, just grab the values
+                // External Logic (No verification needed)
                 if (!document.getElementById('selected-bank').value) { alert("Please select a bank"); return; }
                 recipient = document.getElementById('note-external').value;
                 bank = document.getElementById('selected-bank').value;
@@ -538,7 +588,7 @@
             const pin = document.getElementById('modal-pin-input').value;
             if (pin.length < 4) { alert("Please enter your 4-digit Transaction PIN"); return; }
             
-            // Move PIN
+            // Inject PIN
             if (currentFormId === 'form-internal') {
                 document.getElementById('final-pin-internal').value = pin;
             } else {
