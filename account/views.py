@@ -481,10 +481,15 @@ def execute_transfer(request, data, amount):
     )
     
     send_transaction_alert(request.user, amount, data['type'], final_status)
+    if final_status == 'success':
+        msg_text = "Your transfer has been completed."
+    else:
+        msg_text = "Transaction is currently under review."
+
     request.session['txn_popup'] = {
         'status': final_status, 
         'amount': str(amount), 
-        'msg': 'Transfer ' + final_status.title()
+        'msg': msg_text
     }
     return redirect('transfer')
 

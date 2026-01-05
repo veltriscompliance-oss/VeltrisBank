@@ -229,20 +229,26 @@
     {% if popup_data %}
     <div id="veltris-success-modal">
         <div class="success-card">
+            
             {% if popup_data.status == 'success' %}
+                <!-- SUCCESS ICON (Green Check) -->
                 <div class="icon-circle icon-success">
                     <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
                 </div>
-                <div class="modal-title">Transfer Successful</div>
-                <div class="modal-sub">{{ popup_data.msg }}</div>
+                <div class="modal-title">Success</div>
             {% else %}
+                <!-- PROCESSING ICON (Yellow Clock) -->
                 <div class="icon-circle icon-processing">
                     <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
                 </div>
                 <div class="modal-title">Processing</div>
-                <div class="modal-sub">Transaction under review.</div>
             {% endif %}
+
+            <div class="modal-sub">{{ popup_data.msg }}</div>
+            
+            <!-- AMOUNT -->
             <span class="modal-amount">${{ popup_data.amount|floatformat:2|intcomma }}</span>
+            
             <button class="btn-close-modal" onclick="finishTransfer()">Done</button>
         </div>
     </div>
