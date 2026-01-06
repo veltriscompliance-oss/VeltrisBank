@@ -106,9 +106,17 @@ class Notification(models.Model):
     message = models.TextField()
     is_read = models.BooleanField(default=False)
     date = models.DateTimeField(auto_now_add=True)
+class SupportSession(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    status = models.CharField(max_length=20, default='active') # 'active' or 'closed'
+    created_at = models.DateTimeField(auto_now_add=True)
+    last_activity = models.DateTimeField(auto_now=True)
 
+    def __str__(self):
+        return f"Session {self.id} - {self.user.username}"
 class SupportMessage(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
+    session = models.ForeignKey(SupportSession, on_delete=models.SET_NULL, null=True, blank=True)
     message = models.TextField()
     is_admin_reply = models.BooleanField(default=False)
     timestamp = models.DateTimeField(auto_now_add=True)

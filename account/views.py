@@ -1,7 +1,7 @@
 from django.shortcuts import render, redirect
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
-from .models import Account, Transaction, CreditCard, Notification, SupportMessage, Loan
+from .models import Account, Transaction, CreditCard, Notification, SupportMessage, Loan, SupportSession
 from django.db.models import Q, Sum
 from django.contrib import messages
 from decimal import Decimal
@@ -732,26 +732,45 @@ def analytics_view(request):
 
 @login_required(login_url='/login/')
 def support_view(request):
+    # 1. Manage Session
+    # Find the currently active session for this user
+    session = SupportSession.objects.filter(user=request.user, status='active').last()
+    
+    # Check Timeout (15 minutes)
+    if session:
+        time_since_activity = timezone.now() - session.last_activity
+        if time_since_activity > timedelta(minutes=15):
+            session.status = 'closed'
+            session.save()
+            session = None # Force creation of a new one below
+
+    # Create new session if none exists (or if previous was just closed)
+    if not session:
+        session = SupportSession.objects.create(user=request.user)
+
+    # 2. Handle New Messages
     if request.method == 'POST':
         message_text = request.POST.get('message')
-        # Check if the JavaScript told us this is a bot reply
         is_bot = request.POST.get('is_bot') == 'true'
         
         if message_text:
             SupportMessage.objects.create(
                 user=request.user, 
+                session=session, # Link message to the CURRENT session
                 message=message_text,
-                is_admin_reply=is_bot # If it's a bot, save it as an Admin message
+                is_admin_reply=is_bot
             )
+            # Update timestamp so the session stays alive
+            session.save() 
         
-        # If the browser sent this silently (AJAX), say "OK" without reloading
         if request.headers.get('x-requested-with') == 'XMLHttpRequest':
             return JsonResponse({'status': 'saved'})
             
         return redirect('support')
     
-    # Load history
-    messages_list = SupportMessage.objects.filter(user=request.user).order_by('timestamp')
+    # 3. Load History (Only from the CURRENT session)
+    # This ensures old conversations don't clutter the screen
+    messages_list = SupportMessage.objects.filter(session=session).order_by('timestamp')
     
     return render(request, 'account/support.html', {
         'messages': messages_list, 
@@ -761,16 +780,20 @@ def support_view(request):
 
 @login_required(login_url='/login/')
 def get_messages_api(request):
-    # Get the ID of the last message the user has
+    # Get active session
+    session = SupportSession.objects.filter(user=request.user, status='active').last()
+    if not session:
+        return JsonResponse({'messages': []})
+
     last_id = request.GET.get('last_id', 0)
     
-    # Find any messages newer than that ID
+    # Fetch new messages ONLY from the active session
     new_msgs = SupportMessage.objects.filter(
         user=request.user, 
+        session=session,
         id__gt=last_id
     ).order_by('timestamp')
     
-    # Pack them into data to send back
     data = [{
         'id': m.id,
         'message': m.message,
