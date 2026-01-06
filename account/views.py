@@ -740,6 +740,28 @@ def support_view(request):
         'account': request.user.account,
         'gemini_api_key': settings.GEMINI_API_KEY
     })
+
+@login_required(login_url='/login/')
+def get_messages_api(request):
+    # Get the ID of the last message the user has
+    last_id = request.GET.get('last_id', 0)
+    
+    # Find any messages newer than that ID
+    new_msgs = SupportMessage.objects.filter(
+        user=request.user, 
+        id__gt=last_id
+    ).order_by('timestamp')
+    
+    # Pack them into data to send back
+    data = [{
+        'id': m.id,
+        'message': m.message,
+        'is_admin': m.is_admin_reply,
+        'time': m.timestamp.strftime('%H:%M')
+    } for m in new_msgs]
+    
+    return JsonResponse({'messages': data})
+
 @login_required(login_url='/login/')
 def clear_notifications(request): Notification.objects.filter(user=request.user).delete(); return redirect(request.META.get('HTTP_REFERER'))
 @login_required(login_url='/login/')

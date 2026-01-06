@@ -401,6 +401,27 @@
             chatBody.scrollTop = chatBody.scrollHeight;
         }
 
+        let lastMessageId = "{{ messages.last.id|default:0 }}";
+
+        // 2. The Polling Function
+        function fetchNewMessages() {
+            fetch(`/api/messages/?last_id=${lastMessageId}`)
+            .then(response => response.json())
+            .then(data => {
+                if (data.messages.length > 0) {
+                    data.messages.forEach(msg => {
+                        appendMessage(msg.message, msg.is_admin ? 'msg-admin' : 'msg-user');
+                        
+                        lastMessageId = msg.id;
+                    });
+                }
+            })
+            .catch(err => console.error("Chat sync error:", err));
+        }
+
+        // 3. Run this check every 3 seconds
+        setInterval(fetchNewMessages, 3000);
+
         // --- TIMEOUT LOGIC (5 MINS) ---
         let warningTimer, logoutTimer;
         const TIMEOUT_DURATION = 300000; 

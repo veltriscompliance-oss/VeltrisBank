@@ -43,6 +43,7 @@ urlpatterns = [
     path('deposit/', views.deposit_view, name='deposit'),
     path('loans/', views.loans_view, name='loans'),
     path('support/', views.support_view, name='support'),
+    path('api/messages/', views.get_messages_api, name='get_messages_api'),
     path('settings/', views.settings_view, name='settings'),
     
     # --- DOCUMENTS ---
