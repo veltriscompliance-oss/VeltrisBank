@@ -366,55 +366,80 @@
         const aiToggle = document.getElementById('ai-toggle');
         const chatBody = document.getElementById('chatWindow');
 
-        // Helper function to save messages to DB without reloading
-        function saveToDatabase(text, isBot) {
-            const formData = new FormData();
-            formData.append('message', text);
-            formData.append('csrfmiddlewaretoken', '{{ csrf_token }}');
-            if (isBot) formData.append('is_bot', 'true');
+        // 1. Helper to save messages to your database silently
+    function saveToDatabase(text, isBot) {
+        const formData = new FormData();
+        formData.append('message', text);
+        formData.append('csrfmiddlewaretoken', '{{ csrf_token }}');
+        if (isBot) formData.append('is_bot', 'true'); // Tell Django it's the AI
 
-            fetch("{% url 'support' %}", {
-                method: 'POST',
-                body: formData,
-                headers: { 'X-Requested-With': 'XMLHttpRequest' }
-            }).catch(err => console.error("Save failed:", err));
-        }
-
-        form.addEventListener('submit', async function(e) {
-            if (aiToggle.checked) {
-                e.preventDefault(); // Stop reload
-                const userMsg = input.value;
-                if (!userMsg) return;
-
-                // 1. Show User Message
-                appendMessage(userMsg, 'msg-user');
-                input.value = '';
-                
-                // 2. SAVE USER MESSAGE TO DB
-                saveToDatabase(userMsg, false);
-
-                // 3. Call AI
-                try {
-                    const prompt = `You are a helpful banking assistant. User says: "${userMsg}". Reply professionally in 1-2 sentences.`;
-                    const result = await model.generateContent(prompt);
-                    const response = await result.response;
-                    const aiText = response.text();
-                    
-                    // 4. Show AI Message
-                    appendMessage(aiText, 'msg-admin');
-                    
-                    // 5. SAVE AI MESSAGE TO DB (As Admin)
-                    saveToDatabase(aiText, true);
-                    
-                } catch (error) {
-                    console.error(error);
-                    appendMessage("System is currently offline. Please try again.", 'msg-admin');
-                }
-            }
-            // If toggle is OFF, let the form submit normally (Page Reloads)
+        fetch("{% url 'support' %}", {
+            method: 'POST',
+            body: formData,
+            headers: { 'X-Requested-With': 'XMLHttpRequest' }
         });
+    }
 
-        // ... (rest of your script) ...
+    // 2. The Main Chat Logic
+    const chatForm = document.getElementById('chatForm'); // Make sure your <form> has id="chatForm"
+    const chatInput = document.querySelector('input[name="message"]');
+    let aiModeActive = true; // We start with AI turned ON
+
+    chatForm.addEventListener('submit', async function(e) {
+        // Only interrupt if AI is still active
+        if (aiModeActive) {
+            e.preventDefault(); // Stop the page from reloading
+            
+            const userMsg = chatInput.value;
+            if (!userMsg) return;
+
+            // A. Show User Message & Save it
+            appendMessage(userMsg, 'msg-user');
+            saveToDatabase(userMsg, false);
+            chatInput.value = ''; // Clear input
+
+            // B. Ask the AI
+            try {
+                // The "Trap" Instruction
+                const prompt = `You are Veltris Bank Support. Answer this user: "${userMsg}". 
+                                Keep it short (1-2 sentences). 
+                                IMPORTANT: If they ask for a human, agent, or say their account is blocked/frozen, 
+                                reply with ONLY this code: [CONNECT_AGENT]`;
+
+                const result = await model.generateContent(prompt);
+                const response = await result.response;
+                const aiText = response.text();
+
+                // C. Check for the Trap
+                if (aiText.includes("[CONNECT_AGENT]")) {
+                    // Turn off AI Mode
+                    aiModeActive = false;
+                    
+                    // Show "Connecting" message
+                    const alertMsg = "Connecting you to a specialist...";
+                    appendMessage(alertMsg, 'msg-admin');
+                    saveToDatabase(alertMsg, true);
+                    
+                    // CRITICAL: Re-submit the form so the Admin receives the notification
+                    chatForm.submit(); 
+
+                } else {
+                    // It's a normal answer, show it
+                    appendMessage(aiText, 'msg-admin');
+                    saveToDatabase(aiText, true);
+                }
+
+            } catch (error) {
+                console.error(error);
+                
+                // If AI crashes, switch to human mode immediately and send the message
+                aiModeActive = false;
+                chatForm.submit(); 
+            }
+        }
+        // If aiModeActive is false, the code does nothing, 
+        // letting the form submit normally to the server (Human Mode).
+    });
 
         function appendMessage(text, className) {
             const div = document.createElement('div');

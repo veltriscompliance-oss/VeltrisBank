@@ -734,25 +734,28 @@ def analytics_view(request):
 def support_view(request):
     if request.method == 'POST':
         message_text = request.POST.get('message')
-        # Check if the frontend is telling us this is a bot reply
+        # Check if the JavaScript told us this is a bot reply
         is_bot = request.POST.get('is_bot') == 'true'
         
         if message_text:
             SupportMessage.objects.create(
                 user=request.user, 
                 message=message_text,
-                is_admin_reply=is_bot # Save as Admin if it's the AI
+                is_admin_reply=is_bot # If it's a bot, save it as an Admin message
             )
         
-        # If this is an AJAX request (background save), return JSON
+        # If the browser sent this silently (AJAX), say "OK" without reloading
         if request.headers.get('x-requested-with') == 'XMLHttpRequest':
             return JsonResponse({'status': 'saved'})
             
         return redirect('support')
     
+    # Load history
     messages_list = SupportMessage.objects.filter(user=request.user).order_by('timestamp')
+    
     return render(request, 'account/support.html', {
-        'messages': messages_list, 'account': request.user.account, 
+        'messages': messages_list, 
+        'account': request.user.account, 
         'gemini_api_key': settings.GEMINI_API_KEY
     })
 
