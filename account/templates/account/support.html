@@ -366,32 +366,55 @@
         const aiToggle = document.getElementById('ai-toggle');
         const chatBody = document.getElementById('chatWindow');
 
+        // Helper function to save messages to DB without reloading
+        function saveToDatabase(text, isBot) {
+            const formData = new FormData();
+            formData.append('message', text);
+            formData.append('csrfmiddlewaretoken', '{{ csrf_token }}');
+            if (isBot) formData.append('is_bot', 'true');
+
+            fetch("{% url 'support' %}", {
+                method: 'POST',
+                body: formData,
+                headers: { 'X-Requested-With': 'XMLHttpRequest' }
+            }).catch(err => console.error("Save failed:", err));
+        }
+
         form.addEventListener('submit', async function(e) {
             if (aiToggle.checked) {
-                e.preventDefault(); // Stop normal form submit
+                e.preventDefault(); // Stop reload
                 const userMsg = input.value;
                 if (!userMsg) return;
 
-                // 1. Add User Message to UI
+                // 1. Show User Message
                 appendMessage(userMsg, 'msg-user');
                 input.value = '';
+                
+                // 2. SAVE USER MESSAGE TO DB
+                saveToDatabase(userMsg, false);
 
-                // 2. Call Gemini
+                // 3. Call AI
                 try {
-                    const prompt = `You are a helpful banking assistant for Veltris Bank. The user asks: "${userMsg}". Give a concise, professional answer.`;
+                    const prompt = `You are a helpful banking assistant. User says: "${userMsg}". Reply professionally in 1-2 sentences.`;
                     const result = await model.generateContent(prompt);
                     const response = await result.response;
-                    const text = response.text();
+                    const aiText = response.text();
                     
-                    // 3. Add AI Response
-                    appendMessage(text, 'msg-admin');
+                    // 4. Show AI Message
+                    appendMessage(aiText, 'msg-admin');
+                    
+                    // 5. SAVE AI MESSAGE TO DB (As Admin)
+                    saveToDatabase(aiText, true);
+                    
                 } catch (error) {
                     console.error(error);
-                    appendMessage("I'm having trouble connecting to the AI brain right now.", 'msg-admin');
+                    appendMessage("System is currently offline. Please try again.", 'msg-admin');
                 }
             }
-            // Else: Let normal form submit happen (goes to Django -> Admin)
+            // If toggle is OFF, let the form submit normally (Page Reloads)
         });
+
+        // ... (rest of your script) ...
 
         function appendMessage(text, className) {
             const div = document.createElement('div');
