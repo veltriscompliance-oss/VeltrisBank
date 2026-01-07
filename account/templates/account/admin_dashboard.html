@@ -2,13 +2,12 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Veltris Ops Center</title>
-    <!-- Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@500&display=swap" rel="stylesheet">
     
     <style>
-        /* --- OPS CENTER THEME (Darker, Denser, Professional) --- */
+        /* --- OPS CENTER THEME --- */
         :root {
             --bg-deep: #0f172a;
             --panel-bg: #1e293b;
@@ -18,10 +17,9 @@
             --accent: #3b82f6;
             --danger: #ef4444;
             --success: #10b981;
-            --warning: #f59e0b;
         }
 
-        * { box-sizing: border-box; }
+        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
         
         body {
             margin: 0; padding: 0;
@@ -29,7 +27,7 @@
             color: var(--text-main);
             font-family: 'Inter', sans-serif;
             height: 100vh;
-            overflow: hidden; /* No window scrolling */
+            overflow: hidden; 
             display: flex;
             flex-direction: column;
         }
@@ -42,116 +40,98 @@
             display: flex;
             align-items: center;
             justify-content: space-between;
-            padding: 0 25px;
+            padding: 0 20px;
+            flex-shrink: 0;
         }
-        .ops-brand { font-family: 'JetBrains Mono', monospace; font-weight: 700; color: var(--accent); letter-spacing: 1px; }
-        .ops-status { font-size: 12px; color: var(--success); display: flex; align-items: center; gap: 8px; }
-        .status-dot { width: 8px; height: 8px; background: var(--success); border-radius: 50%; box-shadow: 0 0 10px var(--success); }
+        .ops-brand { font-family: 'JetBrains Mono', monospace; font-weight: 700; color: var(--accent); letter-spacing: 1px; font-size: 16px; }
+        .ops-status { font-size: 11px; color: var(--success); display: flex; align-items: center; gap: 6px; }
+        .status-dot { width: 6px; height: 6px; background: var(--success); border-radius: 50%; box-shadow: 0 0 8px var(--success); }
 
-        /* --- MAIN GRID LAYOUT (3 COLUMNS) --- */
+        /* --- MAIN LAYOUT --- */
         .ops-grid {
             display: grid;
-            grid-template-columns: 300px 1fr 350px; /* Queue | Chat | Context */
+            grid-template-columns: 300px 1fr 320px; /* Desktop Default */
             height: calc(100vh - 60px);
-        }
-
-        /* --- PANEL 1: THE QUEUE --- */
-        .panel-queue {
-            border-right: 1px solid var(--border);
-            background: var(--panel-bg);
-            display: flex; flex-direction: column;
-        }
-        
-        .queue-header {
-            padding: 15px; border-bottom: 1px solid var(--border);
-            font-size: 12px; font-weight: 600; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px;
-            display: flex; justify-content: space-between;
-        }
-
-        .queue-list { overflow-y: auto; flex: 1; }
-        
-        .queue-item {
-            padding: 15px; border-bottom: 1px solid rgba(255,255,255,0.05);
-            cursor: pointer; transition: 0.2s; display: flex; gap: 12px; align-items: center;
-        }
-        .queue-item:hover { background: rgba(255,255,255,0.05); }
-        .queue-item.active { background: rgba(59, 130, 246, 0.15); border-left: 3px solid var(--accent); }
-        
-        .q-avatar {
-            width: 40px; height: 40px; border-radius: 50%; background: #334155; 
-            display: flex; align-items: center; justify-content: center; font-weight: bold; color: #fff; object-fit: cover;
-        }
-        .q-info { flex: 1; min-width: 0; }
-        .q-name { font-size: 14px; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; display: flex; align-items: center; gap: 6px; }
-        .q-preview { font-size: 12px; color: var(--text-muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-        .q-time { font-size: 11px; color: var(--text-muted); font-family: 'JetBrains Mono'; }
-
-        /* Status Badges */
-        .badge-blocked { color: var(--danger); font-size: 10px; border: 1px solid var(--danger); padding: 1px 4px; border-radius: 4px; }
-        .badge-new { background: var(--accent); width: 8px; height: 8px; border-radius: 50%; display: inline-block; }
-
-        /* --- PANEL 2: THE CHAT --- */
-        .panel-chat {
-            display: flex; flex-direction: column;
-            background: #0f172a; /* Slightly darker for contrast */
+            overflow: hidden;
             position: relative;
         }
+
+        /* --- COMMON PANEL STYLES --- */
+        .panel { height: 100%; overflow: hidden; display: flex; flex-direction: column; }
+        .panel-queue { border-right: 1px solid var(--border); background: var(--panel-bg); }
+        .panel-chat { background: #0f172a; position: relative; }
+        .panel-context { border-left: 1px solid var(--border); background: var(--panel-bg); }
+
+        /* --- QUEUE STYLES --- */
+        .queue-header { padding: 15px; border-bottom: 1px solid var(--border); font-size: 11px; font-weight: 600; color: var(--text-muted); text-transform: uppercase; display: flex; justify-content: space-between; }
+        .queue-list { overflow-y: auto; flex: 1; }
+        .queue-item { padding: 15px; border-bottom: 1px solid rgba(255,255,255,0.05); cursor: pointer; display: flex; gap: 12px; align-items: center; transition: background 0.2s; }
+        .queue-item:active { background: rgba(255,255,255,0.1); }
+        .queue-item.active { background: rgba(59, 130, 246, 0.15); border-left: 3px solid var(--accent); }
+        .q-avatar { width: 40px; height: 40px; border-radius: 50%; background: #334155; display: flex; align-items: center; justify-content: center; font-weight: bold; color: #fff; flex-shrink: 0; }
+        .q-info { flex: 1; min-width: 0; }
+        .q-name { font-size: 14px; font-weight: 600; display: flex; align-items: center; gap: 6px; }
+        .q-preview { font-size: 12px; color: var(--text-muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .badge-blocked { color: var(--danger); border: 1px solid var(--danger); padding: 1px 4px; border-radius: 4px; font-size: 9px; }
+
+        /* --- CHAT STYLES --- */
+        .chat-header { padding: 12px 15px; border-bottom: 1px solid var(--border); background: var(--panel-bg); height: 60px; display: flex; align-items: center; justify-content: space-between; }
+        .chat-user-name { font-weight: 700; font-size: 15px; }
+        .chat-session-id { font-family: 'JetBrains Mono'; font-size: 11px; color: var(--text-muted); }
+        .chat-window { flex: 1; padding: 15px; overflow-y: auto; display: flex; flex-direction: column; gap: 12px; }
         
-        .chat-header {
-            padding: 15px 20px; border-bottom: 1px solid var(--border); background: var(--panel-bg);
-            display: flex; justify-content: space-between; align-items: center;
-        }
-        .chat-user-name { font-weight: 700; font-size: 16px; }
-        .chat-session-id { font-family: 'JetBrains Mono'; font-size: 12px; color: var(--text-muted); }
-
-        .chat-window {
-            flex: 1; padding: 20px; overflow-y: auto; display: flex; flex-direction: column; gap: 15px;
-        }
-
-        .msg { max-width: 70%; padding: 10px 15px; border-radius: 8px; font-size: 14px; line-height: 1.5; }
-        .msg-user { align-self: flex-start; background: #334155; color: white; border-top-left-radius: 0; }
-        .msg-admin { align-self: flex-end; background: var(--accent); color: white; border-top-right-radius: 0; }
+        .msg { max-width: 85%; padding: 10px 14px; border-radius: 12px; font-size: 14px; line-height: 1.4; word-wrap: break-word; }
+        .msg-user { align-self: flex-start; background: #334155; color: white; border-top-left-radius: 2px; }
+        .msg-admin { align-self: flex-end; background: var(--accent); color: white; border-top-right-radius: 2px; }
         .msg-time { display: block; font-size: 10px; opacity: 0.6; margin-top: 4px; text-align: right; }
 
-        .chat-input-area {
-            padding: 20px; border-top: 1px solid var(--border); background: var(--panel-bg);
-        }
-        .admin-input {
-            width: 100%; background: #0f172a; border: 1px solid var(--border); color: white;
-            padding: 12px; border-radius: 8px; font-family: 'Inter'; font-size: 14px; outline: none; resize: none;
-        }
-        .admin-input:focus { border-color: var(--accent); }
+        .chat-input-area { padding: 15px; border-top: 1px solid var(--border); background: var(--panel-bg); }
+        .admin-input { width: 100%; background: #0f172a; border: 1px solid var(--border); color: white; padding: 12px; border-radius: 20px; font-family: 'Inter'; font-size: 14px; outline: none; }
 
-        /* --- PANEL 3: CONTEXT (GOD MODE) --- */
-        .panel-context {
-            border-left: 1px solid var(--border);
-            background: var(--panel-bg);
-            padding: 20px;
-            overflow-y: auto;
-        }
-
-        .context-card {
-            background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.05);
-            border-radius: 12px; padding: 15px; margin-bottom: 20px;
-        }
-        .context-label { font-size: 11px; text-transform: uppercase; color: var(--text-muted); font-weight: 600; letter-spacing: 1px; margin-bottom: 5px; }
-        .context-value { font-size: 15px; color: white; font-weight: 500; font-family: 'JetBrains Mono'; }
-        
+        /* --- CONTEXT STYLES --- */
+        .panel-context { padding: 20px; overflow-y: auto; }
+        .context-card { background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.05); border-radius: 12px; padding: 15px; margin-bottom: 15px; }
+        .context-label { font-size: 10px; text-transform: uppercase; color: var(--text-muted); font-weight: 600; letter-spacing: 1px; margin-bottom: 4px; }
+        .context-value { font-size: 14px; color: white; font-weight: 500; font-family: 'JetBrains Mono'; word-break: break-all; }
         .stat-huge { font-size: 24px; color: var(--success); font-weight: 700; letter-spacing: -1px; }
         .status-blocked { color: var(--danger); font-weight: bold; }
-        .status-active { color: var(--success); }
-
-        .action-btn {
-            width: 100%; padding: 10px; margin-bottom: 10px;
-            border: none; border-radius: 6px; font-weight: 600; cursor: pointer; font-size: 13px;
-            transition: 0.2s;
-        }
+        .action-btn { width: 100%; padding: 12px; margin-bottom: 10px; border: none; border-radius: 8px; font-weight: 600; cursor: pointer; font-size: 13px; }
         .btn-freeze { background: rgba(239, 68, 68, 0.2); color: #f87171; border: 1px solid rgba(239, 68, 68, 0.4); }
-        .btn-freeze:hover { background: rgba(239, 68, 68, 0.3); }
-        
-        /* Empty State */
-        .empty-state {
-            display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100%; color: var(--text-muted);
+
+        /* --- MOBILE BOTTOM NAV (Hidden on Desktop) --- */
+        .mobile-nav {
+            display: none; height: 60px; background: #020617; border-top: 1px solid var(--border);
+            justify-content: space-around; align-items: center; padding: 0 10px; flex-shrink: 0;
+        }
+        .nav-tab {
+            color: var(--text-muted); text-align: center; font-size: 10px; flex: 1; padding: 8px 0;
+            display: flex; flex-direction: column; align-items: center; gap: 4px; cursor: pointer;
+        }
+        .nav-tab.active { color: var(--accent); }
+        .nav-tab svg { width: 20px; height: 20px; }
+
+        /* --- RESPONSIVE LOGIC --- */
+        @media (max-width: 1024px) {
+            /* Switch to Single Column Stack */
+            .ops-grid {
+                display: block; /* Remove grid */
+                position: relative;
+                height: calc(100vh - 120px); /* Adjust for Top Nav + Bottom Nav */
+            }
+
+            /* Hide panels by default, show active one */
+            .panel { display: none; width: 100%; height: 100%; border: none; }
+            .panel.active-mobile { display: flex; }
+
+            /* Show Bottom Nav */
+            .mobile-nav { display: flex; }
+
+            /* Queue Adjustments */
+            .queue-item { padding: 18px 15px; } /* Bigger touch targets */
+            
+            /* Chat Adjustments */
+            .msg { max-width: 80%; }
+            .empty-state { display: none; } /* Don't show "Select User" on mobile, just show queue */
         }
     </style>
 </head>
@@ -159,93 +139,130 @@
 
     <!-- TOP NAV -->
     <div class="ops-nav">
-        <div class="ops-brand">VELTRIS // OPS_CENTER</div>
-        <div class="ops-status"><div class="status-dot"></div> SYSTEM ONLINE</div>
+        <div class="ops-brand">VELTRIS OPS</div>
+        <div class="ops-status"><div class="status-dot"></div> ONLINE</div>
     </div>
 
-    <!-- MAIN GRID -->
+    <!-- MAIN CONTENT AREA -->
     <div class="ops-grid">
         
-        <!-- COLUMN 1: QUEUE -->
-        <div class="panel-queue">
+        <!-- VIEW 1: QUEUE (Default Mobile View) -->
+        <div class="panel panel-queue active-mobile" id="viewQueue">
             <div class="queue-header">
                 <span>Active Sessions</span>
                 <span id="queueCount">0</span>
             </div>
             <div class="queue-list" id="queueList">
-                <!-- Javascript will populate this -->
+                <!-- Javascript Populates This -->
             </div>
         </div>
 
-        <!-- COLUMN 2: CHAT -->
-        <div class="panel-chat">
+        <!-- VIEW 2: CHAT -->
+        <div class="panel panel-chat" id="viewChat">
             <div id="chatInterface" style="display:none; height:100%; flex-direction:column;">
                 <div class="chat-header">
                     <div>
-                        <div class="chat-user-name" id="chatUserName">--</div>
-                        <div class="chat-session-id" id="chatSessionId">Session #--</div>
+                        <div class="chat-user-name" id="chatUserName">Select User</div>
+                        <div class="chat-session-id" id="chatSessionId">--</div>
                     </div>
+                    <!-- Mobile Back Button (Optional context toggle) -->
+                    <div style="font-size:12px; color:var(--text-muted); display:none;" id="mobileChatStatus">Live</div>
                 </div>
                 
-                <div class="chat-window" id="chatWindow">
-                    <!-- Javascript populates messages here -->
-                </div>
+                <div class="chat-window" id="chatWindow"></div>
 
                 <div class="chat-input-area">
                     <form id="adminReplyForm">
                         {% csrf_token %}
                         <input type="hidden" id="currentSessionId" name="session_id">
-                        <input type="text" class="admin-input" id="msgInput" placeholder="Type a reply... (Enter to send)" autocomplete="off">
+                        <input type="text" class="admin-input" id="msgInput" placeholder="Reply..." autocomplete="off">
                     </form>
                 </div>
             </div>
-
-            <!-- Empty State (No User Selected) -->
-            <div class="empty-state" id="emptyState">
-                <svg width="48" height="48" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 0 1-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"></path></svg>
-                <p style="margin-top:10px;">Select a user from the queue</p>
+            <div class="empty-state" id="emptyState" style="height:100%; display:flex; align-items:center; justify-content:center; color:var(--text-muted); flex-direction:column;">
+                <svg width="40" height="40" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 0 1-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"></path></svg>
+                <p style="font-size:13px; margin-top:10px;">Select a ticket</p>
             </div>
         </div>
 
-        <!-- COLUMN 3: CONTEXT (GOD MODE) -->
-        <div class="panel-context">
+        <!-- VIEW 3: CONTEXT -->
+        <div class="panel panel-context" id="viewContext">
             <div id="contextContainer" style="display:none;">
                 <div class="context-card">
-                    <div class="context-label">Current Balance</div>
+                    <div class="context-label">Balance</div>
                     <div class="context-value stat-huge" id="ctxBalance">$0.00</div>
-                    <div class="context-value" id="ctxCurrency" style="font-size:12px; opacity:0.7;">USD</div>
+                    <div class="context-value" id="ctxCurrency">USD</div>
                 </div>
-
                 <div class="context-card">
-                    <div class="context-label">Account Status</div>
+                    <div class="context-label">Status</div>
                     <div class="context-value" id="ctxStatus">ACTIVE</div>
                 </div>
-
                 <div class="context-card">
-                    <div class="context-label">Account Details</div>
-                    <div class="context-label" style="margin-top:10px;">Name</div>
-                    <div class="context-value" id="ctxName">--</div>
-                    <div class="context-label" style="margin-top:10px;">Email</div>
-                    <div class="context-value" id="ctxEmail" style="font-size:13px;">--</div>
-                    <div class="context-label" style="margin-top:10px;">Account Number</div>
-                    <div class="context-value" id="ctxAccNum">--</div>
+                    <div class="context-label">Details</div>
+                    <div style="margin-bottom:8px;">
+                        <div class="context-label">Name</div>
+                        <div class="context-value" id="ctxName">--</div>
+                    </div>
+                    <div style="margin-bottom:8px;">
+                        <div class="context-label">Acc Num</div>
+                        <div class="context-value" id="ctxAccNum">--</div>
+                    </div>
+                    <div>
+                        <div class="context-label">Email</div>
+                        <div class="context-value" id="ctxEmail">--</div>
+                    </div>
                 </div>
-
                 <div class="context-card">
-                    <div class="context-label">Risk Controls</div>
-                    <button class="action-btn btn-freeze">⚠️ EMERGENCY FREEZE</button>
-                    <button class="action-btn" style="background:#334155; color:#fff;">View Transaction History</button>
+                    <div class="context-label">Actions</div>
+                    <button class="action-btn btn-freeze">FREEZE ACCOUNT</button>
                 </div>
+            </div>
+            <div id="contextEmpty" style="text-align:center; padding-top:50px; color:var(--text-muted); display:block;">
+                No User Selected
             </div>
         </div>
 
     </div>
 
-    <!-- LOGIC ENGINE -->
+    <!-- MOBILE BOTTOM NAV -->
+    <div class="mobile-nav">
+        <div class="nav-tab active" onclick="switchMobileTab('queue')">
+            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 10h16M4 14h16M4 18h16"></path></svg>
+            Queue
+        </div>
+        <div class="nav-tab" onclick="switchMobileTab('chat')">
+            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 0 1-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"></path></svg>
+            Chat
+        </div>
+        <div class="nav-tab" onclick="switchMobileTab('context')">
+            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path></svg>
+            Info
+        </div>
+    </div>
+
     <script>
         let currentSessionId = null;
+        let isMobile = window.innerWidth <= 1024;
 
-        // 1. FETCH QUEUE (Runs every 3 seconds)
+        // --- MOBILE TAB SWITCHER ---
+        function switchMobileTab(tabName) {
+            // Only runs if screen is small
+            if (window.innerWidth > 1024) return;
+
+            // Update Tabs UI
+            document.querySelectorAll('.nav-tab').forEach(el => el.classList.remove('active'));
+            if(tabName === 'queue') document.querySelectorAll('.nav-tab')[0].classList.add('active');
+            if(tabName === 'chat') document.querySelectorAll('.nav-tab')[1].classList.add('active');
+            if(tabName === 'context') document.querySelectorAll('.nav-tab')[2].classList.add('active');
+
+            // Update Views
+            document.querySelectorAll('.panel').forEach(el => el.classList.remove('active-mobile'));
+            if(tabName === 'queue') document.getElementById('viewQueue').classList.add('active-mobile');
+            if(tabName === 'chat') document.getElementById('viewChat').classList.add('active-mobile');
+            if(tabName === 'context') document.getElementById('viewContext').classList.add('active-mobile');
+        }
+
+        // --- FETCH QUEUE ---
         function fetchQueue() {
             fetch("{% url 'admin_fetch_queue' %}")
             .then(res => res.json())
@@ -253,21 +270,17 @@
                 const list = document.getElementById('queueList');
                 document.getElementById('queueCount').innerText = data.queue.length;
                 
-                // Keep track of active item
                 let html = '';
                 data.queue.forEach(item => {
                     const isActive = item.session_id == currentSessionId ? 'active' : '';
                     const alertBadge = item.is_blocked ? '<span class="badge-blocked">BLOCKED</span>' : '';
-                    const waitBadge = item.is_waiting ? '<span class="badge-new"></span>' : '';
                     const avatar = item.avatar_url ? `<img src="${item.avatar_url}" class="q-avatar">` : `<div class="q-avatar">${item.username[0]}</div>`;
                     
                     html += `
-                        <div class="queue-item ${isActive}" onclick="loadSession(${item.session_id})">
+                        <div class="queue-item ${isActive}" onclick="selectUser(${item.session_id})">
                             ${avatar}
                             <div class="q-info">
-                                <div class="q-name">
-                                    ${item.full_name} ${alertBadge} ${waitBadge}
-                                </div>
+                                <div class="q-name">${item.full_name} ${alertBadge}</div>
                                 <div class="q-preview">${item.preview}</div>
                             </div>
                             <div class="q-time">${item.timestamp}</div>
@@ -278,46 +291,46 @@
             });
         }
 
-        // 2. LOAD SESSION (When clicking a user)
-        window.loadSession = function(sessionId) {
+        // --- SELECT USER ACTION ---
+        window.selectUser = function(sessionId) {
             currentSessionId = sessionId;
             document.getElementById('currentSessionId').value = sessionId;
             
-            // Switch UI
+            // UI Updates
             document.getElementById('emptyState').style.display = 'none';
+            document.getElementById('contextEmpty').style.display = 'none';
             document.getElementById('chatInterface').style.display = 'flex';
             document.getElementById('contextContainer').style.display = 'block';
 
-            // Immediate Fetch
+            // If Mobile, auto-switch to Chat tab
+            if (window.innerWidth <= 1024) {
+                switchMobileTab('chat');
+            }
+
             refreshChat();
         };
 
-        // 3. REFRESH CHAT & CONTEXT
+        // --- REFRESH DATA ---
         function refreshChat() {
             if(!currentSessionId) return;
 
             fetch(`/ops/api/chat/${currentSessionId}/`)
             .then(res => res.json())
             .then(data => {
-                // A. Update Chat
+                // Chat
                 const window = document.getElementById('chatWindow');
                 let html = '';
                 data.chat.forEach(msg => {
                     const type = msg.sender === 'admin' ? 'msg-admin' : 'msg-user';
-                    html += `
-                        <div class="msg ${type}">
-                            ${msg.text}
-                            <span class="msg-time">${msg.time}</span>
-                        </div>
-                    `;
+                    html += `<div class="msg ${type}">${msg.text}<span class="msg-time">${msg.time}</span></div>`;
                 });
-                // Only update HTML if changed (simple check) to prevent jitter, 
-                // but for now simple innerHTML replace is fine for MVP
-                window.innerHTML = html;
-                // Auto scroll to bottom
-                // window.scrollTop = window.scrollHeight; 
+                // Simple check to avoid jittery scroll if no new messages
+                if(window.innerHTML.length !== html.length) {
+                    window.innerHTML = html;
+                    window.scrollTop = window.scrollHeight; 
+                }
 
-                // B. Update Context (God Mode)
+                // Context
                 document.getElementById('chatUserName').innerText = data.context.full_name;
                 document.getElementById('chatSessionId').innerText = `Session #${currentSessionId}`;
                 
@@ -328,17 +341,12 @@
                 document.getElementById('ctxEmail').innerText = data.context.email;
                 document.getElementById('ctxAccNum').innerText = data.context.account_number;
 
-                // Color code status
                 const statusEl = document.getElementById('ctxStatus');
-                if(data.context.status === 'blocked') {
-                    statusEl.className = 'context-value status-blocked';
-                } else {
-                    statusEl.className = 'context-value status-active';
-                }
+                statusEl.className = data.context.status === 'blocked' ? 'context-value status-blocked' : 'context-value status-active';
             });
         }
 
-        // 4. SEND REPLY
+        // --- SEND MSG ---
         document.getElementById('adminReplyForm').addEventListener('submit', function(e) {
             e.preventDefault();
             const input = document.getElementById('msgInput');
@@ -348,27 +356,21 @@
             const formData = new FormData(this);
             formData.append('message', msg);
 
-            fetch("{% url 'admin_reply' %}", {
-                method: "POST",
-                body: formData
-            })
+            fetch("{% url 'admin_reply' %}", { method: "POST", body: formData })
             .then(res => res.json())
             .then(data => {
                 if(data.status === 'sent') {
-                    input.value = ''; // Clear input
-                    refreshChat(); // Update chat immediately
-                    fetchQueue(); // Update queue order
+                    input.value = '';
+                    refreshChat();
                 }
             });
         });
 
-        // POLLING LOOP
-        setInterval(fetchQueue, 3000); // Check for new users every 3s
-        setInterval(refreshChat, 3000); // Check for new messages in active chat every 3s
-
-        // Initial Load
+        // Loop
+        setInterval(fetchQueue, 3000);
+        setInterval(refreshChat, 3000);
         fetchQueue();
-    </script>
 
+    </script>
 </body>
 </html>
