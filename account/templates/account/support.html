@@ -65,7 +65,6 @@
         body.dark-mode .agent-icon { background: rgba(59, 130, 246, 0.2); color: #60a5fa; }
         body.dark-mode .msg-admin { border-color: var(--border); }
         body.dark-mode .btn-send { background: var(--accent-color); }
-        body.dark-mode .timeout-card { background: var(--card-bg); }
 
         * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
         body { margin: 0; font-family: 'Inter', sans-serif; background-color: var(--light); color: var(--text-main); display: flex; height: 100vh; overflow: hidden; transition: 0.3s; }
@@ -164,7 +163,8 @@
         .btn-send:hover { background: var(--accent-color); transform: scale(1.05); }
 
         /* AI TOGGLE */
-        .ai-toggle-wrapper { display: flex; align-items: center; gap: 8px; background: var(--input-bg); padding: 6px 12px; border-radius: 20px; border: 1px solid var(--border); }
+        /* HIDDEN: Controlled by logic only */
+        .ai-toggle-wrapper { display: none; align-items: center; gap: 8px; background: var(--input-bg); padding: 6px 12px; border-radius: 20px; border: 1px solid var(--border); }
         .ai-toggle-label { font-size: 12px; font-weight: 600; color: var(--text-light); cursor: pointer; }
         .switch { position: relative; display: inline-block; width: 34px; height: 20px; }
         .switch input { opacity: 0; width: 0; height: 0; }
@@ -182,13 +182,6 @@
 
         .overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 1500; backdrop-filter: blur(4px); transition: opacity 0.3s; }
 
-        /* TIMEOUT MODAL */
-        .timeout-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); z-index: 9999; display: none; align-items: center; justify-content: center; backdrop-filter: blur(5px); }
-        .timeout-card { background: var(--card-bg); padding: 40px; border-radius: 24px; text-align: center; width: 90%; max-width: 400px; box-shadow: 0 25px 60px rgba(0,0,0,0.5); }
-        .timeout-title { font-size: 22px; font-weight: 800; color: var(--text-main); margin-bottom: 10px; }
-        .timeout-msg { color: var(--text-light); font-size: 15px; margin-bottom: 30px; line-height: 1.5; }
-        .timeout-btn { background: var(--primary); color: white; border: none; padding: 14px 28px; border-radius: 12px; font-weight: 600; font-size: 15px; cursor: pointer; width: 100%; }
-
         @media (max-width: 900px) {
             .sidebar { position: fixed; left: 0; top: 0; height: 100%; transform: translateX(-100%); transition: 0.3s; box-shadow: none; }
             .sidebar.active { transform: translateX(0); box-shadow: 10px 0 30px rgba(0,0,0,0.1); }
@@ -203,16 +196,6 @@
 </head>
 <body class="{% if account.dark_mode %}dark-mode{% endif %}">
     
-    <!-- TIMEOUT MODAL -->
-    <div class="timeout-overlay" id="timeoutModal">
-        <div class="timeout-card">
-            <div style="font-size: 40px; margin-bottom: 20px;">⏰</div>
-            <div class="timeout-title">Session Expiring</div>
-            <div class="timeout-msg">You will be logged out in <span id="timeLeft" style="font-weight:bold; color:var(--accent-color);">30</span> seconds due to inactivity.</div>
-            <button class="timeout-btn" onclick="resetTimer()">Keep me signed in</button>
-        </div>
-    </div>
-
     <div class="overlay" onclick="toggleSidebar()"></div>
 
     <!-- SIDEBAR -->
@@ -311,7 +294,8 @@
                     </div>
                 </div>
                 
-                <!-- AI TOGGLE (Hidden) -->
+                <!-- AI TOGGLE (HIDDEN) -->
+                <!-- Display:none prevents user from manual toggle, JS controls logic -->
                 <div class="ai-toggle-wrapper" style="display: none;">
                     <span class="ai-toggle-label">Ask AI</span>
                     <label class="switch">
@@ -371,8 +355,7 @@
         const aiToggle = document.getElementById('ai-toggle');
         const chatBody = document.getElementById('chatWindow');
 
-        // --- STATE MANAGEMENT FIX (PERSIST TOGGLE STATE) ---
-        // Create a unique key for this user so logging out clears context correctly
+        // --- STATE MANAGEMENT (PERSIST TOGGLE STATE) ---
         const STORAGE_KEY = 'veltris_ai_mode_{{ user.id }}'; 
 
         // 1. INIT STATE ON LOAD
@@ -384,12 +367,28 @@
             aiToggle.checked = true;
         }
 
-        // 2. LISTEN FOR MANUAL CLICKS
-        aiToggle.addEventListener('change', (e) => {
-            localStorage.setItem(STORAGE_KEY, e.target.checked);
-        });
+        // 2. HELPER: Get Chat Context (Memory)
+        function getConversationHistory() {
+            // Select all visible messages
+            const messages = document.querySelectorAll('.message');
+            // Take the last 10 messages
+            const recentMessages = Array.from(messages).slice(-10);
+            
+            let history = "";
+            recentMessages.forEach(msg => {
+                // Determine sender
+                const role = msg.classList.contains('msg-user') ? "User" : "Veltris Support";
+                // Get text only (simple cleaner)
+                let text = "";
+                for(let node of msg.childNodes) {
+                    if(node.nodeType === 3) text += node.textContent.trim() + " ";
+                }
+                history += `${role}: ${text.trim()}\n`;
+            });
+            return history;
+        }
 
-        // 3. HELPER: Save to DB (Session Aware)
+        // 3. HELPER: Save to DB
         async function saveToDatabase(text, isBot) {
             const formData = new FormData();
             formData.append('message', text);
@@ -418,7 +417,6 @@
 
         // 5. MAIN LOGIC: Form Submission
         chatForm.addEventListener('submit', async function(e) {
-            // We want to handle ALL submissions via JS to prevent reloads unless necessary
             e.preventDefault(); 
             
             const userMsg = chatInput.value;
@@ -434,11 +432,23 @@
             // AI Logic Branch
             if (aiToggle.checked) {
                 try {
-                    const prompt = `You are Veltris Bank Support. Context: User is authenticated. 
-                                    Reply to: "${userMsg}". 
-                                    Keep it short (max 2 sentences). 
-                                    CRITICAL: If they ask for a human, agent, or say "blocked", "frozen", or "scam", 
-                                    reply ONLY with: [CONNECT_AGENT]`;
+                    // Get Context
+                    const history = getConversationHistory();
+
+                    const prompt = `
+                        You are Veltris Bank Support. 
+                        
+                        HISTORY:
+                        ${history}
+                        
+                        INSTRUCTIONS:
+                        Based on the history above, reply to the User's last message.
+                        1. If the user mentions "blocked", "frozen", "hack", "scam", or asks for a "human/agent":
+                           - Acknowledge the issue reassuringly (e.g. "I see your account is flagged, that is serious.").
+                           - END response with: [CONNECT_AGENT]
+                           
+                        2. Otherwise, answer helpfully (max 2 sentences).
+                    `;
 
                     const result = await model.generateContent(prompt);
                     const response = await result.response;
@@ -447,19 +457,19 @@
                     if (aiText.includes("[CONNECT_AGENT]")) {
                         // --- HANDOFF PROTOCOL ---
                         
-                        // A. Force Local Storage to FALSE immediately
+                        // A. Lock to Human Mode
                         localStorage.setItem(STORAGE_KEY, 'false');
-                        
-                        // B. Update UI
                         aiToggle.checked = false; 
 
-                        // C. Save Bot Message
-                        const alertMsg = "I am connecting you to a specialist immediately. Please hold.";
-                        appendMessage(alertMsg, 'msg-admin');
-                        await saveToDatabase(alertMsg, true); 
+                        // B. Clean Message & Show
+                        const finalMessage = aiText.replace('[CONNECT_AGENT]', '').trim();
+                        const displayMsg = finalMessage.length > 0 ? finalMessage : "I am connecting you to a Senior Agent immediately. Please stand by.";
+
+                        appendMessage(displayMsg, 'msg-admin');
+                        await saveToDatabase(displayMsg, true); 
                         
-                        // D. Force Reload to Sync State (Toggle will stay OFF due to Step 1)
-                        setTimeout(() => window.location.reload(), 2000);
+                        // C. Reload to Sync
+                        setTimeout(() => window.location.reload(), 2500);
 
                     } else {
                         // --- NORMAL AI REPLY ---
@@ -469,13 +479,12 @@
 
                 } catch (error) {
                     console.error("AI Error:", error);
-                    // Fallback on error: Turn off AI, Save state, Reload
+                    // Fallback: Switch to human
                     localStorage.setItem(STORAGE_KEY, 'false');
                     window.location.reload();
                 }
             } else {
-                // Human Mode: We already saved the user message. 
-                // The polling function below will pick up the Admin's reply.
+                // Human Mode: Polling handles the reply
             }
         });
 
@@ -491,7 +500,7 @@
             .then(data => {
                 if (data.messages && data.messages.length > 0) {
                     data.messages.forEach(msg => {
-                        // Only show ADMIN messages (User messages are already local)
+                        // Only show ADMIN messages
                         if (msg.is_admin) {
                             appendMessage(msg.message, 'msg-admin');
                         }
@@ -505,16 +514,6 @@
         // Run this check every 3 seconds
         setInterval(fetchNewMessages, 3000);
 
-        // --- TIMEOUT LOGIC (5 MINS) ---
-        let warningTimer, logoutTimer;
-        const TIMEOUT_DURATION = 300000; 
-        const WARNING_DURATION = 270000; 
-        function startTimers() { warningTimer = setTimeout(showWarning, WARNING_DURATION); logoutTimer = setTimeout(doLogout, TIMEOUT_DURATION); }
-        function resetTimer() { clearTimeout(warningTimer); clearTimeout(logoutTimer); document.getElementById('timeoutModal').style.display = 'none'; startTimers(); }
-        function showWarning() { document.getElementById('timeoutModal').style.display = 'flex'; }
-        function doLogout() { window.location.href = '/logout/'; }
-        window.onload = function() { startTimers(); };
-        document.onclick = resetTimer; document.onmousemove = resetTimer; document.onkeypress = resetTimer;
     </script>
 </body>
 </html>
