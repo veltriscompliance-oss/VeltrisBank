@@ -1,4 +1,5 @@
 from django.shortcuts import render, redirect, get_object_or_404
+from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required, user_passes_test
 from .models import Account, Transaction, CreditCard, Notification, SupportMessage, Loan, SupportSession
 from django.db.models import Q, Sum, Max
@@ -394,9 +395,9 @@ def transfer_money(request):
         t_type = request.POST.get('type')
         # --- FIX: TRANSLATE FORM TYPE TO DATABASE TYPE ---
         if t_type == 'external':
-            final_type = 'wire'      # Save as Wire Transfer
+            final_type = 'wire'       # Save as Wire Transfer
         else:
-            final_type = 'transfer'  # Save as Internal Transfer
+            final_type = 'transfer'   # Save as Internal Transfer
         
         if t_type == 'internal':
             target_account_num = request.POST.get('account_number')
@@ -856,94 +857,132 @@ def statement_view(request):
         'total_out': total_out,
         'beginning_balance': beginning_balance
     })
+
 def is_staff(user):
     return user.is_staff or user.is_superuser
 
 # ==========================================
-# VELTRIS OPS COMMAND CENTER
+# VELTRIS OPS COMMAND CENTER (FINAL SAFE VERSION)
 # ==========================================
 
+# 1. THE DASHBOARD SHELL
 @user_passes_test(is_staff, login_url='/admin/login/')
 def admin_dashboard(request):
-    """
-    Renders the High-Density Operations Dashboard.
-    Fetches all active support sessions ordered by urgency.
-    """
-    # Get all sessions, ordered by who spoke last (most recent first)
-    sessions = SupportSession.objects.all().order_by('-last_activity')
-    
-    # We want to attach the account status to each session object for the template to flag
-    for s in sessions:
-        try:
-            s.account_status = s.user.account.account_status
-        except:
-            s.account_status = 'active'
+    """Renders the main 3-panel layout."""
+    return render(request, 'account/admin_dashboard.html')
 
-    return render(request, 'account/admin_dashboard.html', {'sessions': sessions})
-
+# 2. THE QUEUE FETCHER (Left Panel)
 @user_passes_test(is_staff)
-def admin_chat_api(request, session_id):
-    """
-    API for the Center Panel (The Comm Link).
-    Handles fetching history and sending Admin replies.
-    """
-    session = get_object_or_404(SupportSession, id=session_id)
+def admin_fetch_queue(request):
+    """Returns a list of all active support sessions."""
+    active_sessions = SupportSession.objects.filter(status='active').order_by('-last_activity')
     
-    # POST: Admin Sending a Reply
-    if request.method == 'POST':
-        message_text = request.POST.get('message')
-        if message_text:
-            SupportMessage.objects.create(
-                user=session.user,
-                session=session,
-                message=message_text,
-                is_admin_reply=True # This makes it appear on the right side
-            )
-            session.last_activity = timezone.now()
-            session.save()
-            return JsonResponse({'status': 'sent'})
+    data = []
+    for s in active_sessions:
+        # Check if the user is currently blocked (Safe check)
+        is_blocked = False
+        avatar_url = None
+        try:
+            if hasattr(s.user, 'account'):
+                is_blocked = s.user.account.account_status == 'blocked'
+                if s.user.account.profile_pic:
+                    avatar_url = s.user.account.profile_pic.url
+        except: pass
 
-    # GET: Fetch History
+        # Count unread messages (Messages from User that Admin hasn't seen)
+        last_msg = SupportMessage.objects.filter(session=s).last()
+        preview = last_msg.message[:30] + "..." if last_msg else "New Session"
+        is_user_waiting = last_msg and not last_msg.is_admin_reply
+
+        data.append({
+            'session_id': s.id,
+            'user_id': s.user.id,
+            'username': s.user.username,
+            'full_name': f"{s.user.first_name} {s.user.last_name}",
+            'avatar_url': avatar_url,
+            'preview': preview,
+            'timestamp': s.last_activity.strftime('%H:%M'),
+            'is_blocked': is_blocked,
+            'is_waiting': is_user_waiting,
+        })
+    
+    return JsonResponse({'queue': data})
+
+# 3. THE CHAT & GOD MODE FETCHER (Middle & Right Panel)
+@user_passes_test(is_staff)
+def admin_chat_data(request, session_id):
+    """Fetches chat history AND User Financial Context."""
+    session = get_object_or_404(SupportSession, id=session_id)
+    user = session.user
+    
+    # SAFE ACCOUNT ACCESS (Prevents 500 Error if User has no Account)
+    balance = "0.00"
+    acc_num = "N/A"
+    currency = "USD"
+    status = "Active"
+    risk_score = 0
+    
+    try:
+        if hasattr(user, 'account'):
+            account = user.account
+            balance = f"{account.balance:,.2f}"
+            acc_num = account.account_number
+            currency = account.currency
+            status = account.account_status
+            risk_score = 85 # Placeholder or real logic
+    except:
+        status = "No Profile"
+
+    # Get Chat History
     messages = SupportMessage.objects.filter(session=session).order_by('timestamp')
-    data = [{
+    chat_data = [{
         'id': m.id,
-        'text': m.message,
         'sender': 'admin' if m.is_admin_reply else 'user',
+        'text': m.message,
         'time': m.timestamp.strftime('%H:%M')
     } for m in messages]
-    
-    return JsonResponse({'messages': data, 'user_name': session.user.username})
 
+    # Context Data
+    context_data = {
+        'full_name': f"{user.first_name} {user.last_name}",
+        'email': user.email,
+        'account_number': acc_num,
+        'balance': balance,
+        'currency': currency,
+        'status': status,
+        'risk_score': risk_score, 
+        'joined': user.date_joined.strftime('%b %Y')
+    }
+
+    return JsonResponse({
+        'chat': chat_data,
+        'context': context_data
+    })
+
+# 4. THE REPLY SENDER
 @user_passes_test(is_staff)
-def admin_user_context(request, user_id):
-    """
-    API for the Right Panel (God Mode).
-    Returns raw financial data for the selected user.
-    """
-    try:
-        user = User.objects.get(id=user_id)
-        account = user.account
+def admin_reply(request):
+    """Saves the Admin's message to the database."""
+    if request.method == "POST":
+        session_id = request.POST.get('session_id')
+        message = request.POST.get('message')
         
-        # Calculate recent volume
-        last_30_days = timezone.now() - timedelta(days=30)
-        volume_in = Transaction.objects.filter(receiver=user, date__gte=last_30_days).aggregate(Sum('amount'))['amount__sum'] or 0
-        volume_out = Transaction.objects.filter(sender=user, date__gte=last_30_days).aggregate(Sum('amount'))['amount__sum'] or 0
+        session = get_object_or_404(SupportSession, id=session_id)
         
-        data = {
-            'balance': str(account.balance),
-            'account_number': account.account_number,
-            'status': account.account_status,
-            'email': user.email,
-            'phone': account.phone,
-            'joined': user.date_joined.strftime('%b %d, %Y'),
-            'volume_in': str(volume_in),
-            'volume_out': str(volume_out),
-            'ip_address': '192.168.1.1' # Placeholder or real if you track it
-        }
-        return JsonResponse({'success': True, 'data': data})
-    except Exception as e:
-        return JsonResponse({'success': False, 'error': str(e)})
+        SupportMessage.objects.create(
+            user=session.user,
+            session=session,
+            message=message,
+            is_admin_reply=True
+        )
+        
+        session.last_activity = timezone.now()
+        session.save()
+        
+        return JsonResponse({'status': 'sent'})
     
+    return JsonResponse({'status': 'error'}, status=400)
+
 # --- ERROR HANDLERS ---
 def custom_404(request, exception): return render(request, 'account/404.html', status=404)
 def custom_500(request): return render(request, 'account/500.html', status=500)
