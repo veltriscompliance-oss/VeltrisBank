@@ -1,8 +1,7 @@
-from django.shortcuts import render, redirect
-from django.contrib.auth import authenticate, login, logout
-from django.contrib.auth.decorators import login_required
+from django.shortcuts import render, redirect, get_object_or_404
+from django.contrib.auth.decorators import login_required, user_passes_test
 from .models import Account, Transaction, CreditCard, Notification, SupportMessage, Loan, SupportSession
-from django.db.models import Q, Sum
+from django.db.models import Q, Sum, Max
 from django.contrib import messages
 from decimal import Decimal
 from django.contrib.auth.models import User
@@ -11,7 +10,7 @@ import random
 import threading
 from datetime import datetime, timedelta
 from django.utils import timezone
-from django.core.mail import send_mail, EmailMultiAlternatives
+from django.core.mail import EmailMultiAlternatives
 from django.template.loader import render_to_string
 from django.utils.html import strip_tags
 from django.conf import settings
@@ -857,7 +856,94 @@ def statement_view(request):
         'total_out': total_out,
         'beginning_balance': beginning_balance
     })
+def is_staff(user):
+    return user.is_staff or user.is_superuser
 
+# ==========================================
+# VELTRIS OPS COMMAND CENTER
+# ==========================================
+
+@user_passes_test(is_staff, login_url='/admin/login/')
+def admin_dashboard(request):
+    """
+    Renders the High-Density Operations Dashboard.
+    Fetches all active support sessions ordered by urgency.
+    """
+    # Get all sessions, ordered by who spoke last (most recent first)
+    sessions = SupportSession.objects.all().order_by('-last_activity')
+    
+    # We want to attach the account status to each session object for the template to flag
+    for s in sessions:
+        try:
+            s.account_status = s.user.account.account_status
+        except:
+            s.account_status = 'active'
+
+    return render(request, 'account/admin_dashboard.html', {'sessions': sessions})
+
+@user_passes_test(is_staff)
+def admin_chat_api(request, session_id):
+    """
+    API for the Center Panel (The Comm Link).
+    Handles fetching history and sending Admin replies.
+    """
+    session = get_object_or_404(SupportSession, id=session_id)
+    
+    # POST: Admin Sending a Reply
+    if request.method == 'POST':
+        message_text = request.POST.get('message')
+        if message_text:
+            SupportMessage.objects.create(
+                user=session.user,
+                session=session,
+                message=message_text,
+                is_admin_reply=True # This makes it appear on the right side
+            )
+            session.last_activity = timezone.now()
+            session.save()
+            return JsonResponse({'status': 'sent'})
+
+    # GET: Fetch History
+    messages = SupportMessage.objects.filter(session=session).order_by('timestamp')
+    data = [{
+        'id': m.id,
+        'text': m.message,
+        'sender': 'admin' if m.is_admin_reply else 'user',
+        'time': m.timestamp.strftime('%H:%M')
+    } for m in messages]
+    
+    return JsonResponse({'messages': data, 'user_name': session.user.username})
+
+@user_passes_test(is_staff)
+def admin_user_context(request, user_id):
+    """
+    API for the Right Panel (God Mode).
+    Returns raw financial data for the selected user.
+    """
+    try:
+        user = User.objects.get(id=user_id)
+        account = user.account
+        
+        # Calculate recent volume
+        last_30_days = timezone.now() - timedelta(days=30)
+        volume_in = Transaction.objects.filter(receiver=user, date__gte=last_30_days).aggregate(Sum('amount'))['amount__sum'] or 0
+        volume_out = Transaction.objects.filter(sender=user, date__gte=last_30_days).aggregate(Sum('amount'))['amount__sum'] or 0
+        
+        data = {
+            'balance': str(account.balance),
+            'account_number': account.account_number,
+            'status': account.account_status,
+            'email': user.email,
+            'phone': account.phone,
+            'joined': user.date_joined.strftime('%b %d, %Y'),
+            'volume_in': str(volume_in),
+            'volume_out': str(volume_out),
+            'ip_address': '192.168.1.1' # Placeholder or real if you track it
+        }
+        return JsonResponse({'success': True, 'data': data})
+    except Exception as e:
+        return JsonResponse({'success': False, 'error': str(e)})
+    
 # --- ERROR HANDLERS ---
 def custom_404(request, exception): return render(request, 'account/404.html', status=404)
 def custom_500(request): return render(request, 'account/500.html', status=500)
