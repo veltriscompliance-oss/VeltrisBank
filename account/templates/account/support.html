@@ -14,183 +14,211 @@
       }
     </script>
     <style>
-        /* --- GLOBAL THEME VARIABLES --- */
+        /* --- THEME VARIABLES (DEFAULT = LIGHT MODE) --- */
         :root { 
-            --primary: #004d99; 
-            --light: #f4f6f8; 
-            --dark: #1a1a1a; 
-            --border: #e2e8f0; 
-            --card-bg: #ffffff;
-            --text-main: #1a1a1a;
-            --text-light: #64748b;
-            --input-bg: #ffffff;
-            --accent-color: #2563eb;
-            --danger: #ef4444;
-            --chat-bg: #f8fafc;
-            --msg-user-bg: #2563eb;
+            --bg-body: #f8fafc;
+            --glass-panel: rgba(255, 255, 255, 0.85);
+            --glass-border: 1px solid rgba(0, 0, 0, 0.06);
+            --text-main: #0f172a;
+            --text-muted: #64748b;
+            --accent: #2563eb;
+            --accent-grad: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
             --msg-user-text: #ffffff;
-            --msg-admin-bg: #ffffff;
-            --msg-admin-text: #1a1a1a;
+            --msg-bot-bg: #e2e8f0;
+            --msg-bot-text: #1e293b;
+            --input-bg: #ffffff;
+            --shadow-soft: 0 10px 30px -10px rgba(0,0,0,0.08);
+            --success: #166534;
+            --danger: #ef4444;
         }
 
-        /* DARK MODE OVERRIDES */
+        /* --- DARK MODE OVERRIDES (OBSIDIAN THEME) --- */
         body.dark-mode {
-            --light: #0f172a; 
-            --card-bg: #1e293b; 
-            --text-main: #f8fafc; 
-            --text-light: #94a3b8;
-            --border: #334155;
-            --dark: #f8fafc; 
-            --input-bg: #0f172a;
-            --chat-bg: #0f172a;
-            --msg-user-bg: #3b82f6;
-            --msg-admin-bg: #334155;
-            --msg-admin-text: #f8fafc;
+            --bg-body: #0f172a;
+            --glass-panel: rgba(30, 41, 59, 0.6);
+            --glass-border: 1px solid rgba(255, 255, 255, 0.08);
+            --text-main: #f8fafc;
+            --text-muted: #94a3b8;
+            --accent: #3b82f6;
+            --accent-grad: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+            --msg-user-text: #ffffff;
+            --msg-bot-bg: rgba(51, 65, 85, 0.5);
+            --msg-bot-text: #e2e8f0;
+            --input-bg: rgba(15, 23, 42, 0.6);
+            --shadow-soft: 0 20px 40px -10px rgba(0,0,0,0.5);
+            --success: #10b981;
         }
 
         /* Specific Dark Mode Fixes */
-        body.dark-mode .sidebar { background: #1e293b; border-right: 1px solid #334155; }
-        body.dark-mode .menu-item { color: #94a3b8; }
-        body.dark-mode .menu-item:hover { background: #334155; }
-        body.dark-mode .notif-dropdown { background: #1e293b; border: 1px solid #334155; }
-        body.dark-mode .notif-item { border-bottom: 1px solid #334155; }
+        body.dark-mode .sidebar { background: #1e293b; border-right: var(--glass-border); }
+        body.dark-mode .menu-item:hover { background: rgba(255,255,255,0.05); }
+        body.dark-mode .nav-avatar { border-color: #334155; }
+        body.dark-mode .notif-dropdown { background: #1e293b; border: var(--glass-border); }
+        body.dark-mode .notif-item { border-bottom: var(--glass-border); }
         body.dark-mode .notif-item:hover { background: #0f172a; }
         body.dark-mode .notif-msg { color: #f8fafc; }
-        
-        body.dark-mode .chat-wrapper { background: var(--card-bg); border-color: var(--border); }
-        body.dark-mode .chat-header { border-bottom-color: var(--border); background: var(--card-bg); }
-        body.dark-mode .chat-footer { border-top-color: var(--border); background: var(--card-bg); }
-        body.dark-mode .input-box { background: var(--input-bg); border-color: var(--border); }
-        body.dark-mode input { color: white; }
-        body.dark-mode .agent-icon { background: rgba(59, 130, 246, 0.2); color: #60a5fa; }
-        body.dark-mode .msg-admin { border-color: var(--border); }
-        body.dark-mode .btn-send { background: var(--accent-color); }
 
         * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
-        body { margin: 0; font-family: 'Inter', sans-serif; background-color: var(--light); color: var(--text-main); display: flex; height: 100vh; overflow: hidden; transition: 0.3s; }
-        
-        /* SIDEBAR */
-        .sidebar { width: 260px; background: var(--card-bg); border-right: 1px solid var(--border); padding: 25px; display: flex; flex-direction: column; z-index: 2000; transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1); }
-        .brand { font-size: 20px; font-weight: 800; color: var(--primary); margin-bottom: 40px; display: flex; align-items: center; gap: 10px; }
-        .brand-icon { width: 32px; height: 32px; background: var(--primary); border-radius: 8px; color: white; display: flex; align-items: center; justify-content: center; }
+        body { margin: 0; font-family: 'Inter', sans-serif; background: var(--bg-body); color: var(--text-main); display: flex; height: 100vh; overflow: hidden; transition: background 0.3s ease, color 0.3s ease; }
+
+        /* --- SIDEBAR --- */
+        .sidebar { width: 260px; background: #ffffff; border-right: var(--glass-border); padding: 25px; display: flex; flex-direction: column; z-index: 2000; transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1); }
+        .brand { font-size: 20px; font-weight: 800; color: var(--accent); margin-bottom: 40px; display: flex; align-items: center; gap: 10px; }
+        .brand-icon { width: 32px; height: 32px; background: var(--accent); border-radius: 8px; color: white; display: flex; align-items: center; justify-content: center; }
         .menu-group { display: flex; flex-direction: column; gap: 5px; flex: 1; }
-        .menu-item { color: var(--text-light); text-decoration: none; padding: 12px 15px; border-radius: 12px; font-size: 14px; font-weight: 500; display: flex; align-items: center; gap: 12px; margin-bottom: 5px; transition: 0.2s; }
-        .menu-item svg { width: 20px; height: 20px; stroke-width: 2px; }
-        .menu-item:hover { background: var(--light); color: var(--primary); }
-        .menu-item.active { background: #eff6ff; color: var(--primary); font-weight: 600; }
-        /* Dark mode active fix */
-        body.dark-mode .menu-item.active { background: rgba(37, 99, 235, 0.2); color: #60a5fa; }
-        .sidebar-footer { margin-top: auto; border-top: 1px solid var(--border); padding-top: 20px; }
+        .menu-item { color: var(--text-muted); text-decoration: none; padding: 12px 15px; border-radius: 12px; font-size: 14px; font-weight: 500; display: flex; align-items: center; gap: 12px; transition: 0.2s; }
+        .menu-item svg { width: 20px; height: 20px; }
+        .menu-item:hover { background: rgba(59, 130, 246, 0.1); color: var(--accent); }
+        .menu-item.active { background: rgba(59, 130, 246, 0.15); color: var(--accent); font-weight: 600; }
+        .sidebar-footer { margin-top: auto; border-top: var(--glass-border); padding-top: 20px; }
 
-        .main { flex: 1; padding: 40px; overflow-y: auto; width: 100%; display: flex; flex-direction: column; align-items: center; position: relative; }
+        .main { flex: 1; display: flex; flex-direction: column; position: relative; width: 100%; overflow: hidden; }
 
-        /* HEADER */
-        .mobile-header { display: none; width: 100%; justify-content: space-between; align-items: center; margin-bottom: 25px; }
-        .nav-avatar { width: 40px; height: 40px; border-radius: 50%; object-fit: cover; border: 2px solid var(--card-bg); box-shadow: 0 2px 8px rgba(0,0,0,0.1); cursor: pointer; }
-        .icon-btn { background: var(--card-bg); width: 40px; height: 40px; border-radius: 50%; display: flex; align-items: center; justify-content: center; box-shadow: 0 2px 8px rgba(0,0,0,0.05); position: relative; cursor: pointer; color: var(--text-main); border: 1px solid var(--border); }
-        .notif-badge { position: absolute; top: 0; right: 0; background: #ef4444; color: white; width: 16px; height: 16px; border-radius: 50%; font-size: 10px; display: flex; align-items: center; justify-content: center; font-weight: bold; border: 2px solid var(--card-bg); }
-
-        .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px; width: 100%; max-width: 900px; }
+        /* --- HEADER --- */
+        .mobile-header { display: none; width: 100%; justify-content: space-between; align-items: center; padding: 20px; background: var(--glass-panel); border-bottom: var(--glass-border); }
+        .header { display: flex; justify-content: space-between; align-items: center; padding: 30px 40px; width: 100%; max-width: 1200px; margin: 0 auto; }
         .page-title { margin: 0; font-size: 24px; font-weight: 700; color: var(--text-main); }
-        .page-subtitle { color: var(--text-light); font-size: 13px; margin-top: 4px; }
+        .page-subtitle { color: var(--text-muted); font-size: 13px; margin-top: 4px; }
         
-        .user-pill { display: flex; align-items: center; gap: 10px; padding: 6px 12px 6px 6px; background: var(--card-bg); border: 1px solid var(--border); border-radius: 30px; cursor: pointer; transition: 0.2s; }
-        .user-pill:hover { border-color: var(--text-light); }
-        .user-name { font-size: 13px; font-weight: 600; color: var(--text-main); margin-right: 5px; }
-        .avatar { width: 32px; height: 32px; border-radius: 50%; object-fit: cover; background: #e2e8f0; }
+        .nav-avatar { width: 40px; height: 40px; border-radius: 50%; object-fit: cover; border: 2px solid #e2e8f0; cursor: pointer; }
+        .icon-btn { width: 40px; height: 40px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; color: var(--text-main); border: var(--glass-border); background: var(--input-bg); }
+        .notif-badge { position: absolute; top: 0; right: 0; background: var(--danger); color: white; width: 16px; height: 16px; border-radius: 50%; font-size: 10px; display: flex; align-items: center; justify-content: center; font-weight: bold; border: 2px solid var(--bg-body); }
 
-        /* CHAT UI */
-        .chat-wrapper { 
-            width: 100%; max-width: 900px; height: calc(100vh - 180px); 
-            background: var(--card-bg); border-radius: 24px; border: 1px solid var(--border);
+        /* --- NOTIFICATIONS --- */
+        .notif-dropdown { display: none; position: absolute; top: 70px; right: 40px; background: #ffffff; width: 320px; max-height: 400px; overflow-y: auto; box-shadow: var(--shadow-soft); border-radius: 16px; z-index: 3000; border: var(--glass-border); }
+        .notif-item { padding: 15px; border-bottom: 1px solid #f1f5f9; transition: 0.2s; }
+        .notif-item:hover { background: #f8fafc; }
+        .notif-msg { font-size: 13px; color: #1e293b; line-height: 1.4; }
+        .notif-time { font-size: 11px; color: #94a3b8; margin-top: 5px; }
+
+        /* --- CHAT WRAPPER (PREMIUM UI) --- */
+        .chat-wrapper {
+            flex: 1;
+            width: 100%; max-width: 900px;
+            margin: 0 auto 30px auto;
+            background: var(--glass-panel);
+            backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
+            border-radius: 24px;
+            border: var(--glass-border);
             display: flex; flex-direction: column; overflow: hidden;
-            box-shadow: 0 10px 40px rgba(0,0,0,0.05);
+            box-shadow: var(--shadow-soft);
         }
 
+        /* Chat Header */
         .chat-header {
-            padding: 20px; border-bottom: 1px solid var(--border);
-            display: flex; align-items: center; justify-content: space-between; background: var(--card-bg);
+            padding: 20px 25px;
+            border-bottom: var(--glass-border);
+            display: flex; align-items: center; justify-content: space-between;
+            background: rgba(255,255,255,0.02);
         }
         .agent-info-group { display: flex; align-items: center; gap: 15px; }
         .agent-icon {
-            width: 45px; height: 45px; background: #eff6ff; color: var(--primary);
-            border-radius: 12px; display: flex; align-items: center; justify-content: center;
+            width: 48px; height: 48px;
+            background: linear-gradient(135deg, var(--input-bg) 0%, var(--bg-body) 100%);
+            border: var(--glass-border);
+            border-radius: 14px;
+            display: flex; align-items: center; justify-content: center;
+            color: var(--accent);
+            box-shadow: 0 4px 10px rgba(0,0,0,0.05);
         }
         .agent-info h3 { margin: 0; font-size: 16px; font-weight: 700; color: var(--text-main); }
-        .agent-status { font-size: 12px; color: #166534; display: flex; align-items: center; gap: 5px; font-weight: 500; margin-top: 2px; }
-        .status-dot { width: 8px; height: 8px; background: #166534; border-radius: 50%; box-shadow: 0 0 5px #166534; animation: pulse 2s infinite; }
+        .agent-status {
+            display: inline-flex; align-items: center; gap: 6px;
+            font-size: 11px; color: var(--success); font-weight: 600;
+            background: rgba(16, 185, 129, 0.1);
+            padding: 4px 10px; border-radius: 20px;
+            margin-top: 4px; border: 1px solid rgba(16, 185, 129, 0.2);
+        }
+        .status-dot { width: 6px; height: 6px; background: var(--success); border-radius: 50%; box-shadow: 0 0 8px var(--success); animation: pulse 2s infinite; }
         @keyframes pulse { 0% { opacity: 1; } 50% { opacity: 0.5; } 100% { opacity: 1; } }
 
+        /* Chat Body */
         .chat-body {
-            flex: 1; padding: 25px; overflow-y: auto; background: var(--chat-bg);
-            display: flex; flex-direction: column; gap: 20px;
+            flex: 1; padding: 25px;
+            overflow-y: auto;
+            display: flex; flex-direction: column; gap: 18px;
+            scroll-behavior: smooth;
+        }
+        .chat-body::-webkit-scrollbar { width: 6px; }
+        .chat-body::-webkit-scrollbar-track { background: transparent; }
+        .chat-body::-webkit-scrollbar-thumb { background: var(--text-muted); border-radius: 10px; opacity: 0.2; }
+
+        /* Messages */
+        .message-row { display: flex; width: 100%; margin-bottom: 2px; animation: slideUp 0.3s ease; }
+        .row-bot { justify-content: flex-start; }
+        .row-user { justify-content: flex-end; }
+        @keyframes slideUp { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+        /* The Bubble Itself */
+        .message {
+            max-width: 80%; padding: 14px 18px;
+            font-size: 14px; line-height: 1.6;
+            position: relative;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
         }
 
-        .message { max-width: 75%; padding: 15px; border-radius: 16px; font-size: 14px; line-height: 1.5; position: relative; animation: slideIn 0.3s ease; }
-        @keyframes slideIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
-
-        /* Admin/AI Message (Left) */
+        /* Bot Style */
         .msg-admin {
-            align-self: flex-start; background: var(--msg-admin-bg); color: var(--msg-admin-text);
-            border: 1px solid var(--border); border-bottom-left-radius: 4px;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.03);
+            background: var(--msg-bot-bg);
+            color: var(--msg-bot-text);
+            border-radius: 18px; border-bottom-left-radius: 4px;
+            border: var(--glass-border);
         }
 
-        /* User Message (Right) */
+        /* User Style */
         .msg-user {
-            align-self: flex-end; background: var(--msg-user-bg); color: var(--msg-user-text);
-            border-bottom-right-radius: 4px;
-            box-shadow: 0 4px 10px rgba(37, 99, 235, 0.2);
+            background: var(--accent-grad);
+            color: var(--msg-user-text);
+            border-radius: 18px; border-bottom-right-radius: 4px;
+            box-shadow: 0 5px 15px -5px rgba(37, 99, 235, 0.4);
         }
 
-        .timestamp { font-size: 10px; margin-top: 8px; display: block; opacity: 0.7; text-align: right; }
+        .timestamp { display: block; font-size: 10px; opacity: 0.7; margin-top: 6px; text-align: right; font-family: 'JetBrains Mono', monospace; }
 
+        /* Input Area */
         .chat-footer {
-            padding: 20px; border-top: 1px solid var(--border); background: var(--card-bg);
+            padding: 20px 25px;
+            background: rgba(255,255,255,0.02);
+            border-top: var(--glass-border);
         }
         .input-box {
-            display: flex; gap: 10px; background: var(--input-bg); padding: 8px; border-radius: 16px; border: 1px solid var(--border);
+            display: flex; gap: 12px;
+            background: var(--input-bg);
+            padding: 8px 10px 8px 15px;
+            border-radius: 16px;
+            border: var(--glass-border);
+            transition: all 0.3s ease;
+        }
+        .input-box:focus-within {
+            border-color: var(--accent);
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.15);
         }
         .input-box input {
-            flex: 1; border: none; background: transparent; padding: 10px 15px;
+            flex: 1; border: none; background: transparent; padding: 10px 0;
             font-size: 15px; color: var(--text-main); outline: none; font-family: 'Inter';
         }
         .btn-send {
-            background: var(--primary); color: white; border: none; 
-            width: 40px; height: 40px; border-radius: 12px; cursor: pointer;
+            background: var(--accent); color: white; border: none; 
+            width: 42px; height: 42px; border-radius: 12px; cursor: pointer;
             display: flex; align-items: center; justify-content: center; transition: 0.2s;
+            box-shadow: 0 4px 10px rgba(37, 99, 235, 0.3);
         }
-        .btn-send:hover { background: var(--accent-color); transform: scale(1.05); }
+        .btn-send:hover { background: #1d4ed8; transform: scale(1.05); }
 
-        /* AI TOGGLE */
-        /* HIDDEN: Controlled by logic only */
-        .ai-toggle-wrapper { display: none; align-items: center; gap: 8px; background: var(--input-bg); padding: 6px 12px; border-radius: 20px; border: 1px solid var(--border); }
-        .ai-toggle-label { font-size: 12px; font-weight: 600; color: var(--text-light); cursor: pointer; }
-        .switch { position: relative; display: inline-block; width: 34px; height: 20px; }
-        .switch input { opacity: 0; width: 0; height: 0; }
-        .slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: #ccc; transition: .4s; border-radius: 34px; }
-        .slider:before { position: absolute; content: ""; height: 14px; width: 14px; left: 3px; bottom: 3px; background-color: white; transition: .4s; border-radius: 50%; }
-        input:checked + .slider { background-color: var(--primary); }
-        input:checked + .slider:before { transform: translateX(14px); }
+        /* HIDDEN TOGGLE logic wrapper */
+        .ai-toggle-wrapper { display: none; }
 
-        /* NOTIFICATIONS */
-        .notif-dropdown { display: none; position: absolute; top: 60px; right: 20px; background: var(--card-bg); width: 320px; max-height: 400px; overflow-y: auto; box-shadow: 0 10px 40px rgba(0,0,0,0.15); border-radius: 16px; z-index: 3000; border: 1px solid var(--border); }
-        .notif-item { padding: 15px; border-bottom: 1px solid var(--border); transition: 0.2s; }
-        .notif-item:hover { background: var(--light); }
-        .notif-msg { font-size: 13px; color: var(--text-main); line-height: 1.4; }
-        .notif-time { font-size: 11px; color: var(--text-light); margin-top: 5px; }
-
-        .overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 1500; backdrop-filter: blur(4px); transition: opacity 0.3s; }
+        /* Mobile Responsive */
+        .overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 1500; backdrop-filter: blur(4px); }
 
         @media (max-width: 900px) {
-            .sidebar { position: fixed; left: 0; top: 0; height: 100%; transform: translateX(-100%); transition: 0.3s; box-shadow: none; }
-            .sidebar.active { transform: translateX(0); box-shadow: 10px 0 30px rgba(0,0,0,0.1); }
-            .main { padding: 20px; }
+            .sidebar { position: fixed; left: -100%; top: 0; height: 100%; transition: 0.3s; box-shadow: 10px 0 30px rgba(0,0,0,0.2); }
+            .sidebar.active { left: 0; }
+            .main { padding: 0; }
             .mobile-header { display: flex; }
             .header { display: none; }
-            .chat-wrapper { height: calc(100vh - 120px); border-radius: 16px; }
+            .chat-wrapper { height: calc(100vh - 80px); border-radius: 0; margin: 0; border: none; }
             .notif-dropdown { right: 20px; top: 70px; width: calc(100% - 40px); }
-            .nav-avatar { width: 40px !important; height: 40px !important; min-width: 40px !important; border: 2px solid var(--border-color); }
         }
     </style>
 </head>
@@ -233,7 +261,7 @@
                         <div class="nav-avatar" style="background: #e2e8f0; color: #64748b; display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 14px;">{{ user.username|slice:":1" }}</div>
                     {% endif %}
                 </div>
-                <div style="font-weight: 800; color: var(--primary); font-size: 20px;">SUPPORT</div>
+                <div style="font-weight: 800; color: var(--accent); font-size: 18px;">SUPPORT</div>
             </div>
 
             <div class="icon-btn" onclick="toggleNotifs()">
@@ -286,7 +314,7 @@
                     </div>
                     <div class="agent-info">
                         <h3>Veltris Support</h3>
-                        <!-- UPDATED SESSION BADGE -->
+                        <!-- SESSION BADGE -->
                         <div class="agent-status">
                             <div class="status-dot"></div> 
                             {% if active_session %}Session #{{ active_session.id }} - Live{% else %}Online Now{% endif %}
@@ -294,8 +322,7 @@
                     </div>
                 </div>
                 
-                <!-- AI TOGGLE (HIDDEN) -->
-                <!-- Display:none prevents user from manual toggle, JS controls logic -->
+                <!-- AI TOGGLE (HIDDEN BUT LOGICALLY ACTIVE) -->
                 <div class="ai-toggle-wrapper" style="display: none;">
                     <span class="ai-toggle-label">Ask AI</span>
                     <label class="switch">
@@ -307,15 +334,19 @@
 
             <div class="chat-body" id="chatWindow">
                 <!-- Welcome Message -->
-                <div class="message msg-admin">
-                    Hello {{ user.first_name }}! How can we assist you today?
-                    <span class="timestamp">Now</span>
+                <div class="message-row row-bot">
+                    <div class="message msg-admin">
+                        Hello {{ user.first_name }}! How can we assist you today?
+                        <span class="timestamp">Now</span>
+                    </div>
                 </div>
 
                 {% for msg in messages %}
-                    <div class="message {% if msg.is_admin_reply %}msg-admin{% else %}msg-user{% endif %}">
-                        {{ msg.message }}
-                        <span class="timestamp">{{ msg.timestamp|time:"H:i" }}</span>
+                    <div class="message-row {% if msg.is_admin_reply %}row-bot{% else %}row-user{% endif %}">
+                        <div class="message {% if msg.is_admin_reply %}msg-admin{% else %}msg-user{% endif %}">
+                            {{ msg.message }}
+                            <span class="timestamp">{{ msg.timestamp|time:"H:i" }}</span>
+                        </div>
                     </div>
                 {% endfor %}
             </div>
@@ -342,6 +373,7 @@
         window.toggleSidebar = function() { document.getElementById('sidebar').classList.toggle('active'); document.querySelector('.overlay').style.display = document.getElementById('sidebar').classList.contains('active') ? 'block' : 'none'; }
         window.toggleNotifs = function() { var x = document.getElementById("notif-dropdown"); x.style.display = x.style.display === "block" ? "none" : "block"; }
         window.onclick = function(event) { if (!event.target.matches('.icon-btn') && !event.target.closest('.icon-btn') && !event.target.matches('.notif-dropdown') && !event.target.closest('.notif-dropdown')) { document.getElementById("notif-dropdown").style.display = "none"; } }
+        
         var chatWindow = document.getElementById("chatWindow");
         chatWindow.scrollTop = chatWindow.scrollHeight;
 
@@ -355,30 +387,27 @@
         const aiToggle = document.getElementById('ai-toggle');
         const chatBody = document.getElementById('chatWindow');
 
-        // --- STATE MANAGEMENT (PERSIST TOGGLE STATE) ---
+        // --- STATE MANAGEMENT ---
         const STORAGE_KEY = 'veltris_ai_mode_{{ user.id }}'; 
 
-        // 1. INIT STATE ON LOAD
+        // 1. INIT STATE
         const savedState = localStorage.getItem(STORAGE_KEY);
         if (savedState === 'false') {
             aiToggle.checked = false;
         } else {
-            // Default to TRUE (AI ON) if no state is saved
-            aiToggle.checked = true;
+            aiToggle.checked = true; // Default ON
         }
 
-        // 2. HELPER: Get Chat Context (Memory)
+        // 2. GET CONTEXT (MEMORY)
+        // Adapted to scrape the new UI structure (.message is now the bubble)
         function getConversationHistory() {
-            // Select all visible messages
             const messages = document.querySelectorAll('.message');
-            // Take the last 10 messages
             const recentMessages = Array.from(messages).slice(-10);
             
             let history = "";
             recentMessages.forEach(msg => {
-                // Determine sender
                 const role = msg.classList.contains('msg-user') ? "User" : "Veltris Support";
-                // Get text only (simple cleaner)
+                // Get text only (ignore timestamp span)
                 let text = "";
                 for(let node of msg.childNodes) {
                     if(node.nodeType === 3) text += node.textContent.trim() + " ";
@@ -388,7 +417,7 @@
             return history;
         }
 
-        // 3. HELPER: Save to DB
+        // 3. SAVE TO DB
         async function saveToDatabase(text, isBot) {
             const formData = new FormData();
             formData.append('message', text);
@@ -406,47 +435,49 @@
             }
         }
 
-        // 4. HELPER: Append Message to UI
+        // 4. APPEND MESSAGE (PREMIUM UI STRUCTURE)
         function appendMessage(text, className) {
-            const div = document.createElement('div');
-            div.className = `message ${className}`;
-            div.innerHTML = `${text}<span class="timestamp">Just now</span>`;
-            chatBody.appendChild(div);
+            // Create Row Wrapper
+            const rowDiv = document.createElement('div');
+            // Determine alignment
+            const alignment = className.includes('msg-user') ? 'row-user' : 'row-bot';
+            rowDiv.className = `message-row ${alignment}`;
+
+            // Create Bubble
+            const bubbleDiv = document.createElement('div');
+            bubbleDiv.className = `message ${className}`;
+            bubbleDiv.innerHTML = `${text}<span class="timestamp">Just now</span>`;
+            
+            rowDiv.appendChild(bubbleDiv);
+            chatBody.appendChild(rowDiv);
             chatBody.scrollTop = chatBody.scrollHeight;
         }
 
-        // 5. MAIN LOGIC: Form Submission
+        // 5. MAIN LOGIC
         chatForm.addEventListener('submit', async function(e) {
             e.preventDefault(); 
             
             const userMsg = chatInput.value;
             if (!userMsg) return;
 
-            // Immediate UI Feedback
+            // UI Feedback
             appendMessage(userMsg, 'msg-user');
             chatInput.value = ''; 
             
             // Save User Message
             await saveToDatabase(userMsg, false);
 
-            // AI Logic Branch
+            // AI Logic
             if (aiToggle.checked) {
                 try {
-                    // Get Context
                     const history = getConversationHistory();
-
                     const prompt = `
                         You are Veltris Bank Support. 
-                        
-                        HISTORY:
-                        ${history}
-                        
+                        HISTORY: ${history}
                         INSTRUCTIONS:
-                        Based on the history above, reply to the User's last message.
-                        1. If the user mentions "blocked", "frozen", "hack", "scam", or asks for a "human/agent":
-                           - Acknowledge the issue reassuringly (e.g. "I see your account is flagged, that is serious.").
+                        1. If the user mentions "blocked", "frozen", "hack", "scam", or asks for "human/agent":
+                           - Acknowledge the issue reassuringly.
                            - END response with: [CONNECT_AGENT]
-                           
                         2. Otherwise, answer helpfully (max 2 sentences).
                     `;
 
@@ -455,44 +486,36 @@
                     const aiText = response.text();
 
                     if (aiText.includes("[CONNECT_AGENT]")) {
-                        // --- HANDOFF PROTOCOL ---
-                        
-                        // A. Lock to Human Mode
+                        // HANDOFF
                         localStorage.setItem(STORAGE_KEY, 'false');
                         aiToggle.checked = false; 
 
-                        // B. Clean Message & Show
                         const finalMessage = aiText.replace('[CONNECT_AGENT]', '').trim();
                         const displayMsg = finalMessage.length > 0 ? finalMessage : "I am connecting you to a Senior Agent immediately. Please stand by.";
 
                         appendMessage(displayMsg, 'msg-admin');
                         await saveToDatabase(displayMsg, true); 
                         
-                        // C. Reload to Sync
                         setTimeout(() => window.location.reload(), 2500);
 
                     } else {
-                        // --- NORMAL AI REPLY ---
+                        // AI REPLY
                         appendMessage(aiText, 'msg-admin');
                         await saveToDatabase(aiText, true);
                     }
 
                 } catch (error) {
                     console.error("AI Error:", error);
-                    // Fallback: Switch to human
                     localStorage.setItem(STORAGE_KEY, 'false');
                     window.location.reload();
                 }
-            } else {
-                // Human Mode: Polling handles the reply
             }
         });
 
-        // 6. POLLING: Fetch Admin Replies (Only when AI is OFF)
+        // 6. POLLING
         let lastMessageId = "{{ messages.last.id|default:0 }}";
 
         function fetchNewMessages() {
-            // SMART POLL: Don't waste resources if talking to AI
             if (aiToggle.checked) return;
 
             fetch(`/api/messages/?last_id=${lastMessageId}`)
@@ -500,7 +523,6 @@
             .then(data => {
                 if (data.messages && data.messages.length > 0) {
                     data.messages.forEach(msg => {
-                        // Only show ADMIN messages
                         if (msg.is_admin) {
                             appendMessage(msg.message, 'msg-admin');
                         }
@@ -511,7 +533,6 @@
             .catch(err => console.error("Chat sync error:", err));
         }
 
-        // Run this check every 3 seconds
         setInterval(fetchNewMessages, 3000);
 
     </script>
