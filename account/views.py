@@ -732,8 +732,7 @@ def analytics_view(request):
 
 @login_required(login_url='/login/')
 def support_view(request):
-    # 1. Manage Session
-    # Find the currently active session for this user
+    # 1. Session Management
     session = SupportSession.objects.filter(user=request.user, status='active').last()
     
     # Check Timeout (15 minutes)
@@ -742,9 +741,9 @@ def support_view(request):
         if time_since_activity > timedelta(minutes=15):
             session.status = 'closed'
             session.save()
-            session = None # Force creation of a new one below
+            session = None 
 
-    # Create new session if none exists (or if previous was just closed)
+    # Create new session if needed
     if not session:
         session = SupportSession.objects.create(user=request.user)
 
@@ -753,23 +752,24 @@ def support_view(request):
         message_text = request.POST.get('message')
         is_bot = request.POST.get('is_bot') == 'true'
         
+        new_msg = None
         if message_text:
-            SupportMessage.objects.create(
+            new_msg = SupportMessage.objects.create(
                 user=request.user, 
-                session=session, # Link message to the CURRENT session
+                session=session,
                 message=message_text,
-                is_admin_reply=is_bot
+                is_admin_reply=is_bot # Save as Admin if it's the AI
             )
-            # Update timestamp so the session stays alive
+            # Update session timestamp
             session.save() 
         
         if request.headers.get('x-requested-with') == 'XMLHttpRequest':
-            return JsonResponse({'status': 'saved'})
+            # RETURN THE ID so frontend can sync
+            return JsonResponse({'status': 'saved', 'id': new_msg.id if new_msg else 0})
             
         return redirect('support')
     
-    # 3. Load History (Only from the CURRENT session)
-    # This ensures old conversations don't clutter the screen
+    # 3. Load History
     messages_list = SupportMessage.objects.filter(session=session).order_by('timestamp')
     
     return render(request, 'account/support.html', {
@@ -780,14 +780,13 @@ def support_view(request):
 
 @login_required(login_url='/login/')
 def get_messages_api(request):
-    # Get active session
+    # 1. Get active session
     session = SupportSession.objects.filter(user=request.user, status='active').last()
     if not session:
         return JsonResponse({'messages': []})
 
+    # 2. Fetch new messages ONLY from the active session
     last_id = request.GET.get('last_id', 0)
-    
-    # Fetch new messages ONLY from the active session
     new_msgs = SupportMessage.objects.filter(
         user=request.user, 
         session=session,
