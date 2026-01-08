@@ -577,10 +577,17 @@
 
                 } catch (error) {
                     console.error("AI Error:", error);
-                    // Fallback: Switch to human
-                    localStorage.setItem(storageKey, 'human');
-                    window.location.reload();
+                    
+                    // Instead of killing the AI immediately, show an error first
+                    appendMessage("I'm having trouble connecting to the network. Please try again.", 'bot');
+                    
+                    // Only switch to human if it's a persistent auth error or logic failure
+                    if (error.message && error.message.includes('403')) {
+                        localStorage.setItem(storageKey, 'human');
+                        window.location.reload();
+                    }
                 }
+
             } else {
                 // Human Mode: Do nothing, polling handles reply
             }
