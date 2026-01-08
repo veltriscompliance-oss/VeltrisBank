@@ -14,8 +14,8 @@
       }
     </script>
     <style>
-        /* --- THEME SYSTEM --- */
-        :root {
+        /* --- GLOBAL THEME VARIABLES --- */
+        :root { 
             --bg-body: #f8fafc;
             --bg-card: #ffffff;
             --text-primary: #0f172a;
@@ -25,11 +25,12 @@
             --accent-hover: #1d4ed8;
             --success: #10b981;
             --danger: #ef4444;
-            --warning: #f59e0b;
-            --msg-in-bg: #f1f5f9;
-            --msg-in-text: #0f172a;
-            --msg-out-bg: #2563eb;
-            --msg-out-text: #ffffff;
+            --msg-user-bg: #2563eb;
+            --msg-user-text: #ffffff;
+            --msg-admin-bg: #f1f5f9;
+            --msg-admin-text: #0f172a;
+            --chat-bg: #ffffff;
+            --input-bg: #ffffff;
         }
 
         body.dark-mode {
@@ -38,226 +39,119 @@
             --text-primary: #f8fafc;
             --text-secondary: #94a3b8;
             --border-color: #1e293b;
-            --msg-in-bg: #1e293b;
-            --msg-in-text: #f8fafc;
-            --msg-out-bg: #3b82f6;
-            --msg-out-text: #ffffff;
+            --msg-user-bg: #3b82f6;
+            --msg-admin-bg: #1e293b;
+            --msg-admin-text: #f8fafc;
+            --chat-bg: #0f172a;
+            --input-bg: #0f172a;
         }
 
         * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+        body { margin: 0; font-family: 'Inter', sans-serif; background-color: var(--bg-body); color: var(--text-primary); display: flex; height: 100vh; overflow: hidden; transition: 0.3s; }
         
-        body { 
-            margin: 0; font-family: 'Inter', sans-serif; 
-            background-color: var(--bg-body); color: var(--text-primary);
-            display: flex; height: 100vh; overflow: hidden;
-        }
-
-        /* --- SIDEBAR --- */
-        .sidebar {
-            width: 280px; background: var(--bg-card); border-right: 1px solid var(--border-color);
-            padding: 30px 20px; display: flex; flex-direction: column; z-index: 1000;
-            transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-        }
-
-        .brand {
-            font-size: 20px; font-weight: 800; color: var(--text-primary);
-            display: flex; align-items: center; gap: 12px; margin-bottom: 50px; padding-left: 10px;
-        }
+        /* SIDEBAR */
+        .sidebar { width: 280px; background: var(--bg-card); border-right: 1px solid var(--border-color); padding: 30px 20px; display: flex; flex-direction: column; z-index: 1000; transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1); }
+        .brand { font-size: 20px; font-weight: 800; color: var(--text-primary); display: flex; align-items: center; gap: 12px; margin-bottom: 50px; padding-left: 10px; }
         .brand-icon { width: 32px; height: 32px; background: var(--accent-color); border-radius: 8px; color: white; display: flex; align-items: center; justify-content: center; }
-
         .menu-group { display: flex; flex-direction: column; gap: 5px; flex: 1; }
-        
-        .menu-item {
-            display: flex; align-items: center; gap: 12px; padding: 12px 16px;
-            color: var(--text-secondary); text-decoration: none; font-size: 14px; font-weight: 500;
-            border-radius: 12px; transition: 0.2s;
-        }
+        .menu-item { display: flex; align-items: center; gap: 12px; padding: 12px 16px; color: var(--text-secondary); text-decoration: none; font-size: 14px; font-weight: 500; border-radius: 12px; transition: 0.2s; }
         .menu-item:hover { background: rgba(37, 99, 235, 0.05); color: var(--accent-color); }
         .menu-item.active { background: rgba(37, 99, 235, 0.1); color: var(--accent-color); font-weight: 600; }
         .menu-item svg { width: 20px; height: 20px; stroke-width: 2px; }
-
         .sidebar-footer { border-top: 1px solid var(--border-color); padding-top: 20px; margin-top: auto; display: flex; flex-direction: column; gap: 5px; }
 
-        /* --- MAIN LAYOUT --- */
-        .main { 
-            flex: 1; 
-            padding: 0; 
-            display: flex; 
-            flex-direction: column; 
-            height: 100vh; 
-            position: relative; 
-            overflow: hidden; 
-        }
+        /* MAIN CONTENT */
+        .main { flex: 1; padding: 40px; overflow-y: auto; position: relative; display: flex; flex-direction: column; height: 100vh; }
         
         /* HEADER */
-        .mobile-header { 
-            display: none; width: 100%; justify-content: space-between; align-items: center; 
-            padding: 15px 20px; background: var(--bg-card); border-bottom: 1px solid var(--border-color);
-            flex-shrink: 0; /* Important */
-        }
-        .nav-avatar { width: 40px; height: 40px; border-radius: 50%; object-fit: cover; border: 2px solid var(--border-color); box-shadow: 0 2px 8px rgba(0,0,0,0.1); cursor: pointer; }
+        .mobile-header { display: none; width: 100%; justify-content: space-between; align-items: center; margin-bottom: 25px; }
+        .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+        .welcome h1 { font-size: 24px; font-weight: 700; margin: 0; color: var(--text-primary); }
+        .welcome p { color: var(--text-secondary); font-size: 13px; margin-top: 4px; }
         
-        .header-section {
-            padding: 20px 40px;
-            background: var(--bg-body);
-            flex-shrink: 0; /* Important */
-        }
-        .header { display: flex; justify-content: space-between; align-items: center; }
-        .page-title { margin: 0; font-size: 24px; font-weight: 700; color: var(--text-primary); }
-        .page-subtitle { color: var(--text-secondary); font-size: 13px; margin-top: 4px; }
-
         .header-actions { display: flex; gap: 15px; align-items: center; }
-        .icon-btn { 
-            width: 44px; height: 44px; border-radius: 12px; 
-            background: var(--bg-card); border: 1px solid var(--border-color); 
-            display: flex; align-items: center; justify-content: center; 
-            color: var(--text-primary); cursor: pointer; transition: 0.2s; position: relative; 
-        }
+        .icon-btn { width: 44px; height: 44px; border-radius: 12px; background: var(--bg-card); border: 1px solid var(--border-color); display: flex; align-items: center; justify-content: center; color: var(--text-primary); cursor: pointer; transition: 0.2s; position: relative; }
         .notif-dot { position: absolute; top: 10px; right: 10px; width: 8px; height: 8px; background: var(--danger); border-radius: 50%; border: 2px solid var(--bg-card); }
-        .user-pill { 
-            display: flex; align-items: center; gap: 10px; padding: 6px 12px 6px 6px; 
-            background: var(--bg-card); border: 1px solid var(--border-color); border-radius: 30px; 
-            cursor: pointer; transition: 0.2s; 
-        }
+        .user-pill { display: flex; align-items: center; gap: 10px; padding: 6px 12px 6px 6px; background: var(--bg-card); border: 1px solid var(--border-color); border-radius: 30px; cursor: pointer; transition: 0.2s; }
         .avatar { width: 32px; height: 32px; border-radius: 50%; object-fit: cover; background: #e2e8f0; }
-        .user-name { font-size: 13px; font-weight: 600; color: var(--text-primary); margin-right: 5px; }
+        .nav-avatar { width: 40px; height: 40px; min-width: 40px; min-height: 40px; border-radius: 50% !important; object-fit: cover; border: 2px solid var(--border-color); cursor: pointer; }
 
-        /* --- CHAT CONTAINER --- */
-        .chat-layout {
-            flex: 1; /* Take remaining space */
-            margin: 0 40px 40px 40px;
-            background: var(--bg-card);
-            border: 1px solid var(--border-color);
-            border-radius: 24px;
-            display: flex;
-            flex-direction: column;
-            overflow: hidden; /* Crucial */
-            box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05);
-            position: relative;
+        /* CHAT UI */
+        .chat-container { 
+            flex: 1; background: var(--bg-card); border-radius: 24px; border: 1px solid var(--border-color);
+            display: flex; flex-direction: column; overflow: hidden; box-shadow: 0 4px 20px rgba(0,0,0,0.02);
+            max-height: calc(100vh - 140px);
         }
 
         .chat-header {
-            padding: 15px 25px;
-            border-bottom: 1px solid var(--border-color);
-            display: flex; align-items: center; gap: 15px;
-            background: rgba(0,0,0,0.01);
-            flex-shrink: 0; /* Never shrink */
+            padding: 20px; border-bottom: 1px solid var(--border-color);
+            display: flex; align-items: center; justify-content: space-between;
         }
-        .agent-avatar-icon {
-            width: 40px; height: 40px; border-radius: 12px; background: rgba(37, 99, 235, 0.1); 
-            color: var(--accent-color); display: flex; align-items: center; justify-content: center;
-        }
-        .agent-details h3 { margin: 0; font-size: 15px; font-weight: 700; color: var(--text-primary); }
-        .agent-status { font-size: 12px; color: var(--success); font-weight: 500; display: flex; align-items: center; gap: 6px; }
-        .status-dot { width: 6px; height: 6px; background: var(--success); border-radius: 50%; animation: pulse 2s infinite; }
-        @keyframes pulse { 0% { opacity: 1; } 50% { opacity: 0.5; } 100% { opacity: 1; } }
+        .agent-info { display: flex; align-items: center; gap: 15px; }
+        .agent-icon { width: 45px; height: 45px; background: rgba(37, 99, 235, 0.1); color: var(--accent-color); border-radius: 12px; display: flex; align-items: center; justify-content: center; }
+        .agent-text h3 { margin: 0; font-size: 16px; font-weight: 700; color: var(--text-primary); }
+        .status-badge { display: flex; align-items: center; gap: 6px; font-size: 12px; color: var(--success); font-weight: 500; }
+        .status-dot { width: 8px; height: 8px; background: var(--success); border-radius: 50%; }
 
-        /* CHAT WINDOW (Messages) */
-        .chat-window {
-            flex: 1; /* Takes all available height */
-            padding: 25px;
-            overflow-y: auto; /* Scrollable */
-            display: flex;
-            flex-direction: column;
-            gap: 15px;
-            scroll-behavior: smooth;
-            min-height: 0; /* Required for nested flex scrolling */
-        }
-        .chat-window::-webkit-scrollbar { width: 6px; }
-        .chat-window::-webkit-scrollbar-track { background: transparent; }
-        .chat-window::-webkit-scrollbar-thumb { background: var(--border-color); border-radius: 10px; }
+        .chat-messages { flex: 1; padding: 25px; overflow-y: auto; background: var(--chat-bg); display: flex; flex-direction: column; gap: 20px; }
+        
+        .message { max-width: 75%; padding: 15px 20px; border-radius: 18px; font-size: 14px; line-height: 1.5; position: relative; animation: slideUp 0.3s ease; }
+        @keyframes slideUp { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        
+        .msg-admin { align-self: flex-start; background: var(--msg-admin-bg); color: var(--msg-admin-text); border-bottom-left-radius: 4px; border: 1px solid var(--border-color); }
+        .msg-user { align-self: flex-end; background: var(--msg-user-bg); color: var(--msg-user-text); border-bottom-right-radius: 4px; box-shadow: 0 4px 10px rgba(37, 99, 235, 0.15); }
+        
+        .msg-time { font-size: 10px; opacity: 0.7; margin-top: 5px; display: block; text-align: right; }
 
-        .msg-row { display: flex; width: 100%; animation: slideIn 0.2s ease-out; }
-        .row-bot { justify-content: flex-start; }
-        .row-user { justify-content: flex-end; }
-        @keyframes slideIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        .chat-input-area { padding: 20px; background: var(--bg-card); border-top: 1px solid var(--border-color); }
+        .input-wrapper { display: flex; gap: 10px; background: var(--input-bg); padding: 8px; border-radius: 14px; border: 1px solid var(--border-color); }
+        .chat-input { flex: 1; background: transparent; border: none; padding: 10px 15px; color: var(--text-primary); font-size: 15px; outline: none; }
+        .btn-send { width: 40px; height: 40px; background: var(--accent-color); color: white; border: none; border-radius: 10px; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: 0.2s; }
+        .btn-send:hover { background: var(--accent-hover); transform: scale(1.05); }
 
-        .msg-bubble {
-            max-width: 75%;
-            padding: 12px 16px;
-            font-size: 14px;
-            line-height: 1.5;
-            position: relative;
-            box-shadow: 0 1px 2px rgba(0,0,0,0.05);
-        }
-        .bubble-bot { background: var(--msg-in-bg); color: var(--msg-in-text); border-radius: 16px 16px 16px 4px; }
-        .bubble-user { background: var(--accent-color); color: var(--msg-out-text); border-radius: 16px 16px 4px 16px; }
-        .msg-time { display: block; font-size: 10px; margin-top: 4px; opacity: 0.7; text-align: right; }
-
-        /* INPUT AREA (FIXED) */
-        .chat-footer {
-            padding: 20px;
-            border-top: 1px solid var(--border-color);
-            background: var(--bg-card);
-            flex-shrink: 0; /* Crucial: Prevents shrinking */
-            z-index: 10;
-        }
-
-        .input-wrapper {
-            display: flex; gap: 10px;
-            background: var(--bg-body);
-            padding: 10px 15px;
-            border-radius: 14px;
-            border: 1px solid var(--border-color);
-            align-items: center;
-        }
-        .input-wrapper:focus-within { border-color: var(--accent-color); }
-
-        .chat-input {
-            flex: 1; background: transparent; border: none;
-            color: var(--text-primary); font-size: 14px; font-family: 'Inter', sans-serif;
-            padding: 5px 0; outline: none;
-            /* Fix invisible text input on some browsers */
-            min-height: 20px; 
-        }
-
-        .btn-send {
-            width: 36px; height: 36px;
-            background: var(--accent-color); color: white;
-            border: none; border-radius: 10px;
-            display: flex; align-items: center; justify-content: center;
-            cursor: pointer; transition: 0.2s;
-            flex-shrink: 0;
-        }
-
-        .ai-toggle-wrapper { display: none; }
-        .overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 999; backdrop-filter: blur(4px); }
-        .notif-dropdown { display: none; position: absolute; top: 60px; right: 40px; background: var(--bg-card); width: 320px; max-height: 400px; overflow-y: auto; box-shadow: 0 10px 40px rgba(0,0,0,0.15); border-radius: 16px; z-index: 3000; border: 1px solid var(--border-color); }
-        .notif-item { padding: 15px; border-bottom: 1px solid var(--border-color); }
+        /* NOTIFICATIONS */
+        .notif-dropdown { display: none; position: absolute; top: 60px; right: 20px; background: var(--bg-card); width: 320px; max-height: 400px; overflow-y: auto; box-shadow: 0 10px 40px rgba(0,0,0,0.15); border-radius: 16px; z-index: 3000; border: 1px solid var(--border-color); }
+        .notif-item { padding: 15px; border-bottom: 1px solid var(--border-color); transition: 0.2s; cursor: default; }
+        .notif-item:hover { background: var(--bg-body); }
         .notif-msg { font-size: 13px; color: var(--text-primary); line-height: 1.4; }
         .notif-time { font-size: 11px; color: var(--text-secondary); margin-top: 5px; }
 
-        /* --- RESPONSIVE FIXES --- */
+        .overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 999; backdrop-filter: blur(4px); transition: opacity 0.3s; }
+
+        /* TIMEOUT MODAL */
+        .timeout-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); z-index: 9999; display: none; align-items: center; justify-content: center; backdrop-filter: blur(5px); }
+        .timeout-card { background: var(--bg-card); padding: 40px; border-radius: 24px; text-align: center; width: 90%; max-width: 400px; box-shadow: 0 25px 60px rgba(0,0,0,0.5); }
+        .timeout-title { font-size: 22px; font-weight: 800; color: var(--text-primary); margin-bottom: 10px; }
+        .timeout-msg { color: var(--text-secondary); font-size: 15px; margin-bottom: 30px; line-height: 1.5; }
+        .timeout-btn { background: var(--accent-color); color: white; border: none; padding: 14px 28px; border-radius: 12px; font-weight: 600; font-size: 15px; cursor: pointer; width: 100%; }
+
         @media (max-width: 900px) {
-            .sidebar { position: fixed; left: -280px; top: 0; height: 100%; box-shadow: none; }
+            .sidebar { position: fixed; left: -280px; top: 0; height: 100%; transition: 0.3s; box-shadow: none; }
             .sidebar.active { transform: translateX(280px); box-shadow: 10px 0 30px rgba(0,0,0,0.1); }
-            
-            .header-section { display: none; } /* Hide Desktop Header */
-            .mobile-header { display: flex; } /* Show Mobile Header */
-            
-            .main { padding: 0; height: 100vh; display: flex; flex-direction: column; }
-            
-            /* Chat Container stretches to fill available space between header and bottom */
-            .chat-layout { 
-                margin: 0; 
-                border-radius: 0; 
-                border: none;
-                flex: 1; /* Fills height */
-                height: auto;
-            }
-            
-            .chat-window { padding: 15px; }
-            .msg-bubble { max-width: 85%; }
-            .chat-footer { padding: 15px; } /* Ensure padding allows typing */
-            .notif-dropdown { right: 10px; width: calc(100% - 20px); top: 70px; }
+            .main { padding: 20px; height: 100dvh; }
+            .mobile-header { display: flex; }
+            .header { display: none; }
+            .chat-container { max-height: calc(100vh - 100px); }
+            .notif-dropdown { right: 20px; top: 70px; width: calc(100% - 40px); }
+            .nav-avatar { width: 40px !important; height: 40px !important; min-width: 40px !important; border: 2px solid var(--border-color); }
         }
     </style>
 </head>
 <body class="{% if account.dark_mode %}dark-mode{% endif %}">
     
+    <!-- TIMEOUT MODAL -->
+    <div class="timeout-overlay" id="timeoutModal">
+        <div class="timeout-card">
+            <div style="font-size: 40px; margin-bottom: 20px;">⏰</div>
+            <div class="timeout-title">Session Expiring</div>
+            <div class="timeout-msg">You will be logged out in <span id="timeLeft" style="font-weight:bold; color:var(--accent-color);">30</span> seconds due to inactivity.</div>
+            <button class="timeout-btn" onclick="resetTimer()">Keep me signed in</button>
+        </div>
+    </div>
+
     <div class="overlay" onclick="toggleSidebar()"></div>
 
-    <!-- SIDEBAR (EXACT DASHBOARD COPY) -->
+    <!-- SIDEBAR -->
     <div class="sidebar" id="sidebar">
         <div class="brand">
             <div class="brand-icon"><svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="3" viewBox="0 0 24 24"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg></div>
@@ -276,7 +170,7 @@
         <div class="sidebar-footer">
             <a href="/profile/" class="menu-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg> Profile</a>
             <a href="/support/" class="menu-item active"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg> Support</a>
-            <a href="/settings/" class="menu-item"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg> Settings</a>
+            <a href="/settings/" class="menu-item"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2 2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg> Settings</a>
             <a href="/logout/" class="menu-item" style="color: var(--danger);"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path><polyline points="16 17 21 12 16 7"></polyline><line x1="21" y1="12" x2="9" y2="12"></line></svg> Sign Out</a>
         </div>
     </div>
@@ -292,31 +186,32 @@
                         <div class="nav-avatar" style="background: #e2e8f0; color: #64748b; display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 14px;">{{ user.username|slice:":1" }}</div>
                     {% endif %}
                 </div>
-                <div style="font-weight: 800; color: var(--text-primary); font-size: 18px;">SUPPORT</div>
+                <div style="font-weight: 800; color: var(--accent-color); font-size: 20px;">SUPPORT</div>
             </div>
+
             <div class="icon-btn" onclick="toggleNotifs()">
                 <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path><path d="M13.73 21a2 2 0 0 1-3.46 0"></path></svg>
-                {% if unread_count > 0 %}<div class="notif-dot"></div>{% endif %}
+                {% if unread_count > 0 %}<div class="notif-badge">{{ unread_count }}</div>{% endif %}
             </div>
         </div>
 
-        <!-- DESKTOP HEADER (EXACT DASHBOARD COPY) -->
-        <div class="header-section header">
-            <div class="welcome">
+        <!-- DESKTOP HEADER -->
+        <div class="header">
+            <div class="welcome-text">
                 <h1 class="page-title">Support Center</h1>
-                <div class="page-subtitle">Get help with your account.</div>
+                <div class="page-subtitle">Get help with your account and transactions.</div>
             </div>
             
             <div class="header-actions">
                 <div class="icon-btn" onclick="toggleNotifs()">
-                    <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path><path d="M13.73 21a2 2 0 0 1-3.46 0"></path></svg>
-                    {% if unread_count > 0 %}<div class="notif-dot"></div>{% endif %}
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path><path d="M13.73 21a2 2 0 0 1-3.46 0"></path></svg>
+                    {% if unread_count > 0 %}<div class="notif-badge">{{ unread_count }}</div>{% endif %}
                 </div>
                 <div class="user-pill" onclick="window.location.href='/profile/'">
                     {% if account.profile_pic %}
-                        <img src="{{ account.profile_pic.url }}" class="avatar">
+                        <img src="{{ account.profile_pic.url }}" class="nav-avatar" style="width: 45px; height: 45px;">
                     {% else %}
-                        <div class="avatar" style="display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:bold;">{{ user.username|slice:":1" }}</div>
+                        <div class="nav-avatar" style="width: 45px; height: 45px; background: #e2e8f0; color: #64748b; display: flex; align-items: center; justify-content: center; font-weight: bold;">{{ user.username|slice:":1" }}</div>
                     {% endif %}
                     <span class="user-name">{{ user.username }}</span>
                     <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M6 9l6 6 6-6"/></svg>
@@ -326,8 +221,11 @@
 
         <!-- NOTIFICATION DROPDOWN -->
         <div id="notif-dropdown" class="notif-dropdown">
-            <div style="padding: 15px; border-bottom: 1px solid var(--border-color); font-weight: 700; font-size: 13px; color: var(--text-primary); background: var(--bg-card);">NOTIFICATIONS</div>
-            <div style="max-height: 300px; overflow-y: auto;">
+            <div class="notif-head">
+                <span>NOTIFICATIONS</span>
+                <span style="color:var(--accent-color); cursor:pointer;" onclick="clearAllNotifications()">Clear All</span>
+            </div>
+            <div class="notif-list">
                 {% for n in notifications %}
                     <div class="notif-item">
                         <div class="notif-msg">{{ n.message }}</div>
@@ -339,191 +237,195 @@
             </div>
         </div>
 
-        <!-- MAIN CHAT INTERFACE -->
-        <div class="chat-layout">
+        <!-- CHAT UI -->
+        <div class="chat-wrapper">
             <div class="chat-header">
-                <div class="agent-avatar-icon">
-                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg>
-                </div>
-                <div class="agent-details">
-                    <h3>Veltris Support</h3>
-                    <div class="agent-status">
-                        <div class="status-dot"></div> 
-                        {% if active_session %}Session #{{ active_session.id }} - Live{% else %}Online Now{% endif %}
+                <div class="agent-info">
+                    <div class="agent-icon"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg></div>
+                    <div class="agent-text">
+                        <h3>Veltris Support</h3>
+                        <div class="status-badge"><div class="status-dot"></div> Online Now</div>
                     </div>
-                </div>
-                
-                <!-- HIDDEN AI TOGGLE -->
-                <div class="ai-toggle-wrapper">
-                    <input type="checkbox" id="ai-toggle">
                 </div>
             </div>
 
-            <div class="chat-window" id="chatWindow">
+            <div class="chat-messages" id="chatWindow">
                 <!-- Welcome Message -->
-                <div class="msg-row row-bot">
-                    <div class="msg-bubble bubble-bot">
-                        <span class="msg-content">Hello {{ user.first_name }}! I am your Veltris virtual assistant. How can I help you today?</span>
-                        <span class="msg-time">Now</span>
-                    </div>
+                <div class="message msg-admin">
+                    Hello {{ user.first_name }}! How can we assist you today?
+                    <span class="msg-time">Now</span>
                 </div>
 
                 {% for msg in messages %}
-                    <div class="msg-row {% if msg.is_admin_reply %}row-bot{% else %}row-user{% endif %}">
-                        <div class="msg-bubble {% if msg.is_admin_reply %}bubble-bot{% else %}bubble-user{% endif %}">
-                            <span class="msg-content">{{ msg.message }}</span>
-                            <span class="msg-time">{{ msg.timestamp|time:"H:i" }}</span>
-                        </div>
+                    <div class="message {% if msg.is_admin_reply %}msg-admin{% else %}msg-user{% endif %}">
+                        {{ msg.message }}
+                        <span class="msg-time">{{ msg.timestamp|time:"H:i" }}</span>
                     </div>
                 {% endfor %}
             </div>
 
-            <div class="chat-footer">
-                <form id="chatForm" method="POST" class="input-wrapper">
+            <div class="chat-input-area">
+                <form id="chatForm" method="POST">
                     {% csrf_token %}
-                    <input type="text" name="message" id="chatInput" class="chat-input" placeholder="Type your message..." required autocomplete="off">
-                    <button type="submit" class="btn-send">
-                        <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><line x1="22" y1="2" x2="11" y2="13"></line><polygon points="22 2 15 22 11 13 2 9 22 2"></polygon></svg>
-                    </button>
+                    <div class="input-wrapper">
+                        <input type="text" name="message" class="chat-input" id="chatInput" placeholder="Type your message..." required autocomplete="off">
+                        <button type="submit" class="btn-send"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="22" y1="2" x2="11" y2="13"></line><polygon points="22 2 15 22 11 13 2 9 22 2"></polygon></svg></button>
+                    </div>
                 </form>
             </div>
         </div>
     </div>
 
-    <!-- LOGIC (PRESERVED) -->
     <script type="module">
         import { GoogleGenerativeAI } from "@google/generative-ai";
 
-        // THEME INIT
-        if("{{ account.dark_mode }}" === "True") { document.body.classList.add('dark-mode'); }
+        // THEME LOGIC
+        if("{{ account.dark_mode }}" === "True") document.body.classList.add('dark-mode');
 
-        // UI HELPERS
+        // UI LOGIC
         window.toggleSidebar = function() { document.getElementById('sidebar').classList.toggle('active'); document.querySelector('.overlay').style.display = document.getElementById('sidebar').classList.contains('active') ? 'block' : 'none'; }
         window.toggleNotifs = function() { var x = document.getElementById("notif-dropdown"); x.style.display = x.style.display === "block" ? "none" : "block"; }
         window.onclick = function(event) { if (!event.target.matches('.icon-btn') && !event.target.closest('.icon-btn') && !event.target.matches('.notif-dropdown') && !event.target.closest('.notif-dropdown')) { document.getElementById("notif-dropdown").style.display = "none"; } }
+        window.clearAllNotifications = function() { if(confirm('Clear all?')) window.location.href="{% url 'clear_notifications' %}"; }
 
-        const chatWindow = document.getElementById("chatWindow");
-        chatWindow.scrollTop = chatWindow.scrollHeight; // Auto-scroll
+        var chatWindow = document.getElementById("chatWindow");
+        chatWindow.scrollTop = chatWindow.scrollHeight;
 
-        // --- AI CONFIG ---
+        // --- AI & CHAT LOGIC ---
         const apiKey = "{{ gemini_api_key }}"; 
         const genAI = new GoogleGenerativeAI(apiKey);
-        const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash-preview-09-2025" });
+        const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
 
-        const chatForm = document.getElementById('chatForm');
-        const chatInput = document.getElementById('chatInput');
-        const aiToggle = document.getElementById('ai-toggle');
+        const form = document.getElementById('chatForm');
+        const input = document.getElementById('chatInput');
         const chatBody = document.getElementById('chatWindow');
+        
+        // Session Check (Persistence)
+        let aiModeActive = sessionStorage.getItem('aiMode') !== 'false'; 
 
-        // --- STATE MANAGEMENT ---
-        const STORAGE_KEY = 'veltris_ai_mode_{{ user.id }}'; 
-        const savedState = localStorage.getItem(STORAGE_KEY);
-        if (savedState === 'false') { aiToggle.checked = false; } else { aiToggle.checked = true; }
+        // INITIALIZE HISTORY FROM DJANGO (SESSION AWARE)
+        // This array populates with the messages from the current session load
+        // so the AI has context immediately.
+        let conversationHistory = [
+            {% for msg in messages %}
+                "{{ msg.is_admin_reply|yesno:'System,User' }}: {{ msg.message|escapejs }}",
+            {% endfor %}
+        ];
 
-        // --- CORE FUNCTIONS ---
-        function getConversationHistory() {
-            const bubbles = document.querySelectorAll('.msg-bubble');
-            const recent = Array.from(bubbles).slice(-10);
-            let history = "";
-            recent.forEach(bubble => {
-                const role = bubble.classList.contains('bubble-user') ? "User" : "Veltris Support";
-                const textSpan = bubble.querySelector('.msg-content');
-                const text = textSpan ? textSpan.innerText : "";
-                if(text) history += `${role}: ${text.trim()}\n`;
-            });
-            return history;
+        function appendMessage(text, className) {
+            const div = document.createElement('div');
+            div.className = `message ${className}`;
+            div.innerHTML = `${text}<span class="msg-time">Just now</span>`;
+            chatBody.appendChild(div);
+            chatBody.scrollTop = chatBody.scrollHeight;
         }
 
-        async function saveToDatabase(text, isBot) {
+        // Update history array
+        function updateHistory(role, text) {
+            conversationHistory.push(`${role}: ${text}`);
+            // Keep last 20 lines to avoid token limits
+            if (conversationHistory.length > 20) conversationHistory.shift();
+        }
+
+        function saveToDatabase(text, isBot) {
             const formData = new FormData();
             formData.append('message', text);
             formData.append('csrfmiddlewaretoken', '{{ csrf_token }}');
             if (isBot) formData.append('is_bot', 'true');
-            try { await fetch("{% url 'support' %}", { method: 'POST', body: formData, headers: { 'X-Requested-With': 'XMLHttpRequest' } }); } catch (e) { console.error(e); }
+
+            fetch("{% url 'support' %}", {
+                method: 'POST',
+                body: formData,
+                headers: { 'X-Requested-With': 'XMLHttpRequest' }
+            }).catch(err => console.error("Save error:", err));
         }
 
-        function appendMessage(text, type) {
-            const row = document.createElement('div');
-            row.className = `msg-row ${type === 'user' ? 'row-user' : 'row-bot'}`;
-            
-            const bubble = document.createElement('div');
-            bubble.className = `msg-bubble ${type === 'user' ? 'bubble-user' : 'bubble-bot'}`;
-            
-            bubble.innerHTML = `
-                <span class="msg-content">${text}</span>
-                <span class="msg-time">Just now</span>
-            `;
-            
-            row.appendChild(bubble);
-            chatBody.appendChild(row);
-            chatBody.scrollTop = chatBody.scrollHeight;
-        }
+        form.addEventListener('submit', async function(e) {
+            if (aiModeActive) {
+                e.preventDefault(); 
+                const userMsg = input.value;
+                if (!userMsg) return;
 
-        // --- SUBMISSION LOGIC ---
-        chatForm.addEventListener('submit', async function(e) {
-            e.preventDefault();
-            const userMsg = chatInput.value.trim();
-            if (!userMsg) return;
+                // 1. Show & Save User Message
+                appendMessage(userMsg, 'msg-user');
+                saveToDatabase(userMsg, false);
+                updateHistory('User', userMsg); // Add to memory
+                input.value = '';
 
-            appendMessage(userMsg, 'user');
-            chatInput.value = '';
-            await saveToDatabase(userMsg, false);
-
-            if (aiToggle.checked) {
                 try {
-                    const history = getConversationHistory();
-                    const prompt = `
-                        You are Veltris Bank Support. 
-                        HISTORY: ${history}
-                        INSTRUCTIONS:
-                        1. If user mentions "blocked", "frozen", "hack", "scam", or asks for "human/agent":
-                           - Acknowledge reassuringly.
-                           - END with: [CONNECT_AGENT]
-                        2. Otherwise, answer helpfully (max 2 sentences).
-                    `;
-
+                    // 2. Build Context String
+                    const context = conversationHistory.join("\n");
+                    
+                    // 3. Ask AI (With Trap Instruction)
+                    const prompt = `You are Veltris Bank Support. Context of this session:\n${context}\n\nUser: "${userMsg}". 
+                                    Reply briefly (1-2 sentences). IF they ask for a human, agent, or mention 'blocked', 'frozen', or 'restriction', REPLY ONLY: [CONNECT_AGENT]`;
+                    
                     const result = await model.generateContent(prompt);
-                    const aiText = (await result.response).text();
+                    const aiText = result.response.text();
 
+                    // 4. Trap Check
                     if (aiText.includes("[CONNECT_AGENT]")) {
-                        // Handoff
-                        localStorage.setItem(STORAGE_KEY, 'false');
-                        aiToggle.checked = false;
-                        const finalMessage = aiText.replace('[CONNECT_AGENT]', '').trim();
-                        const displayMsg = finalMessage.length > 0 ? finalMessage : "I am connecting you to a Senior Agent immediately. Please stand by.";
+                        aiModeActive = false;
+                        sessionStorage.setItem('aiMode', 'false');
                         
-                        appendMessage(displayMsg, 'bot');
-                        await saveToDatabase(displayMsg, true);
-                        setTimeout(() => window.location.reload(), 2500);
+                        const alertMsg = "Connecting you to a specialist...";
+                        appendMessage(alertMsg, 'msg-admin');
+                        saveToDatabase(alertMsg, true);
+                        updateHistory('System', alertMsg);
+                        
+                        // FORWARD TO ADMIN: Reload page to sync state and notify backend
+                        setTimeout(() => window.location.reload(), 1500);
+                        
                     } else {
-                        // Normal Reply
-                        appendMessage(aiText, 'bot');
-                        await saveToDatabase(aiText, true);
+                        // Normal AI Reply
+                        appendMessage(aiText, 'msg-admin');
+                        saveToDatabase(aiText, true);
+                        updateHistory('System', aiText); // Add to memory
                     }
-                } catch (err) {
-                    console.error("AI Fail", err);
-                    localStorage.setItem(STORAGE_KEY, 'false');
-                    window.location.reload();
+                } catch (error) {
+                    console.error(error);
+                    aiModeActive = false;
+                    sessionStorage.setItem('aiMode', 'false');
+                    window.location.reload(); 
                 }
             }
+            // IF aiModeActive IS FALSE, form submits normally (refresh page)
         });
 
-        // --- POLLING ---
+        // --- REAL-TIME POLLING (ADMIN MESSAGES ONLY) ---
         let lastMessageId = "{{ messages.last.id|default:0 }}";
-        setInterval(() => {
-            if (aiToggle.checked) return;
+        
+        function fetchNewMessages() {
             fetch(`/api/messages/?last_id=${lastMessageId}`)
-                .then(res => res.json())
-                .then(data => {
-                    if (data.messages && data.messages.length > 0) {
-                        data.messages.forEach(msg => {
-                            if (msg.is_admin) appendMessage(msg.message, 'bot');
+            .then(response => response.json())
+            .then(data => {
+                if (data.messages.length > 0) {
+                    data.messages.forEach(msg => {
+                        // Only show ADMIN replies via polling (User msgs are immediate)
+                        if (msg.is_admin) {
+                            appendMessage(msg.message, 'msg-admin');
+                            updateHistory('System', msg.message); // Keep context synced
                             lastMessageId = msg.id;
-                        });
-                    }
-                });
-        }, 3000);
+                        }
+                    });
+                }
+            })
+            .catch(err => console.log("Sync error:", err));
+        }
+        setInterval(fetchNewMessages, 3000);
+        
+        chatBody.scrollTop = chatBody.scrollHeight;
 
+        // TIMEOUT
+        let warningTimer, logoutTimer;
+        const TIMEOUT_DURATION = 300000; 
+        const WARNING_DURATION = 270000; 
+        function startTimers() { warningTimer = setTimeout(showWarning, WARNING_DURATION); logoutTimer = setTimeout(doLogout, TIMEOUT_DURATION); }
+        function resetTimer() { clearTimeout(warningTimer); clearTimeout(logoutTimer); document.getElementById('timeoutModal').style.display = 'none'; startTimers(); }
+        function showWarning() { document.getElementById('timeoutModal').style.display = 'flex'; }
+        function doLogout() { window.location.href = '/logout/'; }
+        window.onload = function() { startTimers(); };
+        document.onclick = resetTimer; document.onmousemove = resetTimer; document.onkeypress = resetTimer;
     </script>
 </body>
 </html>
