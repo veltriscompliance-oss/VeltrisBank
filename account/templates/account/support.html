@@ -13,8 +13,8 @@
         }
       }
     </script>
-    <style>
-        /* --- THEME SYSTEM (EXACT MATCH TO DASHBOARD) --- */
+        <style>
+        /* --- THEME SYSTEM --- */
         :root {
             --bg-body: #f8fafc;
             --bg-card: #ffffff;
@@ -26,8 +26,6 @@
             --success: #10b981;
             --danger: #ef4444;
             --warning: #f59e0b;
-            
-            /* Chat Specifics */
             --msg-in-bg: #f1f5f9;
             --msg-in-text: #0f172a;
             --msg-out-bg: #2563eb;
@@ -40,8 +38,6 @@
             --text-primary: #f8fafc;
             --text-secondary: #94a3b8;
             --border-color: #1e293b;
-            
-            /* Chat Specifics Dark */
             --msg-in-bg: #1e293b;
             --msg-in-text: #f8fafc;
             --msg-out-bg: #3b82f6;
@@ -50,18 +46,24 @@
 
         * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
         
-        body { 
+        html, body {
             margin: 0; padding: 0;
             font-family: 'Inter', sans-serif; 
-            background-color: var(--bg-body); color: var(--text-primary);
-            display: flex; height: 100vh; overflow: hidden; transition: background-color 0.3s ease;
+            background-color: var(--bg-body); 
+            color: var(--text-primary);
+            /* CRITICAL FIX: Use dvh for mobile, fallback to vh */
+            height: 100vh;
+            height: 100dvh; 
+            width: 100%;
+            overflow: hidden; /* Prevent window scrolling */
+            display: flex;
         }
 
         /* --- SIDEBAR --- */
         .sidebar {
             width: 280px; background: var(--bg-card); border-right: 1px solid var(--border-color);
             padding: 30px 20px; display: flex; flex-direction: column; z-index: 1000;
-            transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1), background-color 0.3s;
+            transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         }
 
         .brand {
@@ -89,7 +91,9 @@
             padding: 0; 
             display: flex; 
             flex-direction: column; 
-            height: 100vh; 
+            /* CRITICAL FIX: Ensure main takes full dynamic height */
+            height: 100vh;
+            height: 100dvh; 
             position: relative; 
             overflow: hidden; 
         }
@@ -98,7 +102,7 @@
         .header-section {
             padding: 20px 40px;
             background: var(--bg-body);
-            flex-shrink: 0;
+            flex-shrink: 0; /* Ensures header never collapses */
         }
 
         .header { display: flex; justify-content: space-between; align-items: center; }
@@ -112,7 +116,7 @@
             display: flex; align-items: center; justify-content: center; 
             color: var(--text-primary); cursor: pointer; transition: 0.2s; position: relative; 
         }
-        .icon-btn:hover { border-color: var(--accent-color); color: var(--accent-color); transform: translateY(-2px); }
+        .icon-btn:hover { border-color: var(--accent-color); color: var(--accent-color); }
         .notif-dot { position: absolute; top: 10px; right: 10px; width: 8px; height: 8px; background: var(--danger); border-radius: 50%; border: 2px solid var(--bg-card); }
         
         .user-pill { 
@@ -135,6 +139,8 @@
         /* --- CHAT INTERFACE --- */
         .chat-layout {
             flex: 1;
+            /* CRITICAL: min-height 0 prevents flex child from overflowing parent */
+            min-height: 0; 
             margin: 0 40px 40px 40px;
             background: var(--bg-card);
             border: 1px solid var(--border-color);
@@ -144,8 +150,6 @@
             overflow: hidden;
             box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05);
             position: relative;
-            height: 100%; 
-            min-height: 0; 
         }
 
         .chat-header {
@@ -168,16 +172,18 @@
         .chat-window {
             flex: 1;
             padding: 25px;
-            overflow-y: auto;
+            overflow-y: auto; /* Allow scrolling here */
             display: flex;
             flex-direction: column;
             gap: 15px;
             scroll-behavior: smooth;
+            -webkit-overflow-scrolling: touch; /* Smooth scroll on iOS */
         }
         .chat-window::-webkit-scrollbar { width: 6px; }
         .chat-window::-webkit-scrollbar-track { background: transparent; }
         .chat-window::-webkit-scrollbar-thumb { background: var(--border-color); border-radius: 10px; }
 
+        /* MESSAGES */
         .msg-row { display: flex; width: 100%; animation: slideIn 0.2s ease-out; }
         .row-bot { justify-content: flex-start; }
         .row-user { justify-content: flex-end; }
@@ -200,8 +206,10 @@
             padding: 20px;
             border-top: 1px solid var(--border-color);
             background: var(--bg-card);
-            flex-shrink: 0; 
+            flex-shrink: 0; /* Prevents this from shrinking/disappearing */
             z-index: 20;
+            /* CRITICAL: Safe area for iPhone home bar */
+            padding-bottom: calc(20px + env(safe-area-inset-bottom));
         }
 
         .input-wrapper {
@@ -246,15 +254,16 @@
             .header-section { display: none; } 
             .mobile-header { display: flex; } 
             
-            .main { padding: 0; height: 100vh; }
+            .main { padding: 0; }
             
             .chat-layout { 
-                margin: 0; border-radius: 0; border: none;
-                flex: 1; height: auto;
+                margin: 0; 
+                border-radius: 0; 
+                border: none;
+                flex: 1; /* Fills all available height */
             }
             .chat-window { padding: 15px; }
             .msg-bubble { max-width: 85%; }
-            .chat-footer { padding: 15px; } 
             .notif-dropdown { right: 10px; width: calc(100% - 20px); top: 70px; }
         }
     </style>
