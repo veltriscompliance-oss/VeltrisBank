@@ -517,22 +517,30 @@
                 try {
                     const history = getConversationHistory();
                     
+                    // Context-Aware Prompt
                     const prompt = `
                         You are Veltris Bank Support. 
                         
-                        CONTEXT:
-                        User Name: {{ user.first_name }}
+                        USER CONTEXT:
+                        Name: {{ user.first_name }}
                         Balance: ${{ account.balance|floatformat:2 }}
                         
-                        HISTORY:
+                        RECENT TRANSACTIONS (Use this to answer questions about specific payments):
+                        {{ transaction_context|escapejs }}
+                        
+                        CHAT HISTORY:
                         ${history}
                         
                         INSTRUCTIONS:
-                        1. If the user mentions "blocked", "frozen", "hack", "scam", or asks for "human/agent":
-                           - Acknowledge the issue reassuringly (e.g. "I understand this is concerning...").
+                        1. If the user asks about a specific transaction (e.g. "Did my Netflix payment go through?"), CHECK the Recent Transactions list above.
+                           - If found, tell them the date, amount, and exact status.
+                           - If NOT found, ask for the date and amount.
+                        
+                        2. If the user mentions "blocked", "frozen", "hack", "scam", or asks for "human/agent":
+                           - Acknowledge reassuringly.
                            - END response with: [CONNECT_AGENT]
                            
-                        2. Otherwise, answer helpfully (max 2 sentences). Act like a capable support agent.
+                        3. Otherwise, answer helpfully (max 2 sentences).
                     `;
 
                     const result = await model.generateContent(prompt);

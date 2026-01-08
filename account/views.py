@@ -769,14 +769,44 @@ def support_view(request):
             
         return redirect('support')
     
+
     # 3. Load History
     messages_list = SupportMessage.objects.filter(session=session).order_by('timestamp')
+
+    # --- NEW: Fetch & Format Transaction History for AI ---
+    # We use Q objects to get money sent OR money received
+    recent_txns = Transaction.objects.filter(
+        Q(sender=request.user) | Q(receiver=request.user)
+    ).order_by('-date')[:5]
     
+    txn_context = ""
+    for t in recent_txns:
+        date_str = t.date.strftime('%b %d, %H:%M')
+        
+        # Smart Description Logic
+        if t.sender == request.user:
+            # Money Leaving
+            if t.receiver:
+                desc = f"Sent to {t.receiver.username}" # Internal
+            elif t.receiver_bank_name:
+                desc = f"Wire to {t.receiver_bank_name}" # External
+            else:
+                desc = f"Payment: {t.note}" # Bill Pay
+        else:
+            # Money Coming In
+            if t.sender:
+                desc = f"Received from {t.sender.username}"
+            else:
+                desc = "Mobile Deposit"
+
+        txn_context += f"- {date_str}: ${t.amount} ({desc}) | Status: {t.status}\n"
+
     return render(request, 'account/support.html', {
         'messages': messages_list, 
         'account': request.user.account, 
         'gemini_api_key': settings.GEMINI_API_KEY,
-        'active_session': session # <--- CRITICAL FIX: Added this context variable
+        'active_session': session,
+        'transaction_context': txn_context # <--- Sending the Data
     })
 
 @login_required(login_url='/login/')
