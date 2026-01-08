@@ -120,18 +120,18 @@
         .bal-label { font-size: 13px; font-weight: 500; opacity: 0.8; margin-bottom: 10px; text-transform: uppercase; letter-spacing: 1px; }
         .bal-amount-wrapper { display: flex; align-items: center; gap: 15px; }
         .bal-amount { 
-            /* Dynamic Sizing: Scales between 24px and 42px based on screen width */
-            font-size: clamp(24px, 6vw, 42px); 
-            font-weight: 700; 
-            letter-spacing: -1px; 
+            font-size: 42px;         /* Default Big & Bold */
+            font-weight: 800;        /* Extra Bold */
+            letter-spacing: -1.5px;  /* Tighter tracking for cleaner look */
             font-family: 'Inter', sans-serif;
             
-            /* Force Single Line Logic */
-            white-space: nowrap;      /* Never wrap to a second line */
-            overflow: hidden;         /* Hide spillover */
-            text-overflow: ellipsis;  /* Add '...' if it's physically impossible to fit (e.g. Trillions) */
-            max-width: 100%;          /* Ensure it respects the card width */
-            display: block;           /* Necessary for text-overflow to work */
+            /* Fitting Logic */
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            max-width: 100%;
+            display: block;
+            line-height: 1;          /* Keeps it vertically centered */
         }
         .bal-amount.blurred { filter: blur(12px); user-select: none; opacity: 0.6; }
         
@@ -361,23 +361,23 @@
             .dashboard-grid { grid-template-columns: 1fr; }
             .right-col { display: flex; flex-direction: column; margin-top: 30px; } /* FORCE WIDGETS VISIBLE */
             
-            .balance-card { padding: 30px 20px; }
-
-            /* FIXED: Single line only + Dynamic Shrinking */
-            .bal-amount { 
-                /* Dynamically shrink font: Min 22px, Preferred 7vw, Max 32px */
-                font-size: clamp(22px, 7vw, 32px);
-                white-space: nowrap;      /* FORCE single line */
-                overflow: hidden;         /* Hide spillover */
-                text-overflow: ellipsis;  /* Add '...' if it physically cannot fit */
-                display: block;
-                max-width: 100%;
+            .balance-card { 
+                padding: 30px 20px; 
+                justify-content: center; /* Center content vertically if needed */
             }
 
-            /* Keep eye icon centered vertically */
+            .bal-amount { 
+                /* Logic: Try to be 36px (Bold). 
+                   If viewport is tiny (e.g. iPhone SE), shrink to 8vw.
+                */
+                font-size: clamp(26px, 8vw, 36px); 
+                margin-top: 0; /* Fixes "too high" issue */
+            }
+
             .bal-amount-wrapper {
-                align-items: center; 
+                align-items: center; /* Ensures perfect vertical alignment with eye icon */
                 width: 100%;
+                gap: 10px; /* Tighter gap on mobile */
             }
             
             /* FIXED: 2x2 Grid for Mobile Actions */
