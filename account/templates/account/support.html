@@ -431,10 +431,12 @@
         const chatBody = document.getElementById('chatWindow');
 
         // --- STATE MANAGEMENT ---
-        // We bind state to the SESSION ID. If session ID changes (timeout), state resets to default.
         const activeSessionId = "{{ active_session.id }}";
         const storageKey = 'veltris_mode_' + activeSessionId; 
         
+        // LOCK FLAG: Prevents polling while page is preparing to reload
+        let isReloading = false; 
+
         const savedState = localStorage.getItem(storageKey);
         
         if (savedState === 'human') {
@@ -457,12 +459,25 @@
             return history;
         }
 
+        // Updated to return the Message ID to prevent polling duplicates
         async function saveToDatabase(text, isBot) {
             const formData = new FormData();
             formData.append('message', text);
             formData.append('csrfmiddlewaretoken', '{{ csrf_token }}');
             if (isBot) formData.append('is_bot', 'true');
-            try { await fetch("{% url 'support' %}", { method: 'POST', body: formData, headers: { 'X-Requested-With': 'XMLHttpRequest' } }); } catch (e) { console.error(e); }
+            
+            try { 
+                const response = await fetch("{% url 'support' %}", { 
+                    method: 'POST', 
+                    body: formData, 
+                    headers: { 'X-Requested-With': 'XMLHttpRequest' } 
+                });
+                const data = await response.json();
+                return data.id; // Return ID
+            } catch (e) { 
+                console.error(e); 
+                return 0;
+            }
         }
 
         function appendMessage(text, type) {
@@ -482,6 +497,9 @@
             chatBody.appendChild(row);
             chatBody.scrollTop = chatBody.scrollHeight;
         }
+        
+        // --- POLLING VARIABLE ---
+        let lastMessageId = "{{ messages.last.id|default:0 }}";
 
         // --- SUBMISSION LOGIC ---
         chatForm.addEventListener('submit', async function(e) {
@@ -499,7 +517,6 @@
                 try {
                     const history = getConversationHistory();
                     
-                    // Invisible Prompt (Never mentions AI to user)
                     const prompt = `
                         You are Veltris Bank Support. 
                         
@@ -524,7 +541,8 @@
 
                     if (aiText.includes("[CONNECT_AGENT]")) {
                         // --- HANDOFF TRIGGER ---
-                        
+                        isReloading = true; // Lock polling immediately
+
                         // 1. Lock to Human Mode for THIS SESSION
                         localStorage.setItem(storageKey, 'human');
                         aiToggle.checked = false; 
@@ -534,16 +552,19 @@
                         const displayMsg = finalMessage.length > 0 ? finalMessage : "I am connecting you to a Senior Agent immediately. Please stand by.";
 
                         appendMessage(displayMsg, 'bot');
-                        await saveToDatabase(displayMsg, true); 
                         
-                        // 3. Reload to sync with Admin Dashboard
-                        // Increased delay to 3.5s to ensure user reads the message
+                        // 3. Save to DB & Update ID to prevent Duplicate
+                        const savedId = await saveToDatabase(displayMsg, true); 
+                        if(savedId) lastMessageId = savedId;
+                        
+                        // 4. Reload to sync with Admin Dashboard (3.5s delay)
                         setTimeout(() => window.location.reload(), 3500);
 
                     } else {
                         // --- NORMAL AI REPLY ---
                         appendMessage(aiText, 'bot');
-                        await saveToDatabase(aiText, true);
+                        const savedId = await saveToDatabase(aiText, true);
+                        if(savedId) lastMessageId = savedId; // Update ID
                     }
 
                 } catch (error) {
@@ -558,10 +579,9 @@
         });
 
         // --- POLLING ---
-        let lastMessageId = "{{ messages.last.id|default:0 }}";
         setInterval(() => {
-            // Only poll if waiting for human (AI OFF) to save resources
-            if (aiToggle.checked) return;
+            // Stop polling if AI is ON --OR-- if we are about to reload
+            if (aiToggle.checked || isReloading) return;
 
             fetch(`/api/messages/?last_id=${lastMessageId}`)
             .then(res => res.json())
