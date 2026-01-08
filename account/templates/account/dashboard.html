@@ -120,12 +120,18 @@
         .bal-label { font-size: 13px; font-weight: 500; opacity: 0.8; margin-bottom: 10px; text-transform: uppercase; letter-spacing: 1px; }
         .bal-amount-wrapper { display: flex; align-items: center; gap: 15px; }
         .bal-amount { 
-            /* clamp(min, preferred, max) scales font automatically */
-            font-size: clamp(28px, 5vw, 42px); 
+            /* Dynamic Sizing: Scales between 24px and 42px based on screen width */
+            font-size: clamp(24px, 6vw, 42px); 
             font-weight: 700; 
             letter-spacing: -1px; 
-            font-family: 'Inter', sans-serif; 
-            max-width: 100%; /* Ensures it respects container width */
+            font-family: 'Inter', sans-serif;
+            
+            /* Force Single Line Logic */
+            white-space: nowrap;      /* Never wrap to a second line */
+            overflow: hidden;         /* Hide spillover */
+            text-overflow: ellipsis;  /* Add '...' if it's physically impossible to fit (e.g. Trillions) */
+            max-width: 100%;          /* Ensure it respects the card width */
+            display: block;           /* Necessary for text-overflow to work */
         }
         .bal-amount.blurred { filter: blur(12px); user-select: none; opacity: 0.6; }
         
@@ -356,18 +362,22 @@
             .right-col { display: flex; flex-direction: column; margin-top: 30px; } /* FORCE WIDGETS VISIBLE */
             
             .balance-card { padding: 30px 20px; }
-            
-            /* FIXED: Correct class name + Word Wrap logic */
+
+            /* FIXED: Single line only + Dynamic Shrinking */
             .bal-amount { 
-                font-size: 28px; 
-                word-break: break-all; /* Forces long numbers to wrap to next line */
-                line-height: 1.2;      /* Spacing between wrapped lines */
-                white-space: normal;   /* Allows text to wrap */
+                /* Dynamically shrink font: Min 22px, Preferred 7vw, Max 32px */
+                font-size: clamp(22px, 7vw, 32px);
+                white-space: nowrap;      /* FORCE single line */
+                overflow: hidden;         /* Hide spillover */
+                text-overflow: ellipsis;  /* Add '...' if it physically cannot fit */
+                display: block;
+                max-width: 100%;
             }
-            
-            /* Allow the eye icon to sit next to it or wrap if needed */
+
+            /* Keep eye icon centered vertically */
             .bal-amount-wrapper {
-                align-items: flex-start; /* Aligns text to top if it wraps */
+                align-items: center; 
+                width: 100%;
             }
             
             /* FIXED: 2x2 Grid for Mobile Actions */
