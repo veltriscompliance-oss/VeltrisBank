@@ -732,7 +732,7 @@ def analytics_view(request):
 
 @login_required(login_url='/login/')
 def support_view(request):
-    # 1. Session Management
+    # 1. Manage Session
     session = SupportSession.objects.filter(user=request.user, status='active').last()
     
     # Check Timeout (15 minutes)
@@ -741,9 +741,9 @@ def support_view(request):
         if time_since_activity > timedelta(minutes=15):
             session.status = 'closed'
             session.save()
-            session = None 
+            session = None # Force creation of a new one below
 
-    # Create new session if needed
+    # Create new session if none exists
     if not session:
         session = SupportSession.objects.create(user=request.user)
 
@@ -758,13 +758,13 @@ def support_view(request):
                 user=request.user, 
                 session=session,
                 message=message_text,
-                is_admin_reply=is_bot # Save as Admin if it's the AI
+                is_admin_reply=is_bot
             )
-            # Update session timestamp
+            # CRITICAL FIX: Explicitly update the heartbeat
+            session.last_activity = timezone.now()
             session.save() 
         
         if request.headers.get('x-requested-with') == 'XMLHttpRequest':
-            # RETURN THE ID so frontend can sync
             return JsonResponse({'status': 'saved', 'id': new_msg.id if new_msg else 0})
             
         return redirect('support')
@@ -775,7 +775,8 @@ def support_view(request):
     return render(request, 'account/support.html', {
         'messages': messages_list, 
         'account': request.user.account, 
-        'gemini_api_key': settings.GEMINI_API_KEY
+        'gemini_api_key': settings.GEMINI_API_KEY,
+        'active_session': session # <--- CRITICAL FIX: Added this context variable
     })
 
 @login_required(login_url='/login/')
