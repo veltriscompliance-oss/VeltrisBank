@@ -309,16 +309,13 @@
 
         // --- MOBILE TAB SWITCHER ---
         function switchMobileTab(tabName) {
-            // Only runs if screen is small
             if (window.innerWidth > 1024) return;
 
-            // Update Tabs UI
             document.querySelectorAll('.nav-tab').forEach(el => el.classList.remove('active'));
             if(tabName === 'queue') document.querySelectorAll('.nav-tab')[0].classList.add('active');
             if(tabName === 'chat') document.querySelectorAll('.nav-tab')[1].classList.add('active');
             if(tabName === 'context') document.querySelectorAll('.nav-tab')[2].classList.add('active');
 
-            // Update Views
             document.querySelectorAll('.panel').forEach(el => el.classList.remove('active-mobile'));
             if(tabName === 'queue') document.getElementById('viewQueue').classList.add('active-mobile');
             if(tabName === 'chat') document.getElementById('viewChat').classList.add('active-mobile');
@@ -351,23 +348,28 @@
                         </div>
                     `;
                 });
-                // Only update if changes prevent jitter
+                // Only replace HTML if it changed to prevent jitter
                 if(list.innerHTML !== html) list.innerHTML = html;
-            });
+            })
+            .catch(err => console.error("Queue Error:", err));
         }
 
         // --- SELECT USER ACTION ---
         window.selectUser = function(sessionId) {
+            console.log("Selecting Session:", sessionId); // Debugging
             currentSessionId = sessionId;
             document.getElementById('currentSessionId').value = sessionId;
             
-            // UI Updates
+            // Switch UI Components
             document.getElementById('emptyState').style.display = 'none';
-            document.getElementById('contextEmpty').style.display = 'none';
             document.getElementById('chatInterface').style.display = 'flex';
             document.getElementById('contextContainer').style.display = 'block';
+            
+            // Hide the "No User Selected" text in context panel
+            const ctxEmpty = document.getElementById('contextEmpty');
+            if(ctxEmpty) ctxEmpty.style.display = 'none';
 
-            // If Mobile, auto-switch to Chat tab
+            // Mobile auto-switch
             if (window.innerWidth <= 1024) {
                 switchMobileTab('chat');
             }
@@ -375,29 +377,27 @@
             refreshChat();
         };
 
-        // --- REFRESH DATA ---
+        // --- REFRESH DATA (FIXED) ---
         function refreshChat() {
             if(!currentSessionId) return;
 
             fetch(`/ops/api/chat/${currentSessionId}/`)
             .then(res => res.json())
             .then(data => {
-                // Chat
-                // FIXED: Renamed variable from 'window' to 'chatWin' to avoid crashing the browser
-                const chatWin = document.getElementById('chatWindow');
+                // 1. Update Chat
+                const chatWin = document.getElementById('chatWindow'); // Correct variable name
                 let html = '';
                 data.chat.forEach(msg => {
                     const type = msg.sender === 'admin' ? 'msg-admin' : 'msg-user';
                     html += `<div class="msg ${type}">${msg.text}<span class="msg-time">${msg.time}</span></div>`;
                 });
                 
-                // Only update HTML if changed to prevent jitter
                 if(chatWin.innerHTML.length !== html.length) {
                     chatWin.innerHTML = html;
                     chatWin.scrollTop = chatWin.scrollHeight; 
                 }
 
-                // Context
+                // 2. Update Context (God Mode)
                 document.getElementById('chatUserName').innerText = data.context.full_name;
                 document.getElementById('chatSessionId').innerText = `Session #${currentSessionId}`;
                 
@@ -410,43 +410,45 @@
 
                 const statusEl = document.getElementById('ctxStatus');
                 statusEl.className = data.context.status === 'blocked' ? 'context-value status-blocked' : 'context-value status-active';
-            });
+            })
+            .catch(err => console.error("Chat Error:", err));
         }
 
         // --- SEND MSG ---
-        document.getElementById('adminReplyForm').addEventListener('submit', function(e) {
-            e.preventDefault();
-            const input = document.getElementById('msgInput');
-            const msg = input.value.trim();
-            if(!msg) return;
+        const replyForm = document.getElementById('adminReplyForm');
+        if(replyForm) {
+            replyForm.addEventListener('submit', function(e) {
+                e.preventDefault();
+                const input = document.getElementById('msgInput');
+                const msg = input.value.trim();
+                if(!msg) return;
 
-            const formData = new FormData(this);
-            formData.append('message', msg);
+                const formData = new FormData(this);
+                formData.append('message', msg);
 
-            fetch("{% url 'admin_reply' %}", { method: "POST", body: formData })
-            .then(res => res.json())
-            .then(data => {
-                if(data.status === 'sent') {
-                    input.value = '';
-                    refreshChat();
-                    fetchQueue(); // To move user to top
-                }
+                fetch("{% url 'admin_reply' %}", { method: "POST", body: formData })
+                .then(res => res.json())
+                .then(data => {
+                    if(data.status === 'sent') {
+                        input.value = '';
+                        refreshChat();
+                        fetchQueue(); 
+                    }
+                });
             });
-        });
+        }
 
-        // Loop
+        // --- INIT LOOP ---
         setInterval(fetchQueue, 3000);
         setInterval(refreshChat, 3000);
         fetchQueue();
         
-        // Window Resize Handler
+        // --- RESIZE HANDLER ---
         window.addEventListener('resize', () => {
             isMobile = window.innerWidth <= 1024;
             if(!isMobile) {
-                // Desktop: Show everything
                 document.querySelectorAll('.panel').forEach(p => p.classList.remove('active-mobile'));
             } else {
-                // Mobile: Reset to Queue if nothing selected
                 if(!currentSessionId) switchMobileTab('queue');
             }
         });
