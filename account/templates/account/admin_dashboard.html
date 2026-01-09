@@ -383,7 +383,8 @@
             .then(res => res.json())
             .then(data => {
                 // Chat
-                const window = document.getElementById('chatWindow');
+                // FIXED: Renamed variable from 'window' to 'chatWin' to avoid crashing the browser
+                const chatWin = document.getElementById('chatWindow');
                 let html = '';
                 data.chat.forEach(msg => {
                     const type = msg.sender === 'admin' ? 'msg-admin' : 'msg-user';
@@ -391,9 +392,9 @@
                 });
                 
                 // Only update HTML if changed to prevent jitter
-                if(window.innerHTML.length !== html.length) {
-                    window.innerHTML = html;
-                    window.scrollTop = window.scrollHeight; 
+                if(chatWin.innerHTML.length !== html.length) {
+                    chatWin.innerHTML = html;
+                    chatWin.scrollTop = chatWin.scrollHeight; 
                 }
 
                 // Context
