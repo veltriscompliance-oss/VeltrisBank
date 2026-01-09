@@ -18,8 +18,6 @@
             --accent: #3b82f6;
             --danger: #ef4444;
             --success: #10b981;
-            
-            /* Safe Area for iPhones */
             --safe-area-bottom: env(safe-area-inset-bottom);
         }
 
@@ -31,7 +29,7 @@
             color: var(--text-main);
             font-family: 'Inter', sans-serif;
             height: 100vh;
-            height: 100dvh; /* Dynamic height for mobile browsers */
+            height: 100dvh;
             overflow: hidden;
             display: flex;
             flex-direction: column;
@@ -106,7 +104,6 @@
             display: flex; 
             flex-direction: column; 
             gap: 15px;
-            /* Smooth scrolling */
             scroll-behavior: smooth;
             -webkit-overflow-scrolling: touch; 
         }
@@ -123,7 +120,7 @@
         }
         .admin-input { 
             width: 100%; background: #0f172a; border: 1px solid var(--border); color: white; 
-            padding: 12px 15px; border-radius: 20px; font-family: 'Inter'; font-size: 16px; /* 16px prevents zoom on iOS */
+            padding: 12px 15px; border-radius: 20px; font-family: 'Inter'; font-size: 16px; 
             outline: none; 
         }
         .admin-input:focus { border-color: var(--accent); }
@@ -159,39 +156,25 @@
         .nav-tab.active { color: var(--accent); }
         .nav-tab svg { width: 24px; height: 24px; }
 
-        /* --- MOBILE RESPONSIVE LOGIC --- */
+        /* --- NUCLEAR MOBILE RESPONSIVE LOGIC --- */
         @media (max-width: 1024px) {
             .ops-grid {
-                display: block; /* Stack/Show-Hide instead of Grid */
-                /* Height calculation: 100dvh - TopNav(60) - BottomNav(60) */
+                display: block; /* Stack */
                 height: calc(100dvh - 120px); 
             }
 
             /* Show Bottom Nav */
             .mobile-nav { display: flex; }
 
-            /* 1. Queue Panel (Visible by default) */
-            .panel-queue {
-                width: 100%; height: 100%;
-                display: flex; /* Shown */
-            }
-
-            /* 2. Chat Panel (Hidden by default, Full screen when active) */
-            .panel-chat {
-                width: 100%; height: 100%;
-                display: none; /* Hidden */
-            }
-
-            /* 3. Context Panel (Hidden by default) */
-            .panel-context {
-                width: 100%; height: 100%;
-                display: none; /* Hidden */
-            }
+            /* By default, hide everything except based on class */
+            .panel { display: none !important; width: 100%; height: 100%; border: none; }
             
-            /* Active Mobile States */
+            /* The Active Panel gets forced display flex */
             .panel.active-mobile { display: flex !important; }
-            
-            /* Mobile Specific Header Buttons */
+
+            /* Make Queue default if JS fails */
+            .panel-queue { display: flex; }
+
             .mobile-header-btn { display: block; }
         }
     </style>
@@ -234,7 +217,7 @@
                         <div class="chat-session-id" id="chatSessionId">--</div>
                     </div>
                     <!-- Quick Info Button for Mobile -->
-                    <button class="mobile-header-btn" onclick="switchMobileTab('context')">Details ></button>
+                    <button class="mobile-header-btn" onclick="switchMobileTab('context')">Info ></button>
                 </div>
                 
                 <div class="chat-window" id="chatWindow"></div>
@@ -306,44 +289,37 @@
     <script>
         let currentSessionId = null;
         
-        // CRITICAL: Sync this with your CSS Media Query (900px)
-        const MOBILE_BREAKPOINT = 900; 
-
-        function isMobileView() {
-            return window.innerWidth <= MOBILE_BREAKPOINT;
+        // --- MOBILE DETECT ---
+        function isMobile() {
+            return window.innerWidth <= 1024;
         }
 
-        // --- MOBILE TAB SWITCHER ---
+        // --- MOBILE TAB SWITCHER (NUCLEAR OPTION) ---
         function switchMobileTab(tabName) {
-            // Update the Bottom Navigation Icons
+            if (!isMobile()) return;
+
+            // 1. Reset Tabs
             document.querySelectorAll('.nav-tab').forEach(el => el.classList.remove('active'));
             
-            // Highlight the correct icon based on tab name
-            if(tabName === 'queue') {
-                document.querySelectorAll('.nav-tab')[0].classList.add('active');
-            } else if(tabName === 'chat') {
-                document.querySelectorAll('.nav-tab')[1].classList.add('active');
-            } else if(tabName === 'context') {
-                document.querySelectorAll('.nav-tab')[2].classList.add('active');
-            }
+            // 2. Highlight Tab
+            if(tabName === 'queue') document.querySelectorAll('.nav-tab')[0].classList.add('active');
+            if(tabName === 'chat') document.querySelectorAll('.nav-tab')[1].classList.add('active');
+            if(tabName === 'context') document.querySelectorAll('.nav-tab')[2].classList.add('active');
 
-            // Hide ALL panels first
-            document.querySelectorAll('.panel').forEach(el => {
-                el.classList.remove('active-mobile');
-                // Force hide to be sure
-                if(isMobileView()) el.style.display = 'none'; 
-            });
+            // 3. NUCLEAR VIEW SWITCHING
+            // Force hide everything
+            const q = document.getElementById('viewQueue');
+            const c = document.getElementById('viewChat');
+            const x = document.getElementById('viewContext');
 
-            // Show ONLY the target panel
-            let targetPanel;
-            if(tabName === 'queue') targetPanel = document.getElementById('viewQueue');
-            if(tabName === 'chat') targetPanel = document.getElementById('viewChat');
-            if(tabName === 'context') targetPanel = document.getElementById('viewContext');
+            q.classList.remove('active-mobile');
+            c.classList.remove('active-mobile');
+            x.classList.remove('active-mobile');
 
-            if(targetPanel) {
-                targetPanel.classList.add('active-mobile');
-                if(isMobileView()) targetPanel.style.display = 'flex'; // Force show
-            }
+            // Force show specific
+            if(tabName === 'queue') q.classList.add('active-mobile');
+            if(tabName === 'chat') c.classList.add('active-mobile');
+            if(tabName === 'context') x.classList.add('active-mobile');
         }
 
         // --- FETCH QUEUE ---
@@ -359,9 +335,9 @@
                     const isActive = item.session_id == currentSessionId ? 'active' : '';
                     const alertBadge = item.is_blocked ? '<span class="badge-blocked">BLOCKED</span>' : '';
                     const waitBadge = item.is_waiting ? '<span class="badge-new"></span>' : '';
-                    // Handle missing avatar
                     const avatar = item.avatar_url ? `<img src="${item.avatar_url}" class="q-avatar">` : `<div class="q-avatar">${item.username[0]}</div>`;
                     
+                    // Added safe-click handler
                     html += `
                         <div class="queue-item ${isActive}" onclick="selectUser(${item.session_id})">
                             ${avatar}
@@ -378,25 +354,23 @@
             .catch(err => console.error("Queue Error:", err));
         }
 
-        // --- SELECT USER ACTION (THE FIX) ---
+        // --- SELECT USER ACTION ---
         window.selectUser = function(sessionId) {
+            console.log("Selecting User:", sessionId);
             currentSessionId = sessionId;
             document.getElementById('currentSessionId').value = sessionId;
             
-            // 1. Unhide the Chat Interface parts
+            // UI Updates
             document.getElementById('emptyState').style.display = 'none';
+            document.getElementById('contextEmpty').style.display = 'none';
             document.getElementById('chatInterface').style.display = 'flex';
-            
-            const contextEmpty = document.getElementById('contextEmpty');
-            if(contextEmpty) contextEmpty.style.display = 'none';
             document.getElementById('contextContainer').style.display = 'block';
 
-            // 2. CRITICAL MOBILE FIX: Force switch to Chat Tab
-            if (isMobileView()) {
+            // FORCE MOBILE SWITCH
+            if (isMobile()) {
                 switchMobileTab('chat');
             }
 
-            // 3. Load Data
             refreshChat();
         };
 
@@ -407,7 +381,7 @@
             fetch(`/ops/api/chat/${currentSessionId}/`)
             .then(res => res.json())
             .then(data => {
-                // UPDATE CHAT
+                // CHAT
                 const chatWin = document.getElementById('chatWindow');
                 let html = '';
                 data.chat.forEach(msg => {
@@ -415,81 +389,62 @@
                     html += `<div class="msg ${type}">${msg.text}<span class="msg-time">${msg.time}</span></div>`;
                 });
                 
-                // Prevent jitter
                 if(chatWin.innerHTML.length !== html.length) {
                     chatWin.innerHTML = html;
                     chatWin.scrollTop = chatWin.scrollHeight; 
                 }
 
-                // UPDATE CONTEXT
+                // CONTEXT
                 document.getElementById('chatUserName').innerText = data.context.full_name;
                 document.getElementById('chatSessionId').innerText = `Session #${currentSessionId}`;
                 
                 document.getElementById('ctxBalance').innerText = data.context.balance;
                 document.getElementById('ctxCurrency').innerText = data.context.currency;
+                document.getElementById('ctxStatus').innerText = data.context.status.toUpperCase();
                 document.getElementById('ctxName').innerText = data.context.full_name;
                 document.getElementById('ctxEmail').innerText = data.context.email;
                 document.getElementById('ctxAccNum').innerText = data.context.account_number;
 
                 const statusEl = document.getElementById('ctxStatus');
-                if(statusEl) {
-                    statusEl.innerText = data.context.status.toUpperCase();
-                    statusEl.className = data.context.status === 'blocked' ? 'context-value status-blocked' : 'context-value status-active';
-                }
-            })
-            .catch(err => console.error("Chat Error:", err));
-        }
-
-        // --- SEND MSG ---
-        const replyForm = document.getElementById('adminReplyForm');
-        if(replyForm) {
-            replyForm.addEventListener('submit', function(e) {
-                e.preventDefault();
-                const input = document.getElementById('msgInput');
-                const msg = input.value.trim();
-                if(!msg) return;
-
-                const formData = new FormData(this);
-                formData.append('message', msg);
-
-                fetch("{% url 'admin_reply' %}", { method: "POST", body: formData })
-                .then(res => res.json())
-                .then(data => {
-                    if(data.status === 'sent') {
-                        input.value = '';
-                        refreshChat();
-                        fetchQueue();
-                    }
-                });
+                statusEl.className = data.context.status === 'blocked' ? 'context-value status-blocked' : 'context-value status-active';
             });
         }
 
-        // --- INIT LOOP ---
+        // --- SEND MSG ---
+        document.getElementById('adminReplyForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const input = document.getElementById('msgInput');
+            const msg = input.value.trim();
+            if(!msg) return;
+
+            const formData = new FormData(this);
+            formData.append('message', msg);
+
+            fetch("{% url 'admin_reply' %}", { method: "POST", body: formData })
+            .then(res => res.json())
+            .then(data => {
+                if(data.status === 'sent') {
+                    input.value = '';
+                    refreshChat();
+                    fetchQueue();
+                }
+            });
+        });
+
+        // --- INIT ---
         setInterval(fetchQueue, 3000);
         setInterval(refreshChat, 3000);
         fetchQueue();
         
-        // --- RESIZE HANDLER ---
-        // Ensures desktop view is restored if user rotates screen or resizes window
         window.addEventListener('resize', () => {
-            if(!isMobileView()) {
-                // Desktop: Reset styles so grid takes over
-                document.querySelectorAll('.panel').forEach(el => {
-                    el.classList.remove('active-mobile');
-                    el.style.display = ''; // Clear inline styles
+            if(!isMobile()) {
+                // Reset styling for desktop
+                document.querySelectorAll('.panel').forEach(p => {
+                    p.style.display = ''; 
+                    p.classList.remove('active-mobile');
                 });
-            } else {
-                // Mobile: If no tab is active, default to Queue
-                if(!document.querySelector('.active-mobile')) {
-                    switchMobileTab('queue');
-                }
             }
         });
-
-        // Initial check for mobile
-        if(isMobileView()) {
-            switchMobileTab('queue');
-        }
 
     </script>
 </body>
