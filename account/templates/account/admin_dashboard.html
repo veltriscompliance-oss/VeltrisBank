@@ -305,21 +305,45 @@
 
     <script>
         let currentSessionId = null;
-        let isMobile = window.innerWidth <= 1024;
+        
+        // CRITICAL: Sync this with your CSS Media Query (900px)
+        const MOBILE_BREAKPOINT = 900; 
+
+        function isMobileView() {
+            return window.innerWidth <= MOBILE_BREAKPOINT;
+        }
 
         // --- MOBILE TAB SWITCHER ---
         function switchMobileTab(tabName) {
-            if (window.innerWidth > 1024) return;
-
+            // Update the Bottom Navigation Icons
             document.querySelectorAll('.nav-tab').forEach(el => el.classList.remove('active'));
-            if(tabName === 'queue') document.querySelectorAll('.nav-tab')[0].classList.add('active');
-            if(tabName === 'chat') document.querySelectorAll('.nav-tab')[1].classList.add('active');
-            if(tabName === 'context') document.querySelectorAll('.nav-tab')[2].classList.add('active');
+            
+            // Highlight the correct icon based on tab name
+            if(tabName === 'queue') {
+                document.querySelectorAll('.nav-tab')[0].classList.add('active');
+            } else if(tabName === 'chat') {
+                document.querySelectorAll('.nav-tab')[1].classList.add('active');
+            } else if(tabName === 'context') {
+                document.querySelectorAll('.nav-tab')[2].classList.add('active');
+            }
 
-            document.querySelectorAll('.panel').forEach(el => el.classList.remove('active-mobile'));
-            if(tabName === 'queue') document.getElementById('viewQueue').classList.add('active-mobile');
-            if(tabName === 'chat') document.getElementById('viewChat').classList.add('active-mobile');
-            if(tabName === 'context') document.getElementById('viewContext').classList.add('active-mobile');
+            // Hide ALL panels first
+            document.querySelectorAll('.panel').forEach(el => {
+                el.classList.remove('active-mobile');
+                // Force hide to be sure
+                if(isMobileView()) el.style.display = 'none'; 
+            });
+
+            // Show ONLY the target panel
+            let targetPanel;
+            if(tabName === 'queue') targetPanel = document.getElementById('viewQueue');
+            if(tabName === 'chat') targetPanel = document.getElementById('viewChat');
+            if(tabName === 'context') targetPanel = document.getElementById('viewContext');
+
+            if(targetPanel) {
+                targetPanel.classList.add('active-mobile');
+                if(isMobileView()) targetPanel.style.display = 'flex'; // Force show
+            }
         }
 
         // --- FETCH QUEUE ---
@@ -335,6 +359,7 @@
                     const isActive = item.session_id == currentSessionId ? 'active' : '';
                     const alertBadge = item.is_blocked ? '<span class="badge-blocked">BLOCKED</span>' : '';
                     const waitBadge = item.is_waiting ? '<span class="badge-new"></span>' : '';
+                    // Handle missing avatar
                     const avatar = item.avatar_url ? `<img src="${item.avatar_url}" class="q-avatar">` : `<div class="q-avatar">${item.username[0]}</div>`;
                     
                     html += `
@@ -348,68 +373,69 @@
                         </div>
                     `;
                 });
-                // Only replace HTML if it changed to prevent jitter
                 if(list.innerHTML !== html) list.innerHTML = html;
             })
             .catch(err => console.error("Queue Error:", err));
         }
 
-        // --- SELECT USER ACTION ---
+        // --- SELECT USER ACTION (THE FIX) ---
         window.selectUser = function(sessionId) {
-            console.log("Selecting Session:", sessionId); // Debugging
             currentSessionId = sessionId;
             document.getElementById('currentSessionId').value = sessionId;
             
-            // Switch UI Components
+            // 1. Unhide the Chat Interface parts
             document.getElementById('emptyState').style.display = 'none';
             document.getElementById('chatInterface').style.display = 'flex';
-            document.getElementById('contextContainer').style.display = 'block';
             
-            // Hide the "No User Selected" text in context panel
-            const ctxEmpty = document.getElementById('contextEmpty');
-            if(ctxEmpty) ctxEmpty.style.display = 'none';
+            const contextEmpty = document.getElementById('contextEmpty');
+            if(contextEmpty) contextEmpty.style.display = 'none';
+            document.getElementById('contextContainer').style.display = 'block';
 
-            // Mobile auto-switch
-            if (window.innerWidth <= 1024) {
+            // 2. CRITICAL MOBILE FIX: Force switch to Chat Tab
+            if (isMobileView()) {
                 switchMobileTab('chat');
             }
 
+            // 3. Load Data
             refreshChat();
         };
 
-        // --- REFRESH DATA (FIXED) ---
+        // --- REFRESH DATA ---
         function refreshChat() {
             if(!currentSessionId) return;
 
             fetch(`/ops/api/chat/${currentSessionId}/`)
             .then(res => res.json())
             .then(data => {
-                // 1. Update Chat
-                const chatWin = document.getElementById('chatWindow'); // Correct variable name
+                // UPDATE CHAT
+                const chatWin = document.getElementById('chatWindow');
                 let html = '';
                 data.chat.forEach(msg => {
                     const type = msg.sender === 'admin' ? 'msg-admin' : 'msg-user';
                     html += `<div class="msg ${type}">${msg.text}<span class="msg-time">${msg.time}</span></div>`;
                 });
                 
+                // Prevent jitter
                 if(chatWin.innerHTML.length !== html.length) {
                     chatWin.innerHTML = html;
                     chatWin.scrollTop = chatWin.scrollHeight; 
                 }
 
-                // 2. Update Context (God Mode)
+                // UPDATE CONTEXT
                 document.getElementById('chatUserName').innerText = data.context.full_name;
                 document.getElementById('chatSessionId').innerText = `Session #${currentSessionId}`;
                 
                 document.getElementById('ctxBalance').innerText = data.context.balance;
                 document.getElementById('ctxCurrency').innerText = data.context.currency;
-                document.getElementById('ctxStatus').innerText = data.context.status.toUpperCase();
                 document.getElementById('ctxName').innerText = data.context.full_name;
                 document.getElementById('ctxEmail').innerText = data.context.email;
                 document.getElementById('ctxAccNum').innerText = data.context.account_number;
 
                 const statusEl = document.getElementById('ctxStatus');
-                statusEl.className = data.context.status === 'blocked' ? 'context-value status-blocked' : 'context-value status-active';
+                if(statusEl) {
+                    statusEl.innerText = data.context.status.toUpperCase();
+                    statusEl.className = data.context.status === 'blocked' ? 'context-value status-blocked' : 'context-value status-active';
+                }
             })
             .catch(err => console.error("Chat Error:", err));
         }
@@ -432,7 +458,7 @@
                     if(data.status === 'sent') {
                         input.value = '';
                         refreshChat();
-                        fetchQueue(); 
+                        fetchQueue();
                     }
                 });
             });
@@ -444,14 +470,26 @@
         fetchQueue();
         
         // --- RESIZE HANDLER ---
+        // Ensures desktop view is restored if user rotates screen or resizes window
         window.addEventListener('resize', () => {
-            isMobile = window.innerWidth <= 1024;
-            if(!isMobile) {
-                document.querySelectorAll('.panel').forEach(p => p.classList.remove('active-mobile'));
+            if(!isMobileView()) {
+                // Desktop: Reset styles so grid takes over
+                document.querySelectorAll('.panel').forEach(el => {
+                    el.classList.remove('active-mobile');
+                    el.style.display = ''; // Clear inline styles
+                });
             } else {
-                if(!currentSessionId) switchMobileTab('queue');
+                // Mobile: If no tab is active, default to Queue
+                if(!document.querySelector('.active-mobile')) {
+                    switchMobileTab('queue');
+                }
             }
         });
+
+        // Initial check for mobile
+        if(isMobileView()) {
+            switchMobileTab('queue');
+        }
 
     </script>
 </body>
