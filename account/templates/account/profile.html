@@ -9,89 +9,101 @@
     <style>
         /* --- GLOBAL THEME VARIABLES --- */
         :root { 
-            --primary: #004d99; 
-            --light: #f4f6f8; 
-            --dark: #1a1a1a; 
-            --border: #e2e8f0; 
-            --card-bg: #ffffff;
-            --text-main: #1a1a1a;
-            --text-light: #64748b;
+            --bg-body: #f8fafc;
+            --bg-card: #ffffff;
+            --text-primary: #0f172a;
+            --text-secondary: #64748b;
+            --border-color: #e2e8f0;
+            --accent-color: #2563eb;
+            --accent-hover: #1d4ed8;
+            --success: #10b981;
+            --danger: #ef4444;
+            --warning: #f59e0b;
             --input-bg: #ffffff;
             --item-bg: #f8fafc;
         }
         
         /* DARK MODE OVERRIDES */
         body.dark-mode {
-            --light: #0f172a; 
-            --card-bg: #1e293b; 
-            --text-main: #f8fafc; 
-            --text-light: #94a3b8;
-            --border: #334155;
-            --dark: #f8fafc; 
+            --bg-body: #020617;
+            --bg-card: #0f172a;
+            --text-primary: #f8fafc;
+            --text-secondary: #94a3b8;
+            --border-color: #1e293b;
             --input-bg: #0f172a;
             --item-bg: #111827;
         }
 
         /* Specific Dark Mode Fixes */
-        body.dark-mode .sidebar { background: #1e293b; border-right: 1px solid #334155; }
-        body.dark-mode .menu-item { color: #94a3b8; }
-        body.dark-mode .menu-item:hover { background: #334155; }
-        body.dark-mode .profile-card { background: var(--card-bg); border-color: var(--border); }
-        body.dark-mode .info-item { background: var(--item-bg); border-color: var(--border); }
-        body.dark-mode .notif-dropdown { background: #1e293b; border: 1px solid #334155; }
-        body.dark-mode .notif-item { border-bottom: 1px solid #334155; }
-        body.dark-mode .notif-item:hover { background: #0f172a; }
-        body.dark-mode .notif-msg { color: #f8fafc; }
-        body.dark-mode .modal-content { background: var(--card-bg); }
-        body.dark-mode input { background: var(--input-bg); border-color: var(--border); color: white; }
+        body.dark-mode .sidebar { background: var(--bg-card); border-right: 1px solid var(--border-color); }
+        body.dark-mode .menu-item { color: var(--text-secondary); }
+        body.dark-mode .menu-item:hover { background: rgba(255,255,255,0.05); }
+        body.dark-mode .profile-card { background: var(--bg-card); border-color: var(--border-color); }
+        body.dark-mode .info-item { background: var(--item-bg); border-color: var(--border-color); }
+        body.dark-mode .notif-dropdown { background: var(--bg-card); border: 1px solid var(--border-color); }
+        body.dark-mode .notif-item { border-bottom: 1px solid var(--border-color); }
+        body.dark-mode .notif-item:hover { background: var(--bg-body); }
+        body.dark-mode .notif-msg { color: var(--text-primary); }
+        body.dark-mode .modal-content { background: var(--bg-card); }
+        body.dark-mode input { background: #172554; border-color: var(--border-color); color: white; }
         body.dark-mode .btn-edit { color: #60a5fa; border-color: #60a5fa; }
         body.dark-mode .btn-edit:hover { background: rgba(96, 165, 250, 0.1); }
+        body.dark-mode .btn-save { background: var(--accent-color); color: white; }
 
         * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
-        body { margin: 0; font-family: 'Inter', sans-serif; background-color: var(--light); color: var(--text-main); display: flex; height: 100vh; overflow: hidden; transition: 0.3s; }
+        body { margin: 0; font-family: 'Inter', sans-serif; background-color: var(--bg-body); color: var(--text-primary); display: flex; height: 100vh; overflow: hidden; transition: background-color 0.3s ease; }
         
-        /* SIDEBAR */
-        .sidebar { width: 260px; background: var(--card-bg); border-right: 1px solid var(--border); padding: 25px; display: flex; flex-direction: column; z-index: 2000; transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1); }
-        .brand { font-size: 22px; font-weight: 800; color: var(--primary); margin-bottom: 40px; display: flex; align-items: center; gap: 10px; }
-        .menu-item { color: var(--text-light); text-decoration: none; padding: 12px 15px; border-radius: 12px; font-size: 14px; font-weight: 500; display: flex; align-items: center; gap: 12px; margin-bottom: 5px; transition: 0.2s; }
+        /* SIDEBAR (With Hidden Scroll) */
+        .sidebar { width: 280px; background: var(--bg-card); border-right: 1px solid var(--border-color); padding: 30px 20px; display: flex; flex-direction: column; z-index: 2000; transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1); }
+        .brand { font-size: 22px; font-weight: 800; color: var(--text-primary); display: flex; align-items: center; gap: 10px; margin-bottom: 50px; padding-left: 10px; flex-shrink: 0; }
+        .brand-icon { width: 32px; height: 32px; background: var(--accent-color); border-radius: 8px; color: white; display: flex; align-items: center; justify-content: center; }
+        
+        /* Hidden Scrollbar Logic */
+        .menu-group { 
+            display: flex; flex-direction: column; gap: 5px; flex: 1; 
+            overflow-y: auto; 
+            scrollbar-width: none; 
+            -ms-overflow-style: none;
+        }
+        .menu-group::-webkit-scrollbar { display: none; }
+
+        .menu-item { display: flex; align-items: center; gap: 12px; padding: 12px 16px; color: var(--text-secondary); text-decoration: none; font-size: 14px; font-weight: 500; border-radius: 12px; transition: 0.2s; flex-shrink: 0; }
+        .menu-item:hover { background: rgba(37, 99, 235, 0.05); color: var(--accent-color); }
+        .menu-item.active { background: rgba(37, 99, 235, 0.1); color: var(--accent-color); font-weight: 600; }
         .menu-item svg { width: 20px; height: 20px; stroke-width: 2px; }
-        .menu-item:hover { background: var(--light); color: var(--primary); }
-        .menu-item.active { background: #eff6ff; color: var(--primary); font-weight: 600; }
-        /* Dark mode active fix */
-        body.dark-mode .menu-item.active { background: rgba(37, 99, 235, 0.2); color: #60a5fa; }
-        .sidebar-footer { margin-top: auto; border-top: 1px solid var(--border); padding-top: 20px; }
+        .sidebar-footer { margin-top: auto; border-top: 1px solid var(--border-color); padding-top: 20px; display: flex; flex-direction: column; gap: 5px; flex-shrink: 0; }
 
         .main { flex: 1; padding: 40px; overflow-y: auto; width: 100%; display: flex; flex-direction: column; align-items: center; position: relative; }
 
         /* HEADER */
-        .mobile-header { display: none; width: 100%; justify-content: space-between; align-items: center; margin-bottom: 25px; }
-        .nav-avatar { width: 40px; height: 40px; border-radius: 50%; object-fit: cover; border: 2px solid var(--card-bg); box-shadow: 0 2px 8px rgba(0,0,0,0.1); cursor: pointer; }
-        .icon-btn { background: var(--card-bg); width: 40px; height: 40px; border-radius: 50%; display: flex; align-items: center; justify-content: center; box-shadow: 0 2px 8px rgba(0,0,0,0.05); position: relative; cursor: pointer; color: var(--text-main); border: 1px solid var(--border); }
-        .notif-badge { position: absolute; top: 0; right: 0; background: #ef4444; color: white; width: 16px; height: 16px; border-radius: 50%; font-size: 10px; display: flex; align-items: center; justify-content: center; font-weight: bold; border: 2px solid var(--card-bg); }
+        .mobile-header { display: none; width: 100%; justify-content: space-between; align-items: center; margin-bottom: 25px; flex-shrink: 0; }
+        .nav-avatar { width: 40px; height: 40px; border-radius: 50% !important; object-fit: cover; border: 2px solid var(--border-color); cursor: pointer; }
+        .icon-btn { background: var(--bg-card); width: 40px; height: 40px; border-radius: 12px; display: flex; align-items: center; justify-content: center; box-shadow: 0 2px 8px rgba(0,0,0,0.05); position: relative; cursor: pointer; color: var(--text-primary); border: 1px solid var(--border-color); }
+        .notif-badge { position: absolute; top: 0; right: 0; background: #ef4444; color: white; width: 16px; height: 16px; border-radius: 50%; font-size: 10px; display: flex; align-items: center; justify-content: center; font-weight: bold; border: 2px solid var(--bg-card); }
 
-        .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px; width: 100%; max-width: 700px; }
-        .page-title { margin: 0; font-size: 24px; font-weight: 700; color: var(--text-main); }
-        .page-subtitle { color: var(--text-light); font-size: 13px; margin-top: 4px; }
+        .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px; width: 100%; max-width: 700px; flex-shrink: 0; }
+        .page-title { margin: 0; font-size: 24px; font-weight: 700; color: var(--text-primary); }
+        .page-subtitle { color: var(--text-secondary); font-size: 13px; margin-top: 4px; }
 
         /* PROFILE CARD */
         .profile-card { 
-            background: var(--card-bg); width: 100%; max-width: 700px; 
+            background: var(--bg-card); width: 100%; max-width: 700px; 
             border-radius: 24px; padding: 40px; 
             box-shadow: 0 10px 40px rgba(0,0,0,0.05); text-align: center;
-            border: 1px solid var(--border);
+            border: 1px solid var(--border-color);
         }
         
         .avatar-upload { position: relative; width: 110px; height: 110px; margin: 0 auto 20px; cursor: pointer; }
-        .avatar-img { width: 100%; height: 100%; border-radius: 50%; object-fit: cover; border: 4px solid var(--light); }
-        .avatar-placeholder { width: 100%; height: 100%; border-radius: 50%; background: #e2e8f0; display: flex; align-items: center; justify-content: center; font-size: 36px; color: #64748b; font-weight: bold; border: 4px solid white; }
+        .avatar-img { width: 100%; height: 100%; border-radius: 50%; object-fit: cover; border: 4px solid var(--bg-body); }
+        .avatar-placeholder { width: 100%; height: 100%; border-radius: 50%; background: #e2e8f0; display: flex; align-items: center; justify-content: center; font-size: 36px; color: #64748b; font-weight: bold; border: 4px solid var(--bg-body); }
         .camera-icon { 
-            position: absolute; bottom: 5px; right: 5px; background: var(--primary); color: white; 
+            position: absolute; bottom: 5px; right: 5px; background: var(--accent-color); color: white; 
             width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; 
-            justify-content: center; font-size: 16px; border: 3px solid white; box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+            justify-content: center; font-size: 16px; border: 3px solid var(--bg-card); box-shadow: 0 2px 5px rgba(0,0,0,0.2);
         }
 
-        .user-name { font-size: 26px; font-weight: 700; color: var(--text-main); margin-bottom: 5px; }
-        .user-handle { color: var(--text-light); font-size: 14px; margin-bottom: 15px; }
+        .user-name { font-size: 26px; font-weight: 700; color: var(--text-primary); margin-bottom: 5px; }
+        .user-handle { color: var(--text-secondary); font-size: 14px; margin-bottom: 15px; }
 
         /* BADGES */
         .badge { padding: 6px 16px; border-radius: 20px; font-size: 12px; font-weight: 600; display: inline-block; margin-bottom: 30px; letter-spacing: 0.5px; }
@@ -100,50 +112,51 @@
 
         /* EDIT BTN */
         .btn-edit {
-            background: transparent; color: var(--primary); border: 1px solid var(--primary);
+            background: transparent; color: var(--accent-color); border: 1px solid var(--accent-color);
             padding: 8px 16px; border-radius: 8px; font-size: 12px; font-weight: 600; cursor: pointer; margin-bottom: 30px;
             transition: 0.2s;
         }
-        .btn-edit:hover { background: #eff6ff; }
+        .btn-edit:hover { background: rgba(37, 99, 235, 0.1); }
 
         /* INFO GRID */
         .info-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; text-align: left; }
-        .info-item { padding: 20px; background: var(--item-bg); border-radius: 16px; border: 1px solid var(--border); transition: 0.2s; }
-        .info-item:hover { border-color: var(--primary); }
-        .label { font-size: 11px; text-transform: uppercase; color: var(--text-light); font-weight: 700; margin-bottom: 8px; letter-spacing: 0.5px; }
-        .value { font-size: 15px; font-weight: 600; color: var(--text-main); word-break: break-word; font-family: 'Inter', sans-serif; }
+        .info-item { padding: 20px; background: var(--item-bg); border-radius: 16px; border: 1px solid var(--border-color); transition: 0.2s; }
+        .info-item:hover { border-color: var(--accent-color); }
+        .label { font-size: 11px; text-transform: uppercase; color: var(--text-secondary); font-weight: 700; margin-bottom: 8px; letter-spacing: 0.5px; }
+        .value { font-size: 15px; font-weight: 600; color: var(--text-primary); word-break: break-word; font-family: 'Inter', sans-serif; }
         .mono { font-family: monospace; letter-spacing: 0.5px; }
         
         .value-green { color: #166534; }
         .value-orange { color: #854d0e; }
 
         /* NOTIFICATIONS */
-        .notif-dropdown { display: none; position: absolute; top: 60px; right: 20px; background: var(--card-bg); width: 320px; max-height: 400px; overflow-y: auto; box-shadow: 0 10px 40px rgba(0,0,0,0.15); border-radius: 16px; z-index: 3000; border: 1px solid var(--border); }
-        .notif-item { padding: 15px; border-bottom: 1px solid var(--border); transition: 0.2s; }
-        .notif-item:hover { background: var(--light); }
-        .notif-msg { font-size: 13px; color: var(--text-main); line-height: 1.4; }
-        .notif-time { font-size: 11px; color: var(--text-light); margin-top: 5px; }
+        .notif-dropdown { display: none; position: absolute; top: 60px; right: 20px; background: var(--bg-card); width: 320px; max-height: 400px; overflow-y: auto; box-shadow: 0 10px 40px rgba(0,0,0,0.15); border-radius: 16px; z-index: 3000; border: 1px solid var(--border-color); }
+        .notif-item { padding: 15px; border-bottom: 1px solid var(--border-color); transition: 0.2s; cursor: default; }
+        .notif-item:hover { background: var(--bg-body); }
+        .notif-msg { font-size: 13px; color: var(--text-primary); line-height: 1.4; }
+        .notif-time { font-size: 11px; color: var(--text-secondary); margin-top: 5px; }
 
         .overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 1500; backdrop-filter: blur(4px); transition: opacity 0.3s; }
 
         /* MODAL */
         .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); z-index: 5000; align-items: center; justify-content: center; backdrop-filter: blur(5px); }
-        .modal-content { background: var(--card-bg); padding: 40px; border-radius: 24px; width: 90%; max-width: 450px; text-align: center; position: relative; box-shadow: 0 20px 50px rgba(0,0,0,0.2); }
-        .close-btn { position: absolute; top: 20px; right: 20px; font-size: 24px; cursor: pointer; color: var(--text-light); line-height: 1; }
+        .modal-content { background: var(--bg-card); padding: 40px; border-radius: 24px; width: 90%; max-width: 450px; text-align: center; position: relative; box-shadow: 0 20px 50px rgba(0,0,0,0.2); }
+        .close-btn { position: absolute; top: 20px; right: 20px; font-size: 24px; cursor: pointer; color: var(--text-secondary); line-height: 1; }
         
-        .modal input { width: 100%; padding: 14px; border: 1px solid var(--border); border-radius: 10px; margin-bottom: 15px; font-family: 'Inter'; box-sizing: border-box; background: var(--input-bg); color: var(--text-main); }
-        .modal h2 { font-size: 22px; color: var(--text-main); margin-bottom: 20px; }
-        .btn-save { background: var(--primary); color: white; width: 100%; padding: 14px; border: none; border-radius: 10px; font-weight: 600; cursor: pointer; }
+        .modal input { width: 100%; padding: 14px; border: 1px solid var(--border-color); border-radius: 10px; margin-bottom: 15px; font-family: 'Inter'; box-sizing: border-box; background: var(--input-bg); color: var(--text-primary); }
+        .modal h2 { font-size: 22px; color: var(--text-primary); margin-bottom: 20px; }
+        .btn-save { background: var(--accent-color); color: white; width: 100%; padding: 14px; border: none; border-radius: 10px; font-weight: 600; cursor: pointer; }
 
         @media (max-width: 900px) {
-            .sidebar { position: fixed; left: -280px; top: 0; height: 100%; transition: 0.3s; }
-            .sidebar.active { transform: translateX(280px); }
+            .sidebar { position: fixed; left: 0; top: 0; height: 100%; transform: translateX(-100%); transition: 0.3s; box-shadow: none; }
+            .sidebar.active { transform: translateX(0); box-shadow: 10px 0 30px rgba(0,0,0,0.1); }
             .main { padding: 20px; }
             .mobile-header { display: flex; }
             .header { display: none; }
             .info-grid { grid-template-columns: 1fr; }
             .profile-card { padding: 25px; }
             .notif-dropdown { right: 20px; top: 70px; width: calc(100% - 40px); }
+            .nav-avatar { width: 40px !important; height: 40px !important; min-width: 40px !important; border: 2px solid var(--border-color); border-radius: 50% !important; }
         }
     </style>
 </head>
@@ -153,36 +166,50 @@
 
     <!-- SIDEBAR -->
     <div class="sidebar" id="sidebar">
-        <div class="brand"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg> VELTRIS</div>
+        <div class="brand">
+            <div class="brand-icon"><svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="3" viewBox="0 0 24 24"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg></div>
+            VELTRIS
+        </div>
+
         <div class="menu-group">
-            <a href="/dashboard/" class="menu-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"></rect><rect x="14" y="3" width="7" height="7"></rect><rect x="14" y="14" width="7" height="7"></rect><rect x="3" y="14" width="7" height="7"></rect></svg> Dashboard</a>
-            <a href="/transfer/" class="menu-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><line x1="7" y1="17" x2="17" y2="7"></line><polyline points="7 7 17 7 17 17"></polyline></svg> Transfers</a>
-            <a href="/cards/" class="menu-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><rect x="1" y="4" width="22" height="16" rx="2" ry="2"></rect><line x1="1" y1="10" x2="23" y2="10"></line></svg> Cards</a>
-            <a href="/pay-bills/" class="menu-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"></path></svg> Payments</a>
-             <a href="/loans/" class="menu-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path></svg> Credit & Loans</a>
-            <a href="/analytics/" class="menu-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M21.21 15.89A10 10 0 1 1 8 2.83"></path><path d="M22 12A10 10 0 0 0 12 2v10z"></path></svg> Insights</a>
+            <a href="/dashboard/" class="menu-item"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7"></rect><rect x="14" y="3" width="7" height="7"></rect><rect x="14" y="14" width="7" height="7"></rect><rect x="3" y="14" width="7" height="7"></rect></svg> Dashboard</a>
+            <a href="/transfer/" class="menu-item"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><line x1="7" y1="17" x2="17" y2="7"></line><polyline points="7 7 17 7 17 17"></polyline></svg> Transfers</a>
+            
+            <a href="/history/" class="menu-item">
+                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg> 
+                Transactions
+            </a>
+
+            <a href="/cards/" class="menu-item"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><rect x="1" y="4" width="22" height="16" rx="2" ry="2"></rect><line x1="1" y1="10" x2="23" y2="10"></line></svg> Cards</a>
+            <a href="/pay-bills/" class="menu-item"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"></path></svg> Payments</a>
+            <a href="/loans/" class="menu-item"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path></svg> Credit & Loans</a>
+            <a href="/analytics/" class="menu-item"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M21.21 15.89A10 10 0 1 1 8 2.83"></path><path d="M22 12A10 10 0 0 0 12 2v10z"></path></svg> Insights</a>
             <a href="/documents/" class="menu-item"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg> Statements</a>
         </div>
         <div class="sidebar-footer">
             <a href="/profile/" class="menu-item active"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg> Profile</a>
             <a href="/support/" class="menu-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg> Support</a>
-            <a href="/settings/" class="menu-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg> Settings</a>
-            <a href="/logout/" class="menu-item" style="color: #ef4444;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path><polyline points="16 17 21 12 16 7"></polyline><line x1="21" y1="12" x2="9" y2="12"></line></svg> Sign Out</a>
+            <a href="/settings/" class="menu-item"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1 0-2.83 2 2 0 0 1 0-2.83l.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg> Settings</a>
+            <a href="/logout/" class="menu-item" style="color: var(--danger);"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path><polyline points="16 17 21 12 16 7"></polyline><line x1="21" y1="12" x2="9" y2="12"></line></svg> Sign Out</a>
         </div>
     </div>
 
     <div class="main">
+        <!-- MOBILE HEADER -->
         <div class="mobile-header">
-            <div onclick="toggleSidebar()">
-                {% if account.profile_pic %}
-                    <img src="{{ account.profile_pic.url }}" class="nav-avatar">
-                {% else %}
-                    <div class="nav-avatar" style="background: #e2e8f0; color: #64748b; display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 14px;">{{ user.username|slice:":1" }}</div>
-                {% endif %}
+            <div style="display: flex; align-items: center; gap: 15px;">
+                <div onclick="toggleSidebar()">
+                    {% if account.profile_pic %}
+                        <img src="{{ account.profile_pic.url }}" class="nav-avatar">
+                    {% else %}
+                        <div class="nav-avatar" style="background: #e2e8f0; color: #64748b; display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 14px;">{{ user.username|slice:":1" }}</div>
+                    {% endif %}
+                </div>
+                <div style="font-weight: 800; color: var(--accent-color); font-size: 20px;">PROFILE</div>
             </div>
-            <div style="font-weight: 800; color: var(--primary);">PROFILE</div>
+
             <div class="icon-btn" onclick="toggleNotifs()">
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path><path d="M13.73 21a2 2 0 0 1-3.46 0"></path></svg>
+                <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path><path d="M13.73 21a2 2 0 0 1-3.46 0"></path></svg>
                 {% if unread_count > 0 %}<div class="notif-badge">{{ unread_count }}</div>{% endif %}
             </div>
         </div>
@@ -208,7 +235,7 @@
 
         <!-- NOTIFICATION DROPDOWN -->
         <div id="notif-dropdown" class="notif-dropdown">
-            <div style="padding: 15px; border-bottom: 1px solid var(--border); font-weight: 700; font-size: 13px; color: var(--text-main); background: var(--light);">NOTIFICATIONS</div>
+            <div style="padding: 15px; border-bottom: 1px solid var(--border-color); font-weight: 700; font-size: 13px; color: var(--text-primary); background: var(--bg-card);">NOTIFICATIONS</div>
             <div style="max-height: 300px; overflow-y: auto;">
                 {% for n in notifications %}
                     <div class="notif-item">
@@ -216,7 +243,7 @@
                         <div class="notif-time">{{ n.date|timesince }} ago</div>
                     </div>
                 {% empty %}
-                    <div style="padding: 20px; text-align: center; color: var(--text-light); font-size: 13px;">No new alerts</div>
+                    <div style="padding: 20px; text-align: center; color: var(--text-secondary); font-size: 13px;">No new alerts</div>
                 {% endfor %}
             </div>
         </div>
@@ -274,7 +301,7 @@
     <div id="editModal" class="modal">
         <div class="modal-content">
             <span class="close-btn" onclick="closeEditModal()">&times;</span>
-            <h2 style="font-size:22px; color:var(--text-main); margin-bottom:20px;">Edit Profile</h2>
+            <h2 style="font-size:22px; color:var(--text-primary); margin-bottom:20px;">Edit Profile</h2>
             <form method="POST">
                 {% csrf_token %}
                 <input type="hidden" name="action" value="edit_profile">

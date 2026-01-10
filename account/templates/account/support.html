@@ -13,8 +13,8 @@
         }
       }
     </script>
-        <style>
-        /* --- THEME SYSTEM --- */
+    <style>
+        /* --- THEME SYSTEM (EXACT MATCH TO DASHBOARD) --- */
         :root {
             --bg-body: #f8fafc;
             --bg-card: #ffffff;
@@ -26,6 +26,8 @@
             --success: #10b981;
             --danger: #ef4444;
             --warning: #f59e0b;
+            
+            /* Chat Specifics */
             --msg-in-bg: #f1f5f9;
             --msg-in-text: #0f172a;
             --msg-out-bg: #2563eb;
@@ -38,6 +40,8 @@
             --text-primary: #f8fafc;
             --text-secondary: #94a3b8;
             --border-color: #1e293b;
+            
+            /* Chat Specifics Dark */
             --msg-in-bg: #1e293b;
             --msg-in-text: #f8fafc;
             --msg-out-bg: #3b82f6;
@@ -46,24 +50,18 @@
 
         * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
         
-        html, body {
+        body { 
             margin: 0; padding: 0;
             font-family: 'Inter', sans-serif; 
-            background-color: var(--bg-body); 
-            color: var(--text-primary);
-            /* CRITICAL FIX: Use dvh for mobile, fallback to vh */
-            height: 100vh;
-            height: 100dvh; 
-            width: 100%;
-            overflow: hidden; /* Prevent window scrolling */
-            display: flex;
+            background-color: var(--bg-body); color: var(--text-primary);
+            display: flex; height: 100vh; overflow: hidden; transition: background-color 0.3s ease;
         }
 
         /* --- SIDEBAR --- */
         .sidebar {
             width: 280px; background: var(--bg-card); border-right: 1px solid var(--border-color);
             padding: 30px 20px; display: flex; flex-direction: column; z-index: 1000;
-            transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1), background-color 0.3s;
         }
 
         .brand {
@@ -72,7 +70,14 @@
         }
         .brand-icon { width: 32px; height: 32px; background: var(--accent-color); border-radius: 8px; color: white; display: flex; align-items: center; justify-content: center; }
 
-        .menu-group { display: flex; flex-direction: column; gap: 5px; flex: 1; }
+        /* Hidden Scrollbar Logic */
+        .menu-group { 
+            display: flex; flex-direction: column; gap: 5px; flex: 1; 
+            overflow-y: auto; 
+            scrollbar-width: none; 
+            -ms-overflow-style: none;
+        }
+        .menu-group::-webkit-scrollbar { display: none; }
         
         .menu-item {
             display: flex; align-items: center; gap: 12px; padding: 12px 16px;
@@ -91,18 +96,16 @@
             padding: 0; 
             display: flex; 
             flex-direction: column; 
-            /* CRITICAL FIX: Ensure main takes full dynamic height */
-            height: 100vh;
-            height: 100dvh; 
+            height: 100vh; 
             position: relative; 
             overflow: hidden; 
         }
         
-        /* HEADER WRAPPER */
+        /* HEADER WRAPPER (To keep alignment with dashboard) */
         .header-section {
             padding: 20px 40px;
             background: var(--bg-body);
-            flex-shrink: 0; /* Ensures header never collapses */
+            flex-shrink: 0;
         }
 
         .header { display: flex; justify-content: space-between; align-items: center; }
@@ -116,7 +119,7 @@
             display: flex; align-items: center; justify-content: center; 
             color: var(--text-primary); cursor: pointer; transition: 0.2s; position: relative; 
         }
-        .icon-btn:hover { border-color: var(--accent-color); color: var(--accent-color); }
+        .icon-btn:hover { border-color: var(--accent-color); color: var(--accent-color); transform: translateY(-2px); }
         .notif-dot { position: absolute; top: 10px; right: 10px; width: 8px; height: 8px; background: var(--danger); border-radius: 50%; border: 2px solid var(--bg-card); }
         
         .user-pill { 
@@ -139,8 +142,6 @@
         /* --- CHAT INTERFACE --- */
         .chat-layout {
             flex: 1;
-            /* CRITICAL: min-height 0 prevents flex child from overflowing parent */
-            min-height: 0; 
             margin: 0 40px 40px 40px;
             background: var(--bg-card);
             border: 1px solid var(--border-color);
@@ -150,6 +151,9 @@
             overflow: hidden;
             box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05);
             position: relative;
+            /* CRITICAL FIX: Ensure height is calculated correctly */
+            height: 100%; 
+            min-height: 0; 
         }
 
         .chat-header {
@@ -172,18 +176,16 @@
         .chat-window {
             flex: 1;
             padding: 25px;
-            overflow-y: auto; /* Allow scrolling here */
+            overflow-y: auto;
             display: flex;
             flex-direction: column;
             gap: 15px;
             scroll-behavior: smooth;
-            -webkit-overflow-scrolling: touch; /* Smooth scroll on iOS */
         }
         .chat-window::-webkit-scrollbar { width: 6px; }
         .chat-window::-webkit-scrollbar-track { background: transparent; }
         .chat-window::-webkit-scrollbar-thumb { background: var(--border-color); border-radius: 10px; }
 
-        /* MESSAGES */
         .msg-row { display: flex; width: 100%; animation: slideIn 0.2s ease-out; }
         .row-bot { justify-content: flex-start; }
         .row-user { justify-content: flex-end; }
@@ -206,10 +208,7 @@
             padding: 20px;
             border-top: 1px solid var(--border-color);
             background: var(--bg-card);
-            flex-shrink: 0; /* Prevents this from shrinking/disappearing */
-            z-index: 20;
-            /* CRITICAL: Safe area for iPhone home bar */
-            padding-bottom: calc(20px + env(safe-area-inset-bottom));
+            flex-shrink: 0; /* Prevents input from disappearing */
         }
 
         .input-wrapper {
@@ -254,16 +253,18 @@
             .header-section { display: none; } 
             .mobile-header { display: flex; } 
             
-            .main { padding: 0; }
+            .main { padding: 0; height: 100vh; }
             
             .chat-layout { 
                 margin: 0; 
                 border-radius: 0; 
                 border: none;
-                flex: 1; /* Fills all available height */
+                flex: 1; 
+                height: auto;
             }
             .chat-window { padding: 15px; }
             .msg-bubble { max-width: 85%; }
+            .chat-footer { padding: 15px; } 
             .notif-dropdown { right: 10px; width: calc(100% - 20px); top: 70px; }
         }
     </style>
@@ -282,6 +283,12 @@
         <div class="menu-group">
             <a href="/dashboard/" class="menu-item"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7"></rect><rect x="14" y="3" width="7" height="7"></rect><rect x="14" y="14" width="7" height="7"></rect><rect x="3" y="14" width="7" height="7"></rect></svg> Dashboard</a>
             <a href="/transfer/" class="menu-item"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><line x1="7" y1="17" x2="17" y2="7"></line><polyline points="7 7 17 7 17 17"></polyline></svg> Transfers</a>
+            
+            <a href="/history/" class="menu-item">
+                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg> 
+                Transactions
+            </a>
+
             <a href="/cards/" class="menu-item"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><rect x="1" y="4" width="22" height="16" rx="2" ry="2"></rect><line x1="1" y1="10" x2="23" y2="10"></line></svg> Cards</a>
             <a href="/pay-bills/" class="menu-item"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"></path></svg> Payments</a>
             <a href="/loans/" class="menu-item"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path></svg> Credit & Loans</a>
@@ -422,30 +429,26 @@
 
         // --- AI CONFIG ---
         const apiKey = "{{ gemini_api_key }}"; 
-        const genAI = new GoogleGenerativeAI(apiKey);
-        const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash" });
-
+        
+        // --- STATE MANAGEMENT ---
+        const activeSessionId = "{{ active_session.id }}";
+        const storageKey = 'veltris_mode_' + activeSessionId; 
+        let isReloading = false;
+        
         const chatForm = document.getElementById('chatForm');
         const chatInput = document.getElementById('chatInput');
         const aiToggle = document.getElementById('ai-toggle');
         const chatBody = document.getElementById('chatWindow');
 
-        // --- STATE MANAGEMENT ---
-        const activeSessionId = "{{ active_session.id }}";
-        const storageKey = 'veltris_mode_' + activeSessionId; 
-        
-        // LOCK FLAG: Prevents polling while page is preparing to reload
-        let isReloading = false; 
-
         const savedState = localStorage.getItem(storageKey);
         
         if (savedState === 'human') {
-            aiToggle.checked = false; // Human Mode
+            aiToggle.checked = false; 
         } else {
-            aiToggle.checked = true; // Default AI Mode
+            aiToggle.checked = true;
         }
 
-        // --- CORE FUNCTIONS ---
+        // --- HELPER FUNCTIONS ---
         function getConversationHistory() {
             const bubbles = document.querySelectorAll('.msg-bubble');
             const recent = Array.from(bubbles).slice(-10);
@@ -459,7 +462,6 @@
             return history;
         }
 
-        // Updated to return the Message ID to prevent polling duplicates
         async function saveToDatabase(text, isBot) {
             const formData = new FormData();
             formData.append('message', text);
@@ -471,9 +473,9 @@
                     method: 'POST', 
                     body: formData, 
                     headers: { 'X-Requested-With': 'XMLHttpRequest' } 
-                });
+                }); 
                 const data = await response.json();
-                return data.id; // Return ID
+                return data.id;
             } catch (e) { 
                 console.error(e); 
                 return 0;
@@ -487,7 +489,6 @@
             const bubble = document.createElement('div');
             bubble.className = `msg-bubble ${type === 'user' ? 'bubble-user' : 'bubble-bot'}`;
             
-            // Safe HTML Injection for simple text
             bubble.innerHTML = `
                 <span class="msg-content">${text}</span>
                 <span class="msg-time">Just now</span>
@@ -497,50 +498,48 @@
             chatBody.appendChild(row);
             chatBody.scrollTop = chatBody.scrollHeight;
         }
-        
-        // --- POLLING VARIABLE ---
-        let lastMessageId = "{{ messages.last.id|default:0 }}";
 
-        // --- SUBMISSION LOGIC ---
+        // --- MAIN LOGIC ---
         chatForm.addEventListener('submit', async function(e) {
             e.preventDefault();
             const userMsg = chatInput.value.trim();
             if (!userMsg) return;
 
-            // Show & Save User Message
+            // 1. Show User Message
             appendMessage(userMsg, 'user');
             chatInput.value = '';
             await saveToDatabase(userMsg, false);
 
-            // AI Logic Check
+            // 2. AI Processing
             if (aiToggle.checked) {
                 try {
+                    // Check if Key exists
+                    if (!apiKey || apiKey === "None" || apiKey === "") {
+                        throw new Error("API Key Missing");
+                    }
+
+                    const genAI = new GoogleGenerativeAI(apiKey);
+                    const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash" });
+
                     const history = getConversationHistory();
                     
-                    // Context-Aware Prompt
+                    // --- THE PROMPT ---
+                    // Note: We use the 'safe' filter to prevent JS syntax errors if name contains quotes
                     const prompt = `
                         You are Veltris Bank Support. 
                         
-                        USER CONTEXT:
-                        Name: {{ user.first_name }}
-                        Balance: ${{ account.balance|floatformat:2 }}
+                        CONTEXT:
+                        User Name: {{ user.first_name|default:"Valued Customer" }}
                         
-                        RECENT TRANSACTIONS (Use this to answer questions about specific payments):
-                        {{ transaction_context|escapejs }}
-                        
-                        CHAT HISTORY:
+                        HISTORY:
                         ${history}
                         
                         INSTRUCTIONS:
-                        1. If the user asks about a specific transaction (e.g. "Did my Netflix payment go through?"), CHECK the Recent Transactions list above.
-                           - If found, tell them the date, amount, and exact status.
-                           - If NOT found, ask for the date and amount.
-                        
-                        2. If the user mentions "blocked", "frozen", "hack", "scam", or asks for "human/agent":
-                           - Acknowledge reassuringly.
+                        1. If the user mentions "blocked", "frozen", "hack", "scam", or asks for "human/agent":
+                           - Acknowledge the issue reassuringly.
                            - END response with: [CONNECT_AGENT]
                            
-                        3. Otherwise, answer helpfully (max 2 sentences).
+                        2. Otherwise, answer helpfully (max 2 sentences).
                     `;
 
                     const result = await model.generateContent(prompt);
@@ -548,54 +547,46 @@
                     const aiText = response.text();
 
                     if (aiText.includes("[CONNECT_AGENT]")) {
-                        // --- HANDOFF TRIGGER ---
-                        isReloading = true; // Lock polling immediately
-
-                        // 1. Lock to Human Mode for THIS SESSION
-                        localStorage.setItem(storageKey, 'human');
-                        aiToggle.checked = false; 
-
-                        // 2. Clean Message & Show
-                        const finalMessage = aiText.replace('[CONNECT_AGENT]', '').trim();
-                        const displayMsg = finalMessage.length > 0 ? finalMessage : "I am connecting you to a Senior Agent immediately. Please stand by.";
-
-                        appendMessage(displayMsg, 'bot');
-                        
-                        // 3. Save to DB & Update ID to prevent Duplicate
-                        const savedId = await saveToDatabase(displayMsg, true); 
-                        if(savedId) lastMessageId = savedId;
-                        
-                        // 4. Reload to sync with Admin Dashboard (3.5s delay)
-                        setTimeout(() => window.location.reload(), 3500);
-
+                        triggerHandoff(aiText);
                     } else {
-                        // --- NORMAL AI REPLY ---
+                        // Normal Reply
                         appendMessage(aiText, 'bot');
                         const savedId = await saveToDatabase(aiText, true);
-                        if(savedId) lastMessageId = savedId; // Update ID
+                        if(savedId) lastMessageId = savedId;
                     }
 
                 } catch (error) {
-                    console.error("AI Error:", error);
-                    
-                    // Instead of killing the AI immediately, show an error first
-                    appendMessage("I'm having trouble connecting to the network. Please try again.", 'bot');
-                    
-                    // Only switch to human if it's a persistent auth error or logic failure
-                    if (error.message && error.message.includes('403')) {
-                        localStorage.setItem(storageKey, 'human');
-                        window.location.reload();
-                    }
+                    console.error("AI Error (Triggering Fail-Safe):", error);
+                    // --- FAIL-SAFE PROTOCOL ---
+                    // If AI crashes, don't show an error. Seamlessly switch to human.
+                    triggerHandoff("[CONNECT_AGENT]"); 
                 }
-
-            } else {
-                // Human Mode: Do nothing, polling handles reply
             }
         });
 
+        // --- HANDOFF HANDLER ---
+        async function triggerHandoff(aiText) {
+            isReloading = true; // Lock Polling
+            localStorage.setItem(storageKey, 'human');
+            aiToggle.checked = false; 
+
+            // Extract message or use default
+            let displayMsg = "I am connecting you to a Senior Agent immediately. Please stand by.";
+            if (aiText && !aiText.trim().startsWith("[CONNECT_AGENT]")) {
+                displayMsg = aiText.replace('[CONNECT_AGENT]', '').trim();
+            }
+
+            appendMessage(displayMsg, 'bot');
+            const savedId = await saveToDatabase(displayMsg, true); 
+            if(savedId) lastMessageId = savedId;
+            
+            // Reload page to sync state
+            setTimeout(() => window.location.reload(), 3500);
+        }
+
         // --- POLLING ---
+        let lastMessageId = "{{ messages.last.id|default:0 }}";
         setInterval(() => {
-            // Stop polling if AI is ON --OR-- if we are about to reload
             if (aiToggle.checked || isReloading) return;
 
             fetch(`/api/messages/?last_id=${lastMessageId}`)

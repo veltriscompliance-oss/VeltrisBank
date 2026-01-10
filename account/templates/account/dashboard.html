@@ -45,10 +45,10 @@
             display: flex; height: 100vh; overflow: hidden; transition: background-color 0.3s ease;
         }
 
-        /* --- SIDEBAR --- */
+        /* --- SIDEBAR (Fixed Mobile Logic) --- */
         .sidebar {
             width: 280px; background: var(--bg-card); border-right: 1px solid var(--border-color);
-            padding: 30px 20px; display: flex; flex-direction: column; z-index: 1000;
+            padding: 30px 20px; display: flex; flex-direction: column; z-index: 3000;
             transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1), background-color 0.3s;
         }
 
@@ -58,18 +58,26 @@
         }
         .brand-icon { width: 32px; height: 32px; background: var(--accent-color); border-radius: 8px; color: white; display: flex; align-items: center; justify-content: center; }
 
-        .menu-group { display: flex; flex-direction: column; gap: 5px; flex: 1; }
+        /* Hidden Scrollbar */
+        .menu-group { 
+            display: flex; flex-direction: column; gap: 5px; flex: 1; 
+            overflow-y: auto; 
+            scrollbar-width: none; 
+            -ms-overflow-style: none;
+        }
+        .menu-group::-webkit-scrollbar { display: none; }
         
         .menu-item {
             display: flex; align-items: center; gap: 12px; padding: 12px 16px;
             color: var(--text-secondary); text-decoration: none; font-size: 14px; font-weight: 500;
             border-radius: 12px; transition: 0.2s;
+            flex-shrink: 0; 
         }
         .menu-item:hover { background: rgba(37, 99, 235, 0.05); color: var(--accent-color); }
         .menu-item.active { background: rgba(37, 99, 235, 0.1); color: var(--accent-color); font-weight: 600; }
         .menu-item svg { width: 20px; height: 20px; stroke-width: 2px; }
 
-        .sidebar-footer { border-top: 1px solid var(--border-color); padding-top: 20px; margin-top: auto; display: flex; flex-direction: column; gap: 5px; }
+        .sidebar-footer { border-top: 1px solid var(--border-color); padding-top: 20px; margin-top: auto; display: flex; flex-direction: column; gap: 5px; flex-shrink: 0; }
 
         /* --- MAIN CONTENT --- */
         .main { flex: 1; padding: 40px; overflow-y: auto; position: relative; }
@@ -120,18 +128,8 @@
         .bal-label { font-size: 13px; font-weight: 500; opacity: 0.8; margin-bottom: 10px; text-transform: uppercase; letter-spacing: 1px; }
         .bal-amount-wrapper { display: flex; align-items: center; gap: 15px; }
         .bal-amount { 
-            font-size: 42px;         /* Default Big & Bold */
-            font-weight: 800;        /* Extra Bold */
-            letter-spacing: -1.5px;  /* Tighter tracking for cleaner look */
-            font-family: 'Inter', sans-serif;
-            
-            /* Fitting Logic */
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-            max-width: 100%;
-            display: block;
-            line-height: 1;          /* Keeps it vertically centered */
+            font-size: 42px; font-weight: 800; letter-spacing: -1.5px; font-family: 'Inter', sans-serif;
+            white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 100%; display: block; line-height: 1;
         }
         .bal-amount.blurred { filter: blur(12px); user-select: none; opacity: 0.6; }
         
@@ -150,9 +148,7 @@
             text-decoration: none; transition: 0.2s; display: flex; flex-direction: column;
             align-items: center; gap: 10px; height: 110px; justify-content: center;
             box-shadow: var(--shadow-sm);
-            /* CRITICAL FIX: Ensure buttons are always clickable even if "frozen" visually */
-            cursor: pointer;
-            pointer-events: auto !important; 
+            cursor: pointer; pointer-events: auto !important; 
         }
         .action-card:hover { transform: translateY(-4px); border-color: var(--accent-color); box-shadow: var(--shadow-md); }
         .action-icon { 
@@ -227,7 +223,7 @@
         .notif-dropdown {
             position: absolute; top: 70px; right: 0; width: 320px;
             background: var(--bg-card); border: 1px solid var(--border-color);
-            border-radius: 16px; box-shadow: var(--shadow-lg);
+            border-radius: 16px; box-shadow: var(--shadow-md);
             z-index: 2000; display: none; overflow: hidden;
             animation: slideDown 0.2s ease;
         }
@@ -247,67 +243,37 @@
             align-items: center; 
             margin-bottom: 20px; 
         }
-        
-        /* Mobile Welcome Text - Beside Avatar */
-        .mobile-user-section {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-        }
-        
-        .mobile-welcome-text {
-            font-size: 16px;
-            font-weight: 700;
-            color: var(--text-primary);
-        }
-        
-        .nav-avatar {
-            width: 40px !important;
-            height: 40px !important;
-            min-width: 40px !important;
-            border-radius: 50% !important; /* Force Circular */
-            object-fit: cover !important;
-            border: 2px solid var(--border-color);
-            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-            cursor: pointer;
+        .mobile-user-section { display: flex; align-items: center; gap: 12px; }
+        .mobile-welcome-text { font-size: 16px; font-weight: 700; color: var(--text-primary); }
+        .nav-avatar { 
+            width: 40px !important; height: 40px !important; min-width: 40px !important; 
+            border-radius: 50% !important; object-fit: cover !important; 
+            border: 2px solid var(--border-color); box-shadow: 0 2px 8px rgba(0,0,0,0.1); cursor: pointer; 
         }
 
         /* --- OVERLAY --- */
-        .overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 999; display: none; backdrop-filter: blur(4px); }
+        .overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 2000; backdrop-filter: blur(4px); }
 
         /* TIMEOUT MODAL */
         .timeout-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); z-index: 9999; display: none; align-items: center; justify-content: center; backdrop-filter: blur(5px); }
         .timeout-card { background: var(--bg-card); padding: 40px; border-radius: 24px; text-align: center; width: 90%; max-width: 400px; box-shadow: 0 25px 60px rgba(0,0,0,0.5); }
         .timeout-title { font-size: 22px; font-weight: 800; color: var(--text-main); margin-bottom: 10px; }
-        .timeout-msg { color: var(--text-light); font-size: 15px; margin-bottom: 30px; line-height: 1.5; }
-        .timeout-btn { background: var(--primary); color: white; border: none; padding: 14px 28px; border-radius: 12px; font-weight: 600; font-size: 15px; cursor: pointer; width: 100%; }
+        .timeout-msg { color: var(--text-secondary); font-size: 15px; margin-bottom: 30px; line-height: 1.5; }
+        .timeout-btn { background: var(--accent-color); color: white; border: none; padding: 14px 28px; border-radius: 12px; font-weight: 600; font-size: 15px; cursor: pointer; width: 100%; }
 
-        /* --- THE CRITICAL FIX: FORCED SUCCESS MODAL CENTERING --- */
+        /* --- SUCCESS POPUP MODAL --- */
         #veltris-success-modal {
-            position: fixed !important;
-            top: 0 !important;
-            left: 0 !important;
-            width: 100vw !important;
-            height: 100vh !important;
-            background: rgba(0,0,0,0.7) !important;
-            z-index: 2147483647 !important; /* Max Z-Index */
-            display: flex !important;
-            align-items: center !important;
-            justify-content: center !important;
-            backdrop-filter: blur(5px);
+            position: fixed !important; top: 0 !important; left: 0 !important; width: 100vw !important; height: 100vh !important;
+            background: rgba(0,0,0,0.7) !important; z-index: 2147483647 !important; display: flex !important;
+            align-items: center !important; justify-content: center !important; backdrop-filter: blur(5px);
         }
-
         .success-card { 
-            background: var(--bg-card); 
-            width: 90%; max-width: 400px; padding: 45px 30px; 
-            border-radius: 24px; text-align: center; 
-            box-shadow: 0 25px 60px rgba(0,0,0,0.5);
+            background: var(--bg-card); width: 90%; max-width: 400px; padding: 45px 30px; 
+            border-radius: 24px; text-align: center; box-shadow: 0 25px 60px rgba(0,0,0,0.5);
             display: flex; flex-direction: column; align-items: center; 
             animation: popIn 0.3s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
         }
-        
         @keyframes popIn { from { transform: scale(0.95); opacity: 0; } to { transform: scale(1); opacity: 1; } }
-
         .icon-circle { width: 80px; height: 80px; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin-bottom: 25px; font-size: 40px; }
         .icon-success { background: #dcfce7; color: #166534; }
         .icon-processing { background: #fef9c3; color: #854d0e; }
@@ -333,7 +299,6 @@
         }
         .sentinel-active #obsidian-guard-overlay { display: flex; opacity: 1; }
         .sentinel-active .obsidian-panel { transform: translateY(0) scale(1); }
-        .sentinel-active .dashboard-wrapper { transform: scale(0.97); filter: blur(6px); pointer-events: none; transition: 0.5s; }
         .sentinel-tag { font-family: 'JetBrains Mono', monospace; font-size: 11px; color: #475569; letter-spacing: 4px; text-transform: uppercase; margin-bottom: 35px; display: block; }
         .sentinel-shield { width: 80px; height: 80px; margin: 0 auto 35px; color: var(--danger); animation: shieldPulse 3s infinite ease-in-out; }
         @keyframes shieldPulse { 0%, 100% { filter: drop-shadow(0 0 5px rgba(239, 68, 68, 0.2)); opacity: 1; } 50% { filter: drop-shadow(0 0 20px rgba(239, 68, 68, 0.6)); opacity: 0.8; } }
@@ -349,41 +314,29 @@
         .sec-icon { font-size: 20px; }
 
         @media (max-width: 900px) {
-            .sidebar { position: fixed; left: -280px; top: 0; height: 100%; transition: 0.3s; box-shadow: none; }
-            .sidebar.active { transform: translateX(280px); box-shadow: 10px 0 30px rgba(0,0,0,0.1); }
-            
+            /* FIXED SIDEBAR CSS */
+            .sidebar { 
+                position: fixed; top: 0; left: 0; 
+                width: 280px; height: 100%; 
+                transform: translateX(-100%); /* Start hidden off-screen left */
+                box-shadow: none;
+                z-index: 3000;
+            }
+            .sidebar.active { 
+                transform: translateX(0); /* Slide in */
+                box-shadow: 10px 0 30px rgba(0,0,0,0.2); 
+            }
+
             .main { padding: 20px 15px; }
-            
-            /* SHOW MOBILE HEADER */
             .mobile-header { display: flex; }
             .header { display: none; }
-            
             .dashboard-grid { grid-template-columns: 1fr; }
-            .right-col { display: flex; flex-direction: column; margin-top: 30px; } /* FORCE WIDGETS VISIBLE */
-            
-            .balance-card { 
-                padding: 30px 20px; 
-                justify-content: center; /* Center content vertically if needed */
-            }
-
-            .bal-amount { 
-                /* Logic: Try to be 36px (Bold). 
-                   If viewport is tiny (e.g. iPhone SE), shrink to 8vw.
-                */
-                font-size: clamp(26px, 8vw, 36px); 
-                margin-top: 0; /* Fixes "too high" issue */
-            }
-
-            .bal-amount-wrapper {
-                align-items: center; /* Ensures perfect vertical alignment with eye icon */
-                width: 100%;
-                gap: 10px; /* Tighter gap on mobile */
-            }
-            
-            /* FIXED: 2x2 Grid for Mobile Actions */
+            .right-col { display: flex; flex-direction: column; margin-top: 30px; }
+            .balance-card { padding: 30px 20px; justify-content: center; }
+            .bal-amount { font-size: clamp(26px, 8vw, 36px); margin-top: 0; }
+            .bal-amount-wrapper { align-items: center; width: 100%; gap: 10px; }
             .actions-grid { grid-template-columns: 1fr 1fr; gap: 12px; }
             .action-card { height: 90px; }
-            
             .notif-dropdown { right: 15px; width: calc(100% - 30px); top: 70px; }
             .nav-avatar { width: 40px !important; height: 40px !important; min-width: 40px !important; border: 2px solid var(--border-color); }
         }
@@ -437,6 +390,12 @@
         <div class="menu-group">
             <a href="/dashboard/" class="menu-item active"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7"></rect><rect x="14" y="3" width="7" height="7"></rect><rect x="14" y="14" width="7" height="7"></rect><rect x="3" y="14" width="7" height="7"></rect></svg> Dashboard</a>
             <a href="/transfer/" class="menu-item"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><line x1="7" y1="17" x2="17" y2="7"></line><polyline points="7 7 17 7 17 17"></polyline></svg> Transfers</a>
+            
+            <a href="/history/" class="menu-item">
+                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg> 
+                Transactions
+            </a>
+
             <a href="/cards/" class="menu-item"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><rect x="1" y="4" width="22" height="16" rx="2" ry="2"></rect><line x1="1" y1="10" x2="23" y2="10"></line></svg> Cards</a>
             <a href="/pay-bills/" class="menu-item"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"></path></svg> Payments</a>
             <a href="/loans/" class="menu-item"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path></svg> Credit & Loans</a>
@@ -446,7 +405,7 @@
         <div class="sidebar-footer">
             <a href="/profile/" class="menu-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg> Profile</a>
             <a href="/support/" class="menu-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg> Support</a>
-            <a href="/settings/" class="menu-item"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg> Settings</a>
+            <a href="/settings/" class="menu-item"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg> Settings</a>
             <a href="/logout/" class="menu-item" style="color: var(--danger);"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path><polyline points="16 17 21 12 16 7"></polyline><line x1="21" y1="12" x2="9" y2="12"></line></svg> Sign Out</a>
         </div>
     </div>
@@ -454,7 +413,7 @@
     <div class="main">
         <!-- MOBILE HEADER -->
         <div class="mobile-header">
-            <div style="display: flex; align-items: center; gap: 15px;">
+            <div class="mobile-user-section">
                 <div onclick="toggleSidebar()">
                     {% if account.profile_pic %}
                         <img src="{{ account.profile_pic.url }}" class="nav-avatar">
@@ -462,10 +421,7 @@
                         <div class="nav-avatar" style="background: #e2e8f0; color: #64748b; display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 14px;">{{ user.username|slice:":1" }}</div>
                     {% endif %}
                 </div>
-                <!-- FIXED: Welcome text right beside avatar -->
-                <div class="mobile-welcome-text" style="font-size: 16px; font-weight: 700; color: var(--text-primary);">
-                    Welcome, {{ user.first_name|default:user.username }}
-                </div>
+                <div class="mobile-welcome-text">Welcome, {{ user.first_name|default:user.username }}</div>
             </div>
 
             <div class="icon-btn" onclick="toggleNotifs()">
@@ -516,7 +472,7 @@
             </div>
         </div>
 
-        <!-- SECURITY ALERT BANNER (High-End SVG) -->
+        <!-- SECURITY ALERT BANNER -->
         {% if account.account_status == 'blocked' %}
         <div class="security-banner">
             <div class="sec-icon-box">
@@ -530,7 +486,6 @@
         {% endif %}
 
         <div class="dashboard-grid">
-            
             <!-- LEFT COLUMN -->
             <div class="left-col">
                 <!-- BALANCE CARD -->
@@ -539,7 +494,6 @@
                         <div class="bal-label">Total Balance</div>
                         <div class="bal-amount-wrapper">
                             <span style="font-size:24px; font-weight:700;">$</span>
-                            <!-- FIX: floatformat:2 ensures 2 decimals, intcomma adds commas -->
                             <span class="bal-amount {% if account.hide_balance %}blurred{% endif %}" id="balanceAmount">
                                 {{ account.balance|floatformat:2 }}
                             </span>
@@ -555,7 +509,6 @@
                 </div>
 
                 <!-- ACTIONS GRID -->
-                <!-- Removed 'frozen-mode' so clicks still register -->
                 <div class="actions-grid">
                     <a href="/transfer/" class="action-card">
                         <div class="action-icon"><svg width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><line x1="7" y1="17" x2="17" y2="7"></line><polyline points="7 7 17 7 17 17"></polyline></svg></div>
@@ -651,6 +604,7 @@
                 {% endif %}
             </div>
         </div>
+
     </div>
 
     <!-- THE OBSIDIAN SENTINEL MODAL -->
@@ -674,12 +628,26 @@
     </div>
 
     <script>
-        // DARK MODE CHECK
-        if("{{ account.dark_mode }}" === "True") { document.body.classList.add('dark-mode'); }
-
-        function toggleSidebar() { document.getElementById('sidebar').classList.toggle('active'); document.querySelector('.overlay').style.display = document.getElementById('sidebar').classList.contains('active') ? 'block' : 'none'; }
         function toggleNotifs() { var x = document.getElementById("notif-dropdown"); x.style.display = x.style.display === "block" ? "none" : "block"; }
         window.onclick = function(event) { if (!event.target.matches('.icon-btn') && !event.target.closest('.icon-btn') && !event.target.matches('.notif-dropdown') && !event.target.closest('.notif-dropdown')) { document.getElementById("notif-dropdown").style.display = "none"; } }
+
+        function toggleSidebar() { 
+            const sb = document.getElementById('sidebar');
+            const overlay = document.querySelector('.overlay');
+            
+            if(sb.classList.contains('active')) {
+                sb.classList.remove('active');
+                sb.style.transform = ''; // Clear inline styles
+                overlay.style.display = 'none';
+            } else {
+                sb.classList.add('active');
+                // Force transform for mobile slide-in if class isn't enough due to specific CSS rules
+                // But the CSS handles .active transform, so usually just toggling class is best.
+                // However, the CSS has transform: translateX(-100%) for mobile default.
+                // .sidebar.active has transform: translateX(0).
+                overlay.style.display = 'block';
+            }
+        }
 
         // Eye Toggle
         function toggleBalance() { document.getElementById('balanceAmount').classList.toggle('blurred'); }

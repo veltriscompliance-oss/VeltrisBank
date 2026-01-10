@@ -17,6 +17,8 @@
             --text-main: #f8fafc;
             --text-muted: #94a3b8;
             --success: #10b981;
+            --danger: #ef4444;
+            --warning: #f59e0b;
         }
 
         * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
@@ -102,6 +104,14 @@
         }
         input:focus, select:focus { border-color: var(--primary); background: rgba(255,255,255,0.08); }
         select { appearance: none; background-image: url("data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22292.4%22%20height%3D%22292.4%22%3E%3Cpath%20fill%3D%22%2394a3b8%22%20d%3D%22M287%2069.4a17.6%2017.6%200%200%200-13-5.4H18.4c-5%200-9.3%201.8-12.9%205.4A17.6%2017.6%200%200%200%200%2082.2c0%205%201.8%209.3%205.4%2012.9l128%20127.9c3.6%203.6%207.8%205.4%2012.8%205.4s9.2-1.8%2012.8-5.4L287%2095c3.5-3.5%205.4-7.8%205.4-12.8%200-5-1.9-9.2-5.5-12.8z%22%2F%3E%3C%2Fsvg%3E"); background-repeat: no-repeat; background-position: right 15px top 50%; background-size: 10px; }
+        
+        /* Highlight specific inputs */
+        input#phone { font-family: 'JetBrains Mono', monospace; }
+
+        /* ERROR STYLING */
+        input.has-error { border-color: var(--danger); background: rgba(239, 68, 68, 0.05); }
+        .error-msg { font-size: 11px; color: var(--danger); margin-top: 5px; display: flex; align-items: center; gap: 4px; font-weight: 500; }
+        .error-msg::before { content: '⚠'; }
 
         /* BUTTONS */
         .btn-group { display: flex; justify-content: space-between; margin-top: auto; padding-top: 30px; }
@@ -121,10 +131,27 @@
         .checkbox-group input { width: auto; margin-top: 4px; }
         .checkbox-group a { color: var(--primary); text-decoration: none; }
 
+        /* PASSWORD STRENGTH UI */
+        .password-strength { margin-top: -10px; margin-bottom: 20px; }
+        .strength-bar { display: flex; height: 4px; gap: 4px; margin-top: 6px; }
+        .bar-segment { flex: 1; background: rgba(255,255,255,0.1); border-radius: 2px; transition: 0.3s; }
+        .strength-label { font-size: 11px; text-align: right; margin-top: 4px; font-weight: 600; transition: 0.3s; height: 15px; }
+        
+        /* Strength Levels */
+        .strength-weak .bar-segment:nth-child(1) { background: var(--danger); }
+        .strength-weak .strength-label { color: var(--danger); }
+        
+        .strength-medium .bar-segment:nth-child(1),
+        .strength-medium .bar-segment:nth-child(2) { background: var(--warning); }
+        .strength-medium .strength-label { color: var(--warning); }
+        
+        .strength-strong .bar-segment { background: var(--success); }
+        .strength-strong .strength-label { color: var(--success); }
+
         /* MOBILE */
         @media (max-width: 900px) {
             .register-container { grid-template-columns: 1fr; min-height: auto; }
-            .sidebar { padding: 20px; display: none; } /* Hide sidebar on mobile to save space */
+            .sidebar { padding: 20px; display: none; }
             .form-area { padding: 30px 20px; }
             .grid-row { grid-template-columns: 1fr; gap: 10px; }
             .full-width { grid-column: span 1; }
@@ -181,33 +208,29 @@
                     <div class="grid-row">
                         <div class="input-group">
                             <label>First Name</label>
-                            <input type="text" name="first_name" placeholder="Legal First Name" required>
+                            <input type="text" name="first_name" value="{{ form_data.first_name }}" placeholder="Legal First Name" required>
                         </div>
                         <div class="input-group">
                             <label>Last Name</label>
-                            <input type="text" name="last_name" placeholder="Legal Last Name" required>
+                            <input type="text" name="last_name" value="{{ form_data.last_name }}" placeholder="Legal Last Name" required>
                         </div>
                     </div>
                     
                     <div class="grid-row">
                         <div class="input-group">
                             <label>Date of Birth</label>
-                            <input type="date" name="dob" required>
+                            <input type="date" name="dob" value="{{ form_data.dob }}" required>
                         </div>
                         <div class="input-group">
                             <label>Social Security Number (SSN)</label>
-                            <!-- UPDATED: Added maxlength for SSN -->
-                            <input type="text" name="ssn" placeholder="XXX-XX-XXXX" maxlength="11" required>
+                            <input type="text" name="ssn" value="{{ form_data.ssn }}" placeholder="XXX-XX-XXXX" maxlength="11" required>
                         </div>
                     </div>
 
                     <div class="input-group full-width">
                         <label>Citizenship</label>
-                        <select name="citizenship">
-                            <option value="US">United States</option>
-                            <option value="CA">Canada</option>
-                            <option value="UK">United Kingdom</option>
-                            <option value="Other">Other</option>
+                        <select name="citizenship" id="citizenshipSelector" onchange="updatePhoneCode()">
+                            <option value="" disabled selected>Select your country</option>
                         </select>
                     </div>
                 </div>
@@ -215,34 +238,38 @@
                 <!-- STEP 2: CONTACT -->
                 <div class="form-step" id="step-2">
                     <h2>Where do you live?</h2>
-                    <p class="desc">Federal law requires us to obtain a physical residential address. No PO Boxes.</p>
+                    <p class="desc">Federal law requires us to obtain a physical residential address.</p>
                     
                     <div class="input-group full-width">
                         <label>Street Address</label>
-                        <input type="text" name="address" placeholder="123 Financial St, Apt 400" required>
+                        <input type="text" name="address" value="{{ form_data.address }}" placeholder="123 Financial St, Apt 400" required>
                     </div>
                     
                     <div class="grid-row">
                         <div class="input-group">
                             <label>City</label>
-                            <input type="text" name="city" placeholder="New York" required>
+                            <input type="text" name="city" value="{{ form_data.city }}" placeholder="New York" required>
                         </div>
                         <div class="input-group">
                             <label>Zip Code</label>
-                            <!-- UPDATED: Added maxlength for Zip Code -->
-                            <input type="text" name="zipcode" placeholder="10001" maxlength="10" required>
+                            <input type="text" name="zipcode" value="{{ form_data.zipcode }}" placeholder="10001" maxlength="10" required>
                         </div>
                     </div>
 
                     <div class="grid-row">
                         <div class="input-group">
                             <label>Mobile Phone</label>
-                            <!-- UPDATED: Added maxlength for Phone to prevent DB crashes -->
-                            <input type="tel" name="phone" placeholder="(555) 000-0000" maxlength="15" required>
+                            <input type="tel" id="phone" name="phone" value="{{ form_data.phone }}" placeholder="+1 (555) 000-0000" maxlength="15" required class="{% if field_errors.phone %}has-error{% endif %}">
+                            {% if field_errors.phone %}
+                                <div class="error-msg">{{ field_errors.phone }}</div>
+                            {% endif %}
                         </div>
                         <div class="input-group">
                             <label>Email Address</label>
-                            <input type="email" name="email" placeholder="you@example.com" required>
+                            <input type="email" name="email" value="{{ form_data.email }}" placeholder="you@example.com" required class="{% if field_errors.email %}has-error{% endif %}">
+                            {% if field_errors.email %}
+                                <div class="error-msg">{{ field_errors.email }}</div>
+                            {% endif %}
                         </div>
                     </div>
                 </div>
@@ -283,7 +310,7 @@
                     
                     <div class="checkbox-group">
                         <input type="checkbox" required>
-                        <span>I certify that I am not subject to backup withholding and I am a U.S. person (including a U.S. resident alien).</span>
+                        <span>I certify that I am not subject to backup withholding.</span>
                     </div>
                 </div>
 
@@ -294,17 +321,31 @@
                     
                     <div class="input-group full-width">
                         <label>Username</label>
-                        <input type="text" name="username" placeholder="Choose a unique username" required>
+                        <input type="text" name="username" value="{{ form_data.username }}" placeholder="Choose a unique username" required class="{% if field_errors.username %}has-error{% endif %}">
+                        {% if field_errors.username %}
+                            <div class="error-msg">{{ field_errors.username }}</div>
+                        {% endif %}
                     </div>
 
                     <div class="grid-row">
                         <div class="input-group">
                             <label>Password</label>
-                            <input type="password" name="password" placeholder="••••••••" required>
+                            <input type="password" name="password" id="passwordInput" placeholder="••••••••" required oninput="checkPasswordStrength()" class="{% if field_errors.password %}has-error{% endif %}">
+                            <div class="password-strength" id="strengthMeter">
+                                <div class="strength-bar">
+                                    <div class="bar-segment"></div>
+                                    <div class="bar-segment"></div>
+                                    <div class="bar-segment"></div>
+                                </div>
+                                <div class="strength-label" id="strengthText"></div>
+                            </div>
+                            {% if field_errors.password %}
+                                <div class="error-msg">{{ field_errors.password }}</div>
+                            {% endif %}
                         </div>
                         <div class="input-group">
                             <label>Confirm Password</label>
-                            <input type="password" name="confirm_password" placeholder="••••••••" required>
+                            <input type="password" name="confirm_password" placeholder="••••••••" required class="{% if field_errors.confirm_password %}has-error{% endif %}">
                         </div>
                     </div>
 
@@ -337,20 +378,138 @@
     </div>
 
     <script>
-        let currentTab = 0;
+        // --- 1. COUNTRY & DIAL CODE DATABASE ---
+        const countries = [
+            { name: "United States", code: "US", dial_code: "+1" },
+            { name: "United Kingdom", code: "GB", dial_code: "+44" },
+            { name: "Canada", code: "CA", dial_code: "+1" },
+            { name: "Australia", code: "AU", dial_code: "+61" },
+            { name: "Germany", code: "DE", dial_code: "+49" },
+            { name: "France", code: "FR", dial_code: "+33" },
+            { name: "India", code: "IN", dial_code: "+91" },
+            { name: "Nigeria", code: "NG", dial_code: "+234" },
+            { name: "South Africa", code: "ZA", dial_code: "+27" },
+            { name: "Brazil", code: "BR", dial_code: "+55" },
+            { name: "China", code: "CN", dial_code: "+86" },
+            { name: "Japan", code: "JP", dial_code: "+81" },
+            { name: "Mexico", code: "MX", dial_code: "+52" },
+            { name: "Russia", code: "RU", dial_code: "+7" },
+            { name: "Spain", code: "ES", dial_code: "+34" },
+            { name: "Italy", code: "IT", dial_code: "+39" },
+            { name: "Netherlands", code: "NL", dial_code: "+31" },
+            { name: "Sweden", code: "SE", dial_code: "+46" },
+            { name: "Switzerland", code: "CH", dial_code: "+41" },
+            { name: "United Arab Emirates", code: "AE", dial_code: "+971" },
+            { name: "Saudi Arabia", code: "SA", dial_code: "+966" },
+            { name: "South Korea", code: "KR", dial_code: "+82" },
+            { name: "Singapore", code: "SG", dial_code: "+65" },
+            { name: "New Zealand", code: "NZ", dial_code: "+64" },
+            { name: "Argentina", code: "AR", dial_code: "+54" },
+            { name: "Belgium", code: "BE", dial_code: "+32" },
+            { name: "Austria", code: "AT", dial_code: "+43" },
+            { name: "Norway", code: "NO", dial_code: "+47" },
+            { name: "Denmark", code: "DK", dial_code: "+45" },
+            { name: "Finland", code: "FI", dial_code: "+358" },
+            { name: "Ireland", code: "IE", dial_code: "+353" },
+            { name: "Portugal", code: "PT", dial_code: "+351" },
+            { name: "Greece", code: "GR", dial_code: "+30" },
+            { name: "Turkey", code: "TR", dial_code: "+90" },
+            { name: "Egypt", code: "EG", dial_code: "+20" },
+            { name: "Kenya", code: "KE", dial_code: "+254" },
+            { name: "Ghana", code: "GH", dial_code: "+233" },
+            { name: "Morocco", code: "MA", dial_code: "+212" },
+            { name: "Indonesia", code: "ID", dial_code: "+62" },
+            { name: "Malaysia", code: "MY", dial_code: "+60" },
+            { name: "Philippines", code: "PH", dial_code: "+63" },
+            { name: "Thailand", code: "TH", dial_code: "+66" },
+            { name: "Vietnam", code: "VN", dial_code: "+84" },
+            { name: "Poland", code: "PL", dial_code: "+48" },
+            { name: "Ukraine", code: "UA", dial_code: "+380" },
+            { name: "Colombia", code: "CO", dial_code: "+57" },
+            { name: "Chile", code: "CL", dial_code: "+56" },
+            { name: "Peru", code: "PE", dial_code: "+51" }
+        ];
+
+        // --- 2. POPULATE DROPDOWN ---
+        const citizenshipSelect = document.getElementById('citizenshipSelector');
+        
+        countries.sort((a, b) => a.name.localeCompare(b.name));
+
+        countries.forEach(country => {
+            const option = document.createElement('option');
+            option.value = country.code;
+            option.text = country.name;
+            option.setAttribute('data-dial', country.dial_code);
+            citizenshipSelect.appendChild(option);
+        });
+
+        // --- 3. AUTO-FILL PHONE CODE ---
+        function updatePhoneCode() {
+            const selectedOption = citizenshipSelect.options[citizenshipSelect.selectedIndex];
+            const dialCode = selectedOption.getAttribute('data-dial');
+            const phoneInput = document.getElementById('phone');
+            
+            if (dialCode) {
+                if (phoneInput.value === "" || phoneInput.value.startsWith("+")) {
+                   phoneInput.value = dialCode + " "; 
+                }
+            }
+        }
+
+        // --- 4. PASSWORD STRENGTH CHECK ---
+        function checkPasswordStrength() {
+            const password = document.getElementById('passwordInput').value;
+            const meter = document.getElementById('strengthMeter');
+            const text = document.getElementById('strengthText');
+            
+            // Reset
+            meter.className = 'password-strength';
+            text.innerText = '';
+            
+            if (!password) return false;
+
+            let score = 0;
+            if (password.length >= 8) score++;
+            if (/[A-Z]/.test(password)) score++;
+            if (/[0-9]/.test(password)) score++;
+            if (/[^A-Za-z0-9]/.test(password)) score++;
+
+            // Visual Updates
+            if (password.length < 6) {
+                text.innerText = "Too Short";
+                meter.classList.add('strength-weak');
+                return false;
+            }
+
+            if (score < 2) {
+                text.innerText = "Weak";
+                meter.classList.add('strength-weak');
+                return false;
+            } else if (score < 4) {
+                text.innerText = "Medium";
+                meter.classList.add('strength-medium');
+                return true;
+            } else {
+                text.innerText = "Strong";
+                meter.classList.add('strength-strong');
+                return true;
+            }
+        }
+
+        // --- WIZARD LOGIC ---
+        // Initialize from Django variable if present (for error handling)
+        let currentTab = {{ active_tab|default:0 }};
         showTab(currentTab);
 
         function showTab(n) {
             const x = document.getElementsByClassName("form-step");
             const nav = document.getElementsByClassName("step-item");
             
-            // Hide all tabs
             for (let i = 0; i < x.length; i++) {
                 x[i].classList.remove("active");
                 nav[i].classList.remove("active");
             }
             
-            // Show current tab
             x[n].classList.add("active");
             nav[n].classList.add("active");
             
@@ -376,11 +535,9 @@
         function nextPrev(n) {
             const x = document.getElementsByClassName("form-step");
             
-            // Validate current tab before moving forward
             if (n == 1 && !validateForm()) return false;
             
-            // Hide current tab
-            x[currentTab].style.display = "none"; // Hard hide for smooth transition reset
+            x[currentTab].style.display = "none"; 
             x[currentTab].classList.remove("active");
             
             currentTab = currentTab + n;
@@ -390,7 +547,7 @@
                 return false;
             }
             
-            x[currentTab].style.display = "block"; // Restore block
+            x[currentTab].style.display = "block"; 
             showTab(currentTab);
         }
 
@@ -400,7 +557,7 @@
             const y = x[currentTab].getElementsByTagName("input");
             const z = x[currentTab].getElementsByTagName("select");
             
-            // Check Inputs
+            // Standard Required Check
             for (let i = 0; i < y.length; i++) {
                 if (y[i].hasAttribute('required') && y[i].value == "") {
                     y[i].style.borderColor = "#ef4444";
@@ -410,10 +567,18 @@
                 }
             }
             
-            // Check Selects
             for (let i = 0; i < z.length; i++) {
                  if (z[i].value == "") {
                     z[i].style.borderColor = "#ef4444";
+                    valid = false;
+                }
+            }
+
+            // Custom Password Logic on Step 4
+            if (currentTab === 3) { 
+                const pwValid = checkPasswordStrength(); 
+                if (!pwValid) {
+                    document.getElementById('passwordInput').style.borderColor = "#ef4444";
                     valid = false;
                 }
             }

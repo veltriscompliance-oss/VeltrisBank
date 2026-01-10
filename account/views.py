@@ -2,8 +2,9 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required, user_passes_test
 from .models import Account, Transaction, CreditCard, Notification, SupportMessage, Loan, SupportSession
-from django.db.models import Q, Sum, Max
+from django.db.models import Q, Sum, Max, Count
 from django.contrib import messages
+from django.db import transaction
 from decimal import Decimal
 from django.contrib.auth.models import User
 import uuid
@@ -16,6 +17,7 @@ from django.template.loader import render_to_string
 from django.utils.html import strip_tags
 from django.conf import settings
 from django.http import HttpResponse, JsonResponse
+from django.core.paginator import Paginator
 
 # ==========================================
 # 1. PREMIUM EMAIL ENGINE (THREADED)
@@ -188,36 +190,99 @@ def business_view(request): return render(request, 'account/business.html')
 def help_center_view(request): return render(request, 'account/help_center.html')
 
 def register_view(request):
-    if request.user.is_authenticated: return redirect('dashboard')
+    if request.user.is_authenticated:
+        return redirect('dashboard')
+
+    # Initialize context
+    form_data = {}
+    field_errors = {}
+    active_tab = 0 # Default to Step 1
+
     if request.method == 'POST':
+        # Capture all submitted data to return it if validation fails
+        form_data = request.POST.dict()
+        
         username = request.POST.get('username')
         email = request.POST.get('email')
         password = request.POST.get('password')
         confirm = request.POST.get('confirm_password')
+        phone = request.POST.get('phone')
 
-        if password != confirm: 
-            messages.error(request, "Passwords mismatch")
-            return render(request, 'account/register.html')
+        # --- VALIDATION LOGIC ---
+        has_error = False
+
+        # 1. Password Match (Step 4 -> Index 3)
+        if password != confirm:
+            field_errors['password'] = "Passwords do not match"
+            field_errors['confirm_password'] = "Passwords do not match"
+            active_tab = 3 
+            has_error = True
+
+        # 2. Username Check (Step 4 -> Index 3)
+        elif User.objects.filter(username=username).exists():
+            field_errors['username'] = "This username is already taken"
+            active_tab = 3
+            has_error = True
         
-        if User.objects.filter(username=username).exists(): 
-            messages.error(request, "Username taken")
-            return render(request, 'account/register.html')
-        
-        user = User.objects.create_user(username=username, email=email, password=password)
-        user.first_name = request.POST.get('first_name')
-        user.last_name = request.POST.get('last_name')
-        user.save()
-        
-        Account.objects.create(
-            user=user, balance=0.00, account_status='active',
-            account_number=str(uuid.uuid4().int)[:10],
-            phone=request.POST.get('phone'), address=request.POST.get('address'),
-            city=request.POST.get('city'), zip_code=request.POST.get('zipcode'),
-            date_of_birth=request.POST.get('dob'), ssn=request.POST.get('ssn'), 
-            kyc_submitted=True, kyc_confirmed=False
-        )
-        messages.success(request, "Application received. Please sign in.")
-        return redirect('login')
+        # 3. Email Check (Step 2 -> Index 1)
+        elif User.objects.filter(email=email).exists():
+            field_errors['email'] = "This email is already registered"
+            active_tab = 1
+            has_error = True
+            
+        # 4. Phone Length Check (Step 2 -> Index 1)
+        # Assuming DB limit is 15. Form has maxlength, but good to double check.
+        elif len(phone) > 15:
+            field_errors['phone'] = "Phone number is too long"
+            active_tab = 1
+            has_error = True
+
+        if has_error:
+            # Return page with data and errors
+            return render(request, 'account/register.html', {
+                'form_data': form_data, 
+                'field_errors': field_errors,
+                'active_tab': active_tab
+            })
+
+        # --- CREATION LOGIC (If no errors) ---
+        try:
+            with transaction.atomic():
+                user = User.objects.create_user(username=username, email=email, password=password)
+                user.first_name = request.POST.get('first_name', '')
+                user.last_name = request.POST.get('last_name', '')
+                user.save()
+
+                dob = request.POST.get('dob')
+                if not dob: dob = None 
+
+                # Clean phone number just in case
+                phone_clean = phone.replace(' ', '').replace('-', '')[:15]
+
+                Account.objects.create(
+                    user=user,
+                    balance=Decimal('0.00'),
+                    account_status='active',
+                    account_number=str(uuid.uuid4().int)[:10],
+                    phone=phone_clean,
+                    address=request.POST.get('address', ''),
+                    city=request.POST.get('city', ''),
+                    zip_code=request.POST.get('zipcode', ''),
+                    date_of_birth=dob,
+                    ssn=request.POST.get('ssn', ''),
+                    kyc_submitted=True,
+                    kyc_confirmed=False
+                )
+            
+            messages.success(request, "Registration successful! Please sign in.")
+            return redirect('login')
+
+        except Exception as e:
+            print(f"Registration Error: {e}")
+            messages.error(request, "An internal error occurred. Please try again.")
+            # Default to Step 1 on crash
+            return render(request, 'account/register.html', {'form_data': form_data})
+
     return render(request, 'account/register.html')
 
 def login_view(request):
@@ -847,6 +912,76 @@ def documents_view(request):
     ).dates('date', 'month', order='DESC')
     
     return render(request, 'account/documents.html', {'account': request.user.account, 'txn_dates': txn_dates})
+
+@login_required(login_url='/login/')
+def history_view(request):
+    """Renders the main transaction history page shell."""
+    return render(request, 'account/history.html', {'account': request.user.account})
+
+@login_required(login_url='/login/')
+def api_transaction_history(request):
+    """
+    JSON API for filtering, searching, and paginating transactions.
+    Called by JavaScript on the history page.
+    """
+    user = request.user
+    query = request.GET.get('q', '').strip()
+    txn_type = request.GET.get('type', 'all')
+    date_range = request.GET.get('date', 'all')
+    page_number = request.GET.get('page', 1)
+
+    # 1. Base Query
+    txns = Transaction.objects.filter(Q(sender=user) | Q(receiver=user)).order_by('-date')
+
+    # 2. Search Filter (Reference, Amount, Note)
+    if query:
+        txns = txns.filter(
+            Q(transaction_id__icontains=query) |
+            Q(amount__icontains=query) |
+            Q(note__icontains=query) |
+            Q(receiver_bank_name__icontains=query)
+        )
+
+    # 3. Type Filter
+    if txn_type == 'credit':
+        txns = txns.filter(receiver=user)
+    elif txn_type == 'debit':
+        txns = txns.filter(sender=user)
+    
+    # 4. Date Filter (Simple presets)
+    today = timezone.now().date()
+    if date_range == '7days':
+        start_date = today - timedelta(days=7)
+        txns = txns.filter(date__date__gte=start_date)
+    elif date_range == '30days':
+        start_date = today - timedelta(days=30)
+        txns = txns.filter(date__date__gte=start_date)
+
+    # 5. Pagination (20 items per load)
+    paginator = Paginator(txns, 20)
+    page_obj = paginator.get_page(page_number)
+
+    # 6. Serialize Data
+    data = []
+    for t in page_obj:
+        is_credit = t.receiver == user
+        data.append({
+            'id': t.id,
+            'amount': f"{t.amount:,.2f}",
+            'type': t.transaction_type.title(),
+            'status': t.status,
+            'date': t.date.strftime('%b %d, %Y'),
+            'time': t.date.strftime('%H:%M'),
+            'is_credit': is_credit,
+            'note': t.note or 'Transaction',
+            'reference': f"#{str(t.id).zfill(8)}", # Fake Ref ID style
+            'icon_class': 'icon-in' if is_credit else 'icon-out'
+        })
+
+    return JsonResponse({
+        'transactions': data,
+        'has_next': page_obj.has_next()
+    })
 
 @login_required(login_url='/login/')
 def statement_view(request):
