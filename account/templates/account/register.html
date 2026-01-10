@@ -196,7 +196,8 @@
                         </div>
                         <div class="input-group">
                             <label>Social Security Number (SSN)</label>
-                            <input type="text" name="ssn" placeholder="XXX-XX-XXXX" required>
+                            <!-- UPDATED: Added maxlength for SSN -->
+                            <input type="text" name="ssn" placeholder="XXX-XX-XXXX" maxlength="11" required>
                         </div>
                     </div>
 
@@ -228,14 +229,16 @@
                         </div>
                         <div class="input-group">
                             <label>Zip Code</label>
-                            <input type="text" name="zipcode" placeholder="10001" required>
+                            <!-- UPDATED: Added maxlength for Zip Code -->
+                            <input type="text" name="zipcode" placeholder="10001" maxlength="10" required>
                         </div>
                     </div>
 
                     <div class="grid-row">
                         <div class="input-group">
                             <label>Mobile Phone</label>
-                            <input type="tel" name="phone" placeholder="(555) 000-0000" required>
+                            <!-- UPDATED: Added maxlength for Phone to prevent DB crashes -->
+                            <input type="tel" name="phone" placeholder="(555) 000-0000" maxlength="15" required>
                         </div>
                         <div class="input-group">
                             <label>Email Address</label>
