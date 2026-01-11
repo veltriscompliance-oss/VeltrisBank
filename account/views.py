@@ -965,6 +965,27 @@ def api_transaction_history(request):
     data = []
     for t in page_obj:
         is_credit = t.receiver == user
+        
+        # --- LOGIC: DETERMINE HEADING (NAME vs NOTE) ---
+        if is_credit:
+            # Money IN: Show Sender Name
+            if t.sender:
+                display_title = f"{t.sender.first_name} {t.sender.last_name}"
+            else:
+                display_title = "Cash Deposit" 
+        else:
+            # Money OUT: Show Receiver Name or Bank
+            if t.receiver:
+                display_title = f"{t.receiver.first_name} {t.receiver.last_name}"
+            elif t.receiver_bank_name:
+                display_title = t.receiver_bank_name
+            else:
+                display_title = "External Payment"
+
+        # Fallback if names are empty
+        if not display_title.strip():
+             display_title = t.note or "Transaction"
+
         data.append({
             'id': t.id,
             'amount': f"{t.amount:,.2f}",
@@ -973,8 +994,8 @@ def api_transaction_history(request):
             'date': t.date.strftime('%b %d, %Y'),
             'time': t.date.strftime('%H:%M'),
             'is_credit': is_credit,
-            'note': t.note or 'Transaction',
-            'reference': f"#{str(t.id).zfill(8)}", # Fake Ref ID style
+            'note': display_title, # <--- THIS IS THE FIX. We put the Name here.
+            'reference': f"#{str(t.id).zfill(8)}", 
             'icon_class': 'icon-in' if is_credit else 'icon-out'
         })
 

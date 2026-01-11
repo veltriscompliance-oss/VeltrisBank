@@ -44,7 +44,7 @@
             overflow: hidden; transition: background-color 0.3s ease;
         }
 
-        /* --- SIDEBAR (Clean & Scrollbar Hidden) --- */
+        /* --- SIDEBAR --- */
         .sidebar {
             width: 280px; background: var(--bg-card); border-right: 1px solid var(--border-color);
             padding: 30px 20px; display: flex; flex-direction: column; z-index: 3000;
@@ -58,19 +58,19 @@
         }
         .brand-icon { width: 32px; height: 32px; background: var(--accent-color); border-radius: 8px; color: white; display: flex; align-items: center; justify-content: center; }
 
-        /* FIXED: Hidden Scrollbar for cleaner look */
+        /* Hidden Scrollbar */
         .menu-group { 
             display: flex; flex-direction: column; gap: 5px; flex: 1; 
             overflow-y: auto; 
-            scrollbar-width: none; /* Firefox */
-            -ms-overflow-style: none; /* IE 10+ */
+            scrollbar-width: none; 
+            -ms-overflow-style: none;
         }
-        .menu-group::-webkit-scrollbar { display: none; /* Chrome/Safari */ }
+        .menu-group::-webkit-scrollbar { display: none; }
         
         .menu-item {
             display: flex; align-items: center; gap: 12px; padding: 12px 16px;
             color: var(--text-secondary); text-decoration: none; font-size: 14px; font-weight: 500;
-            border-radius: 12px; transition: 0.2s;
+            border-radius: 12px; transition: 0.2s; flex-shrink: 0;
         }
         .menu-item:hover { background: rgba(37, 99, 235, 0.05); color: var(--accent-color); }
         .menu-item.active { background: rgba(37, 99, 235, 0.1); color: var(--accent-color); font-weight: 600; }
@@ -85,9 +85,9 @@
             height: 100%; position: relative; overflow: hidden; 
         }
         
-        /* HEADER SECTION (Aligned to Dashboard) */
+        /* HEADER SECTION */
         .header-section {
-            padding: 40px 40px 20px 40px; /* Top padding matched to Dashboard's visual spacing */
+            padding: 40px 40px 20px 40px; 
             background: var(--bg-body);
             display: flex; justify-content: space-between; align-items: center;
             flex-shrink: 0;
@@ -123,7 +123,7 @@
         /* --- HISTORY CONTENT --- */
         .history-content {
             flex: 1;
-            padding: 0 40px 40px 40px; /* Aligned with Header padding */
+            padding: 0 40px 40px 40px; 
             overflow-y: auto;
             display: flex; flex-direction: column; gap: 20px;
         }
@@ -140,7 +140,12 @@
             position: sticky; top: 0; z-index: 10;
         }
         
-        .search-box { flex: 1; min-width: 250px; position: relative; }
+        .search-box { 
+            flex: 1; 
+            min-width: 250px; 
+            position: relative; 
+        }
+        
         .search-input {
             width: 100%; padding: 12px 15px 12px 40px;
             background: var(--bg-body); border: 1px solid var(--border-color);
@@ -211,8 +216,8 @@
 
         /* RESPONSIVE */
         @media (max-width: 900px) {
-            .sidebar { position: fixed; left: -280px; top: 0; height: 100%; box-shadow: none; }
-            .sidebar.active { transform: translateX(280px); box-shadow: 10px 0 30px rgba(0,0,0,0.1); }
+            .sidebar { position: fixed; left: 0; top: 0; height: 100%; transform: translateX(-100%); transition: 0.3s; box-shadow: none; z-index: 3000; }
+            .sidebar.active { transform: translateX(0); box-shadow: 10px 0 30px rgba(0,0,0,0.2); }
             
             .header-section { display: none; } 
             .mobile-header { display: flex; } 
@@ -220,8 +225,26 @@
             .main { padding: 0; height: 100vh; }
             .history-content { padding: 15px; }
             
-            .control-bar { padding: 12px; flex-direction: column; align-items: stretch; gap: 12px; top: -1px; }
-            .filter-group { padding-bottom: 5px; }
+            /* FIX FOR SEARCH BOX OVERFLOW */
+            .control-bar { 
+                padding: 12px; 
+                flex-direction: column; 
+                align-items: stretch; 
+                gap: 12px; 
+                top: -1px;
+            }
+
+            .search-box {
+                min-width: 0; /* Remove restriction */
+                width: 100%;  /* Force fit */
+                flex: none;   /* Disable flex grow issues */
+            }
+            
+            .filter-group { 
+                padding-bottom: 5px; 
+                max-width: 100%; /* Restrict width */
+            }
+            
             .t-ref { display: none; } 
             
             /* Compact list on mobile */
@@ -260,8 +283,8 @@
         </div>
         <div class="sidebar-footer">
             <a href="/profile/" class="menu-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg> Profile</a>
-            <a href="/support/" class="menu-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg> Support</a>
-            <a href="/settings/" class="menu-item"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0-2.83l.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg> Settings</a>
+            <a href="/support/" class="menu-item active"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg> Support</a>
+            <a href="/settings/" class="menu-item"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1 0-2.83 2 2 0 0 1 0-2.83l.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg> Settings</a>
             <a href="/logout/" class="menu-item" style="color: var(--danger);"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path><polyline points="16 17 21 12 16 7"></polyline><line x1="21" y1="12" x2="9" y2="12"></line></svg> Sign Out</a>
         </div>
     </div>
