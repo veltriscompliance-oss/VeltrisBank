@@ -8,7 +8,7 @@ from decimal import Decimal
 
 # --- OPTIONS ---
 ACCOUNT_STATUS = (('active', 'Active'), ('pending', 'Pending'), ('blocked', 'Blocked'))
-TRANSACTION_TYPE = (('deposit', 'Deposit'), ('withdrawal', 'Withdrawal'), ('transfer', 'Transfer'), ('wire', 'Wire Transfer'), ('payment', 'Bill Payment'), ('loan', 'Loan Credit'), ('repayment', 'Loan Repayment'))
+TRANSACTION_TYPE = (('deposit', 'Deposit'), ('withdrawal', 'Withdrawal'), ('transfer', 'Transfer'), ('wire', 'Wire Transfer'), ('payment', 'Bill Payment'), ('loan', 'Loan Credit'), ('repayment', 'Loan Repayment'), ('refund', 'Refund / Reversal'))
 TRANSACTION_STATUS = (('success', 'Success'), ('pending', 'Pending'), ('failed', 'Failed'), ('processing', 'Processing'))
 LOAN_STATUS = (('pending', 'Pending'), ('approved', 'Active'), ('rejected', 'Rejected'), ('paid', 'Paid Off'))
 
