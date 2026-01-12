@@ -3,7 +3,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, interactive-widget=resizes-content">
     <title>Support | Veltris Bank</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@500&display=swap" rel="stylesheet">
     <script type="importmap">
@@ -14,7 +14,7 @@
       }
     </script>
     <style>
-        /* --- THEME SYSTEM (EXACT MATCH TO DASHBOARD) --- */
+        /* --- THEME SYSTEM --- */
         :root {
             --bg-body: #f8fafc;
             --bg-card: #ffffff;
@@ -50,18 +50,22 @@
 
         * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
         
-        body { 
+        /* GLOBAL LAYOUT RESET */
+        html, body { 
             margin: 0; padding: 0;
             font-family: 'Inter', sans-serif; 
             background-color: var(--bg-body); color: var(--text-primary);
-            display: flex; height: 100vh; overflow: hidden; transition: background-color 0.3s ease;
+            /* CRITICAL: Use dvh to handle mobile address bars correctly */
+            height: 100vh; height: 100dvh; 
+            width: 100%; overflow: hidden;
+            display: flex;
         }
 
         /* --- SIDEBAR --- */
         .sidebar {
             width: 280px; background: var(--bg-card); border-right: 1px solid var(--border-color);
             padding: 30px 20px; display: flex; flex-direction: column; z-index: 1000;
-            transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1), background-color 0.3s;
+            transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         }
 
         .brand {
@@ -70,19 +74,13 @@
         }
         .brand-icon { width: 32px; height: 32px; background: var(--accent-color); border-radius: 8px; color: white; display: flex; align-items: center; justify-content: center; }
 
-        /* Hidden Scrollbar Logic */
-        .menu-group { 
-            display: flex; flex-direction: column; gap: 5px; flex: 1; 
-            overflow-y: auto; 
-            scrollbar-width: none; 
-            -ms-overflow-style: none;
-        }
+        .menu-group { display: flex; flex-direction: column; gap: 5px; flex: 1; overflow-y: auto; scrollbar-width: none; }
         .menu-group::-webkit-scrollbar { display: none; }
         
         .menu-item {
             display: flex; align-items: center; gap: 12px; padding: 12px 16px;
             color: var(--text-secondary); text-decoration: none; font-size: 14px; font-weight: 500;
-            border-radius: 12px; transition: 0.2s;
+            border-radius: 12px; transition: 0.2s; flex-shrink: 0;
         }
         .menu-item:hover { background: rgba(37, 99, 235, 0.05); color: var(--accent-color); }
         .menu-item.active { background: rgba(37, 99, 235, 0.1); color: var(--accent-color); font-weight: 600; }
@@ -96,18 +94,17 @@
             padding: 0; 
             display: flex; 
             flex-direction: column; 
-            height: 100vh; 
+            height: 100%; 
             position: relative; 
             overflow: hidden; 
         }
         
-        /* HEADER WRAPPER (To keep alignment with dashboard) */
+        /* HEADER */
         .header-section {
             padding: 20px 40px;
             background: var(--bg-body);
-            flex-shrink: 0;
+            flex-shrink: 0; /* Prevents collapse */
         }
-
         .header { display: flex; justify-content: space-between; align-items: center; }
         .page-title { margin: 0; font-size: 24px; font-weight: 700; color: var(--text-primary); }
         .page-subtitle { color: var(--text-secondary); font-size: 13px; margin-top: 4px; }
@@ -119,7 +116,7 @@
             display: flex; align-items: center; justify-content: center; 
             color: var(--text-primary); cursor: pointer; transition: 0.2s; position: relative; 
         }
-        .icon-btn:hover { border-color: var(--accent-color); color: var(--accent-color); transform: translateY(-2px); }
+        .icon-btn:hover { border-color: var(--accent-color); color: var(--accent-color); }
         .notif-dot { position: absolute; top: 10px; right: 10px; width: 8px; height: 8px; background: var(--danger); border-radius: 50%; border: 2px solid var(--bg-card); }
         
         .user-pill { 
@@ -135,25 +132,25 @@
         .mobile-header { 
             display: none; width: 100%; justify-content: space-between; align-items: center; 
             padding: 15px 20px; background: var(--bg-card); border-bottom: 1px solid var(--border-color);
-            flex-shrink: 0;
+            flex-shrink: 0; z-index: 50;
         }
         .nav-avatar { width: 40px; height: 40px; border-radius: 50%; object-fit: cover; border: 2px solid var(--border-color); box-shadow: 0 2px 8px rgba(0,0,0,0.1); cursor: pointer; }
 
-        /* --- CHAT INTERFACE --- */
+        /* --- CHAT INTERFACE (GRID LAYOUT FIX) --- */
         .chat-layout {
-            flex: 1;
+            /* Desktop Margins */
             margin: 0 40px 40px 40px;
             background: var(--bg-card);
             border: 1px solid var(--border-color);
             border-radius: 24px;
-            display: flex;
-            flex-direction: column;
-            overflow: hidden;
             box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05);
+            
+            /* THE FIX: CSS GRID for perfect vertical stacking */
+            display: grid;
+            grid-template-rows: auto 1fr auto; /* Header | Body | Footer */
+            height: calc(100% - 40px); /* Adjust for bottom margin */
+            overflow: hidden;
             position: relative;
-            /* CRITICAL FIX: Ensure height is calculated correctly */
-            height: 100%; 
-            min-height: 0; 
         }
 
         .chat-header {
@@ -161,7 +158,7 @@
             border-bottom: 1px solid var(--border-color);
             display: flex; align-items: center; gap: 15px;
             background: rgba(0,0,0,0.02);
-            flex-shrink: 0;
+            /* Grid Item: Automatically sizes to content */
         }
         .agent-avatar-icon {
             width: 40px; height: 40px; border-radius: 12px; background: rgba(37, 99, 235, 0.1); 
@@ -174,13 +171,13 @@
 
         /* CHAT WINDOW */
         .chat-window {
-            flex: 1;
             padding: 25px;
-            overflow-y: auto;
+            overflow-y: auto; /* Scrollable area */
             display: flex;
             flex-direction: column;
             gap: 15px;
             scroll-behavior: smooth;
+            -webkit-overflow-scrolling: touch; /* iOS Smooth Scroll */
         }
         .chat-window::-webkit-scrollbar { width: 6px; }
         .chat-window::-webkit-scrollbar-track { background: transparent; }
@@ -208,7 +205,9 @@
             padding: 20px;
             border-top: 1px solid var(--border-color);
             background: var(--bg-card);
-            flex-shrink: 0; /* Prevents input from disappearing */
+            z-index: 20;
+            /* CRITICAL: Safe area for iPhone home bar */
+            padding-bottom: calc(20px + env(safe-area-inset-bottom));
         }
 
         .input-wrapper {
@@ -225,7 +224,7 @@
             flex: 1; background: transparent; border: none;
             color: var(--text-primary); font-size: 15px; font-family: 'Inter', sans-serif;
             padding: 5px 0; outline: none;
-            height: 24px;
+            height: 24px; /* Ensure height */
         }
 
         .btn-send {
@@ -246,6 +245,7 @@
         .notif-msg { font-size: 13px; color: var(--text-primary); line-height: 1.4; }
         .notif-time { font-size: 11px; color: var(--text-secondary); margin-top: 5px; }
 
+        /* --- MOBILE RESPONSIVE FIX --- */
         @media (max-width: 900px) {
             .sidebar { position: fixed; left: -280px; top: 0; height: 100%; box-shadow: none; }
             .sidebar.active { transform: translateX(280px); box-shadow: 10px 0 30px rgba(0,0,0,0.1); }
@@ -253,18 +253,19 @@
             .header-section { display: none; } 
             .mobile-header { display: flex; } 
             
-            .main { padding: 0; height: 100vh; }
+            /* Remove padding from main so chat touches edges */
+            .main { padding: 0; }
             
             .chat-layout { 
                 margin: 0; 
                 border-radius: 0; 
                 border: none;
-                flex: 1; 
-                height: auto;
+                height: 100%; /* Fill Full Height */
+                width: 100%;
             }
             .chat-window { padding: 15px; }
             .msg-bubble { max-width: 85%; }
-            .chat-footer { padding: 15px; } 
+            .chat-footer { padding: 15px; padding-bottom: calc(15px + env(safe-area-inset-bottom)); } 
             .notif-dropdown { right: 10px; width: calc(100% - 20px); top: 70px; }
         }
     </style>
@@ -298,7 +299,7 @@
         <div class="sidebar-footer">
             <a href="/profile/" class="menu-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg> Profile</a>
             <a href="/support/" class="menu-item active"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg> Support</a>
-            <a href="/settings/" class="menu-item"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg> Settings</a>
+            <a href="/settings/" class="menu-item"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1 0-2.83 2 2 0 0 1 0-2.83l.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg> Settings</a>
             <a href="/logout/" class="menu-item" style="color: var(--danger);"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path><polyline points="16 17 21 12 16 7"></polyline><line x1="21" y1="12" x2="9" y2="12"></line></svg> Sign Out</a>
         </div>
     </div>
@@ -523,23 +524,32 @@
 
                     const history = getConversationHistory();
                     
-                    // --- THE PROMPT ---
-                    // Note: We use the 'safe' filter to prevent JS syntax errors if name contains quotes
+                    // --- THE SMART PROMPT (Context + Empathy + Safety) ---
+                    // Note: We use 'escapejs' filter to prevent line breaks from breaking the JS string
                     const prompt = `
-                        You are Veltris Bank Support. 
+                        You are "Veltris Concierge", a premium banking AI assistant.
                         
-                        CONTEXT:
-                        User Name: {{ user.first_name|default:"Valued Customer" }}
+                        USER CONTEXT:
+                        - Name: {{ user.first_name|default:"Valued Customer" }}
+                        - Account Status: {{ account.account_status|upper }}
+                        - Current Balance: ${{ account.balance|floatformat:2 }}
                         
-                        HISTORY:
+                        RECENT TRANSACTIONS (Use this data to answer specific questions):
+                        {{ transaction_context|escapejs }}
+                        
+                        CHAT HISTORY:
                         ${history}
                         
                         INSTRUCTIONS:
-                        1. If the user mentions "blocked", "frozen", "hack", "scam", or asks for "human/agent":
-                           - Acknowledge the issue reassuringly.
+                        1. If the user asks about a specific transaction (e.g. "Did my Netflix payment go through?"), CHECK the Recent Transactions list above.
+                           - If found: "Yes, your payment of [Amount] to [Name] on [Date] was successful."
+                           - If NOT found: "I don't see that transaction in your recent history. Do you have the date?"
+                        
+                        2. If the user mentions "blocked", "frozen", "hack", "scam", or asks for "human/agent":
+                           - Acknowledge the issue reassuringly (e.g. "I understand this is concerning...").
                            - END response with: [CONNECT_AGENT]
                            
-                        2. Otherwise, answer helpfully (max 2 sentences).
+                        3. Keep responses professional, concise (max 2 sentences), and helpful.
                     `;
 
                     const result = await model.generateContent(prompt);
@@ -547,9 +557,10 @@
                     const aiText = response.text();
 
                     if (aiText.includes("[CONNECT_AGENT]")) {
+                        // --- HANDOFF TRIGGER ---
                         triggerHandoff(aiText);
                     } else {
-                        // Normal Reply
+                        // --- NORMAL AI REPLY ---
                         appendMessage(aiText, 'bot');
                         const savedId = await saveToDatabase(aiText, true);
                         if(savedId) lastMessageId = savedId;
@@ -561,8 +572,6 @@
                     // If AI crashes, don't show an error. Seamlessly switch to human.
                     triggerHandoff("[CONNECT_AGENT]"); 
                 }
-            }
-        });
 
         // --- HANDOFF HANDLER ---
         async function triggerHandoff(aiText) {

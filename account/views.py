@@ -825,7 +825,7 @@ def support_view(request):
                 message=message_text,
                 is_admin_reply=is_bot
             )
-            # CRITICAL FIX: Explicitly update the heartbeat
+            # Explicitly update the heartbeat so session doesn't die while typing
             session.last_activity = timezone.now()
             session.save() 
         
@@ -834,44 +834,48 @@ def support_view(request):
             
         return redirect('support')
     
-
     # 3. Load History
     messages_list = SupportMessage.objects.filter(session=session).order_by('timestamp')
 
-    # --- NEW: Fetch & Format Transaction History for AI ---
-    # We use Q objects to get money sent OR money received
+    # 4. FETCH SMART CONTEXT FOR AI
     recent_txns = Transaction.objects.filter(
         Q(sender=request.user) | Q(receiver=request.user)
     ).order_by('-date')[:5]
     
     txn_context = ""
+    if not recent_txns:
+        txn_context = "No recent transactions."
+    
     for t in recent_txns:
-        date_str = t.date.strftime('%b %d, %H:%M')
+        date_str = t.date.strftime('%b %d')
         
-        # Smart Description Logic
+        # Smart formatting: Add +/- signs so AI understands money flow
         if t.sender == request.user:
-            # Money Leaving
+            # Money Leaving (Debit)
+            amount_display = f"-${t.amount:,.2f}"
             if t.receiver:
-                desc = f"Sent to {t.receiver.username}" # Internal
+                desc = f"Sent to {t.receiver.first_name} {t.receiver.last_name}"
             elif t.receiver_bank_name:
-                desc = f"Wire to {t.receiver_bank_name}" # External
+                desc = f"Wire to {t.receiver_bank_name}"
             else:
-                desc = f"Payment: {t.note}" # Bill Pay
+                desc = f"Payment: {t.note}" 
         else:
-            # Money Coming In
+            # Money Coming In (Credit)
+            amount_display = f"+${t.amount:,.2f}"
             if t.sender:
-                desc = f"Received from {t.sender.username}"
+                desc = f"Received from {t.sender.first_name} {t.sender.last_name}"
             else:
                 desc = "Mobile Deposit"
 
-        txn_context += f"- {date_str}: ${t.amount} ({desc}) | Status: {t.status}\n"
+        # Format: "Oct 24: -$50.00 (Netflix) | Status: Success"
+        txn_context += f"• {date_str}: {amount_display} ({desc}) | Status: {t.status}\n"
 
     return render(request, 'account/support.html', {
         'messages': messages_list, 
         'account': request.user.account, 
         'gemini_api_key': settings.GEMINI_API_KEY,
         'active_session': session,
-        'transaction_context': txn_context # <--- Sending the Data
+        'transaction_context': txn_context # Passes the smart list to the template
     })
 
 @login_required(login_url='/login/')
