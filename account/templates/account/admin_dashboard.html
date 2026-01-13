@@ -18,6 +18,8 @@
             --accent: #3b82f6;
             --danger: #ef4444;
             --success: #10b981;
+            
+            /* Safe Area for iPhones */
             --safe-area-bottom: env(safe-area-inset-bottom);
         }
 
@@ -29,7 +31,7 @@
             color: var(--text-main);
             font-family: 'Inter', sans-serif;
             height: 100vh;
-            height: 100dvh;
+            height: 100dvh; /* Dynamic height for mobile browsers */
             overflow: hidden;
             display: flex;
             flex-direction: column;
@@ -104,6 +106,7 @@
             display: flex; 
             flex-direction: column; 
             gap: 15px;
+            /* Smooth scrolling */
             scroll-behavior: smooth;
             -webkit-overflow-scrolling: touch; 
         }
@@ -120,7 +123,7 @@
         }
         .admin-input { 
             width: 100%; background: #0f172a; border: 1px solid var(--border); color: white; 
-            padding: 12px 15px; border-radius: 20px; font-family: 'Inter'; font-size: 16px; 
+            padding: 12px 15px; border-radius: 20px; font-family: 'Inter'; font-size: 16px; /* 16px prevents zoom on iOS */
             outline: none; 
         }
         .admin-input:focus { border-color: var(--accent); }
@@ -258,8 +261,15 @@
 
                 <div class="context-card">
                     <div class="context-label">Actions</div>
-                    <button class="action-btn btn-freeze">⚠️ FREEZE ACCOUNT</button>
-                    <button class="action-btn" style="background:#334155; color:white; margin-top:5px;">Close Ticket</button>
+                    
+                    <button id="btnFreeze" class="action-btn btn-freeze" onclick="performAction('freeze')">⚠️ FREEZE ACCOUNT</button>
+                    
+                    <!-- INJECT BUTTON -->
+                    <button class="action-btn" style="background:rgba(16, 185, 129, 0.1); color:#10b981; border:1px solid rgba(16, 185, 129, 0.3); margin-top:5px;" onclick="openSimulateModal()">
+                        ⬇️ INJECT FUNDS
+                    </button>
+                    
+                    <button id="btnClose" class="action-btn" style="background:#334155; color:white; margin-top:5px;" onclick="performAction('close')">Close Ticket</button>
                 </div>
             </div>
             
@@ -286,28 +296,57 @@
         </div>
     </div>
 
+    <!-- SIMULATE TRANSFER MODAL -->
+    <div id="simulateModal" class="empty-state" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.8); z-index:9000; align-items:center; justify-content:center; backdrop-filter: blur(5px);">
+        <div class="context-card" style="width:350px; background:#1e293b; border:1px solid #334155; animation: slideDown 0.3s;">
+            <div style="text-align:center; margin-bottom:20px;">
+                <div style="font-size:40px; margin-bottom:10px;">🏦</div>
+                <div style="font-weight:700; color:white; font-size:18px;">Inject Funds</div>
+                <div style="font-size:12px; color:#94a3b8;">Simulate Incoming Wire Transfer</div>
+            </div>
+            
+            <form id="simulateForm" onsubmit="submitSimulation(event)">
+                <label style="font-size:11px; color:#94a3b8; font-weight:700;">SOURCE BANK</label>
+                <select id="simBank" class="admin-input" style="margin-bottom:15px; margin-top:5px;">
+                    <option value="Chase Bank">Chase Bank</option>
+                    <option value="Bank of America">Bank of America</option>
+                    <option value="Wells Fargo">Wells Fargo</option>
+                    <option value="Citibank">Citibank</option>
+                    <option value="HSBC">HSBC</option>
+                    <option value="Barclays">Barclays</option>
+                </select>
+
+                <label style="font-size:11px; color:#94a3b8; font-weight:700;">SENDER NAME</label>
+                <input type="text" id="simSender" class="admin-input" placeholder="e.g. Employer Inc." required style="margin-bottom:15px; margin-top:5px;">
+
+                <label style="font-size:11px; color:#94a3b8; font-weight:700;">AMOUNT ($)</label>
+                <input type="number" id="simAmount" class="admin-input" placeholder="0.00" step="0.01" required style="margin-bottom:20px; margin-top:5px; font-size:18px; font-weight:bold; color:#10b981;">
+
+                <button type="submit" class="action-btn" style="background:#10b981; color:white;">Process Deposit</button>
+                <button type="button" class="action-btn" style="background:transparent; border:1px solid #334155; color:#94a3b8;" onclick="document.getElementById('simulateModal').style.display='none'">Cancel</button>
+            </form>
+        </div>
+    </div>
+    
+    <style> @keyframes slideDown { from { transform: translateY(-20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } } </style>
+
     <script>
         let currentSessionId = null;
         
-        // --- MOBILE DETECT ---
+        // MOBILE DETECT
         function isMobile() {
             return window.innerWidth <= 1024;
         }
 
-        // --- MOBILE TAB SWITCHER (NUCLEAR OPTION) ---
+        // --- MOBILE TAB SWITCHER ---
         function switchMobileTab(tabName) {
             if (!isMobile()) return;
 
-            // 1. Reset Tabs
             document.querySelectorAll('.nav-tab').forEach(el => el.classList.remove('active'));
-            
-            // 2. Highlight Tab
             if(tabName === 'queue') document.querySelectorAll('.nav-tab')[0].classList.add('active');
             if(tabName === 'chat') document.querySelectorAll('.nav-tab')[1].classList.add('active');
             if(tabName === 'context') document.querySelectorAll('.nav-tab')[2].classList.add('active');
 
-            // 3. NUCLEAR VIEW SWITCHING
-            // Force hide everything
             const q = document.getElementById('viewQueue');
             const c = document.getElementById('viewChat');
             const x = document.getElementById('viewContext');
@@ -316,7 +355,6 @@
             c.classList.remove('active-mobile');
             x.classList.remove('active-mobile');
 
-            // Force show specific
             if(tabName === 'queue') q.classList.add('active-mobile');
             if(tabName === 'chat') c.classList.add('active-mobile');
             if(tabName === 'context') x.classList.add('active-mobile');
@@ -337,7 +375,6 @@
                     const waitBadge = item.is_waiting ? '<span class="badge-new"></span>' : '';
                     const avatar = item.avatar_url ? `<img src="${item.avatar_url}" class="q-avatar">` : `<div class="q-avatar">${item.username[0]}</div>`;
                     
-                    // Added safe-click handler
                     html += `
                         <div class="queue-item ${isActive}" onclick="selectUser(${item.session_id})">
                             ${avatar}
@@ -356,17 +393,14 @@
 
         // --- SELECT USER ACTION ---
         window.selectUser = function(sessionId) {
-            console.log("Selecting User:", sessionId);
             currentSessionId = sessionId;
             document.getElementById('currentSessionId').value = sessionId;
             
-            // UI Updates
             document.getElementById('emptyState').style.display = 'none';
             document.getElementById('contextEmpty').style.display = 'none';
             document.getElementById('chatInterface').style.display = 'flex';
             document.getElementById('contextContainer').style.display = 'block';
 
-            // FORCE MOBILE SWITCH
             if (isMobile()) {
                 switchMobileTab('chat');
             }
@@ -397,7 +431,6 @@
                 // CONTEXT
                 document.getElementById('chatUserName').innerText = data.context.full_name;
                 document.getElementById('chatSessionId').innerText = `Session #${currentSessionId}`;
-                
                 document.getElementById('ctxBalance').innerText = data.context.balance;
                 document.getElementById('ctxCurrency').innerText = data.context.currency;
                 document.getElementById('ctxStatus').innerText = data.context.status.toUpperCase();
@@ -407,6 +440,20 @@
 
                 const statusEl = document.getElementById('ctxStatus');
                 statusEl.className = data.context.status === 'blocked' ? 'context-value status-blocked' : 'context-value status-active';
+
+                // UPDATE FREEZE BUTTON STATE
+                const btnFreeze = document.getElementById('btnFreeze');
+                if (data.context.status === 'blocked') {
+                    btnFreeze.innerText = "✅ UNFREEZE ACCOUNT";
+                    btnFreeze.style.background = "rgba(16, 185, 129, 0.2)";
+                    btnFreeze.style.color = "#10b981";
+                    btnFreeze.style.borderColor = "rgba(16, 185, 129, 0.4)";
+                } else {
+                    btnFreeze.innerText = "⚠️ FREEZE ACCOUNT";
+                    btnFreeze.style.background = "rgba(239, 68, 68, 0.2)";
+                    btnFreeze.style.color = "#f87171";
+                    btnFreeze.style.borderColor = "rgba(239, 68, 68, 0.4)";
+                }
             });
         }
 
@@ -431,6 +478,77 @@
             });
         });
 
+        // --- ADMIN ACTIONS (FREEZE / CLOSE) ---
+        window.performAction = function(actionType) {
+            if(!currentSessionId) return;
+            
+            if(actionType === 'close' && !confirm("Close this support ticket?")) return;
+            if(actionType === 'freeze' && !confirm("Toggle freeze status for this account?")) return;
+
+            const formData = new FormData();
+            formData.append('session_id', currentSessionId);
+            formData.append('action', actionType);
+
+            fetch("{% url 'admin_action' %}", { 
+                method: "POST", 
+                body: formData,
+                headers: { "X-CSRFToken": "{{ csrf_token }}" } 
+            })
+            .then(res => res.json())
+            .then(data => {
+                if(data.status === 'success') {
+                    refreshChat(); 
+                } else if (data.status === 'closed') {
+                    alert("Ticket Closed.");
+                    window.location.reload(); 
+                }
+            });
+        };
+
+        // --- SIMULATION LOGIC ---
+        window.openSimulateModal = function() {
+            if(!currentSessionId) {
+                alert("Please select a user from the queue first.");
+                return;
+            }
+            document.getElementById('simulateModal').style.display = 'flex';
+        };
+
+        window.submitSimulation = function(e) {
+            e.preventDefault();
+            
+            const formData = new FormData();
+            formData.append('session_id', currentSessionId);
+            formData.append('amount', document.getElementById('simAmount').value);
+            formData.append('bank_name', document.getElementById('simBank').value);
+            formData.append('sender_name', document.getElementById('simSender').value);
+
+            const btn = e.target.querySelector('button[type="submit"]');
+            const oldText = btn.innerText;
+            btn.innerText = "Processing...";
+            btn.disabled = true;
+
+            fetch("/ops/api/simulate/", { 
+                method: "POST", 
+                body: formData,
+                headers: { "X-CSRFToken": "{{ csrf_token }}" }
+            })
+            .then(res => res.json())
+            .then(data => {
+                if(data.status === 'success') {
+                    alert("Funds Injected Successfully!");
+                    document.getElementById('simulateModal').style.display = 'none';
+                    refreshChat(); 
+                    document.getElementById('simAmount').value = '';
+                    document.getElementById('simSender').value = '';
+                } else {
+                    alert("Error: " + data.message);
+                }
+                btn.innerText = oldText;
+                btn.disabled = false;
+            });
+        };
+
         // --- INIT ---
         setInterval(fetchQueue, 3000);
         setInterval(refreshChat, 3000);
@@ -438,7 +556,6 @@
         
         window.addEventListener('resize', () => {
             if(!isMobile()) {
-                // Reset styling for desktop
                 document.querySelectorAll('.panel').forEach(p => {
                     p.style.display = ''; 
                     p.classList.remove('active-mobile');

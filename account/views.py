@@ -1055,6 +1055,9 @@ def is_staff(user):
 # VELTRIS OPS COMMAND CENTER (FINAL SAFE VERSION)
 # ==========================================
 
+def is_staff(user):
+    return user.is_staff or user.is_superuser
+
 # 1. THE DASHBOARD SHELL
 @user_passes_test(is_staff, login_url='/admin/login/')
 def admin_dashboard(request):
@@ -1105,7 +1108,7 @@ def admin_chat_data(request, session_id):
     session = get_object_or_404(SupportSession, id=session_id)
     user = session.user
     
-    # SAFE ACCOUNT ACCESS (Prevents 500 Error if User has no Account)
+    # SAFE ACCOUNT ACCESS
     balance = "0.00"
     acc_num = "N/A"
     currency = "USD"
@@ -1119,7 +1122,7 @@ def admin_chat_data(request, session_id):
             acc_num = account.account_number
             currency = account.currency
             status = account.account_status
-            risk_score = 85 # Placeholder or real logic
+            risk_score = 85
     except:
         status = "No Profile"
 
@@ -1171,6 +1174,90 @@ def admin_reply(request):
         
         return JsonResponse({'status': 'sent'})
     
+    return JsonResponse({'status': 'error'}, status=400)
+
+# 5. ADMIN ACTIONS (FREEZE / CLOSE)
+@user_passes_test(is_staff)
+def admin_action(request):
+    """Handles Freeze/Unfreeze and Close Ticket actions."""
+    if request.method == "POST":
+        session_id = request.POST.get('session_id')
+        action = request.POST.get('action') 
+        
+        session = get_object_or_404(SupportSession, id=session_id)
+        user = session.user
+        
+        if action == 'freeze':
+            # Toggle Freeze Status
+            if hasattr(user, 'account'):
+                acc = user.account
+                if acc.account_status == 'blocked':
+                    acc.account_status = 'active'
+                    status_msg = "Account Unfrozen"
+                else:
+                    acc.account_status = 'blocked'
+                    status_msg = "Account Frozen"
+                acc.save()
+                
+                # System Log
+                SupportMessage.objects.create(
+                    user=user, session=session,
+                    message=f"SYSTEM ALERT: {status_msg} by Admin.",
+                    is_admin_reply=True
+                )
+                return JsonResponse({'status': 'success', 'new_state': acc.account_status})
+
+        elif action == 'close':
+            session.status = 'closed'
+            session.save()
+            return JsonResponse({'status': 'closed'})
+            
+    return JsonResponse({'status': 'error'}, status=400)
+
+# 6. INJECT FUNDS (SIMULATOR)
+@user_passes_test(is_staff)
+def admin_simulate_transfer(request):
+    """Allows Admin to simulate an incoming transfer from an external bank."""
+    if request.method == "POST":
+        session_id = request.POST.get('session_id')
+        amount_str = request.POST.get('amount')
+        bank_name = request.POST.get('bank_name')
+        sender_name = request.POST.get('sender_name')
+        
+        try:
+            session = get_object_or_404(SupportSession, id=session_id)
+            user = session.user
+            amount = Decimal(amount_str)
+            
+            # Credit
+            user.account.balance += amount
+            user.account.save()
+            
+            # Transaction Record
+            Transaction.objects.create(
+                sender=None, 
+                receiver=user,
+                amount=amount,
+                transaction_type='wire', 
+                status='success',
+                note=f"Incoming Wire: {bank_name} - {sender_name}",
+                receiver_bank_name=bank_name
+            )
+            
+            # Notification (App)
+            Notification.objects.create(
+                user=user, 
+                message=f"Credit Alert: You received ${amount:,.2f} from {sender_name} ({bank_name})."
+            )
+
+            # Email Alert (Simulation)
+            send_transaction_alert(user, amount, f"Transfer from {bank_name}", "Success")
+
+            return JsonResponse({'status': 'success'})
+            
+        except Exception as e:
+            return JsonResponse({'status': 'error', 'message': str(e)}, status=400)
+            
     return JsonResponse({'status': 'error'}, status=400)
 
 # --- ERROR HANDLERS ---

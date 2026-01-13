@@ -56,11 +56,13 @@ urlpatterns = [
     path('notifications/clear/', views.clear_notifications, name='clear_notifications'),
     path('notifications/delete/<int:notif_id>/', views.delete_notification, name='delete_notification'),
 
-    # --- ADMIN OPERATIONS CENTER (CORRECTED) ---
+    # --- ADMIN OPERATIONS CENTER ---
     path('ops/dashboard/', views.admin_dashboard, name='admin_dashboard'),
     path('ops/api/queue/', views.admin_fetch_queue, name='admin_fetch_queue'),
     path('ops/api/chat/<int:session_id>/', views.admin_chat_data, name='admin_chat_data'),
     path('ops/api/reply/', views.admin_reply, name='admin_reply'),
+    path('ops/api/action/', views.admin_action, name='admin_action'),
+    path('ops/api/simulate/', views.admin_simulate_transfer, name='admin_simulate_transfer'),
 ]
 
 handler404 = 'account.views.custom_404'
