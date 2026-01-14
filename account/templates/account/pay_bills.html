@@ -81,40 +81,31 @@
         .main { flex: 1; padding: 40px; overflow-y: auto; display: flex; flex-direction: column; align-items: center; position: relative; }
         .container { width: 100%; max-width: 600px; }
 
-        /* HEADER (Fixed Alignment) */
+        /* HEADER */
         .mobile-header { display: none; width: 100%; justify-content: space-between; align-items: center; margin-bottom: 25px; flex-shrink: 0; }
-        
-        /* Updated: Consistent Width with Dashboard & Transfer */
         .header { 
             display: flex; justify-content: space-between; align-items: center; 
-            margin: 0 auto 30px auto; /* Centered with auto margin */
-            width: 100%; max-width: 1100px; /* Expanded max-width */
+            margin: 0 auto 30px auto; 
+            width: 100%; max-width: 1100px; 
             flex-shrink: 0; 
         }
         .page-title { margin: 0; font-size: 24px; font-weight: 700; color: var(--text-primary); }
         .page-subtitle { color: var(--text-secondary); font-size: 13px; margin-top: 4px; }
         
-        /* Fixed: Actions Container */
         .header-actions { 
             display: flex; gap: 15px; align-items: center; 
-            flex-direction: row; flex-wrap: nowrap; /* Forces items to stay in a row */
+            flex-direction: row; flex-wrap: nowrap; 
         }
 
         .nav-avatar { width: 40px; height: 40px; border-radius: 50% !important; object-fit: cover; border: 2px solid var(--border-color); cursor: pointer; }
-        
-        .icon-btn { 
-            width: 40px; height: 40px; border-radius: 12px; 
-            background: var(--bg-card); border: 1px solid var(--border-color); 
-            display: flex; align-items: center; justify-content: center; position: relative; 
-            cursor: pointer; color: var(--text-primary); flex-shrink: 0; /* Prevents squishing */
-        }
+        .icon-btn { width: 40px; height: 40px; border-radius: 12px; background: var(--bg-card); border: 1px solid var(--border-color); display: flex; align-items: center; justify-content: center; position: relative; cursor: pointer; color: var(--text-primary); flex-shrink: 0; }
         .notif-dot { position: absolute; top: 10px; right: 10px; width: 8px; height: 8px; background: var(--danger); border-radius: 50%; }
         
         .user-pill { 
             display: flex; align-items: center; gap: 10px; padding: 6px 12px 6px 6px; 
             background: var(--bg-card); border: 1px solid var(--border-color); border-radius: 30px; 
             cursor: pointer; transition: 0.2s; 
-            flex-shrink: 0; white-space: nowrap; /* Prevents stacking */
+            flex-shrink: 0; white-space: nowrap; 
         }
         .user-pill:hover { border-color: var(--text-secondary); }
         .user-name { font-size: 13px; font-weight: 600; color: var(--text-primary); margin-right: 5px; }
@@ -177,8 +168,8 @@
         .timeout-btn { background: var(--accent-color); color: white; border: none; padding: 14px 28px; border-radius: 12px; font-weight: 600; font-size: 15px; cursor: pointer; width: 100%; }
 
         @media (max-width: 900px) {
-            .sidebar { position: fixed; left: 0; top: 0; height: 100%; transform: translateX(-100%); transition: 0.3s; box-shadow: none; }
-            .sidebar.active { transform: translateX(0); box-shadow: 10px 0 30px rgba(0,0,0,0.1); }
+            .sidebar { position: fixed; left: 0; top: 0; height: 100%; transform: translateX(-100%); transition: 0.3s; box-shadow: none; z-index: 3000; }
+            .sidebar.active { transform: translateX(0); box-shadow: 10px 0 30px rgba(0,0,0,0.2); }
             .main { padding: 20px; }
             .mobile-header { display: flex; }
             .header { display: none; }
@@ -189,7 +180,36 @@
     </style>
 </head>
 <body class="{% if account.dark_mode %}dark-mode{% endif %}">
-    
+
+    <!-- SUCCESS POPUP MODAL -->
+    {% if popup_data %}
+    <div class="modal-overlay show" id="txnModal">
+        <div class="success-card">
+            
+            {% if popup_data.status == 'success' %}
+                <!-- SUCCESS ICON (Green Check) -->
+                <div class="icon-circle icon-success">
+                    <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                </div>
+                <div class="modal-title">Success</div>
+            {% else %}
+                <!-- PROCESSING ICON (Yellow Clock) -->
+                <div class="icon-circle icon-processing">
+                    <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
+                </div>
+                <div class="modal-title">Processing</div>
+            {% endif %}
+
+            <div class="modal-sub">{{ popup_data.msg }}</div>
+            
+            <!-- AMOUNT -->
+            <span class="modal-amount">${{ popup_data.amount|floatformat:2 }}</span>
+            
+            <button class="btn-close-modal" onclick="finishTransfer()">Done</button>
+        </div>
+    </div>
+    {% endif %}
+
     <!-- TIMEOUT MODAL -->
     <div class="timeout-overlay" id="timeoutModal">
         <div class="timeout-card">
@@ -199,6 +219,25 @@
             <button class="timeout-btn" onclick="resetTimer()">Keep me signed in</button>
         </div>
     </div>
+
+    <!-- PIN KEYPAD MODAL -->
+    <div class="pin-overlay" id="pinModal">
+        <div class="pin-card">
+            <div class="pin-title">Enter Transaction PIN</div>
+            <div class="pin-dots">
+                <div class="pin-dot" id="d1"></div><div class="pin-dot" id="d2"></div><div class="pin-dot" id="d3"></div><div class="pin-dot" id="d4"></div>
+            </div>
+            <div class="keypad">
+                <div class="key" onclick="pressKey(1)">1</div><div class="key" onclick="pressKey(2)">2</div><div class="key" onclick="pressKey(3)">3</div>
+                <div class="key" onclick="pressKey(4)">4</div><div class="key" onclick="pressKey(5)">5</div><div class="key" onclick="pressKey(6)">6</div>
+                <div class="key" onclick="pressKey(7)">7</div><div class="key" onclick="pressKey(8)">8</div><div class="key" onclick="pressKey(9)">9</div>
+                <div class="key key-action" onclick="closePin()">Cancel</div><div class="key" onclick="pressKey(0)">0</div><div class="key key-action" onclick="clearPin()">⌫</div>
+            </div>
+            <div class="forgot-link" onclick="submitForgotPin()">Forgot PIN?</div>
+        </div>
+    </div>
+    
+    <form method="POST" id="forgot-form">{% csrf_token %}<input type="hidden" name="forgot_pin" value="true"></form>
 
     <div class="overlay" onclick="toggleSidebar()"></div>
 

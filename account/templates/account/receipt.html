@@ -5,179 +5,148 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Transaction Receipt | Veltris Bank</title>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Courier+Prime&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@500&display=swap" rel="stylesheet">
     <style>
-        :root { --primary: #0f172a; --accent: #0056b3; --text: #334155; --muted: #94a3b8; --border: #e2e8f0; }
-        
+        :root { 
+            --primary: #0f172a; 
+            --accent: #2563eb; 
+            --text-dark: #334155; 
+            --text-light: #64748b; 
+            --border: #e2e8f0; 
+            --paper-bg: #ffffff;
+            --success-color: #166534;
+            --success-bg: #dcfce7;
+            --fail-color: #991b1b;
+            --fail-bg: #fee2e2;
+        }
+
+        /* DARK MODE */
+        body.dark-mode {
+            --paper-bg: #1e293b;
+            --primary: #f8fafc;
+            --text-dark: #e2e8f0;
+            --text-light: #94a3b8;
+            --border: #334155;
+        }
+
         body { 
             background-color: #f1f5f9; 
             font-family: 'Inter', sans-serif; 
             display: flex; justify-content: center; 
             padding: 40px 20px; margin: 0;
             min-height: 100vh;
-            transition: background-color 0.3s ease;
-        }
-
-        /* --- DARK MODE STYLES --- */
-        body.dark-mode {
-            background-color: #020617;
-            color: #f8fafc;
-        }
-        body.dark-mode .receipt-paper {
-            background: #1e293b;
-            box-shadow: 0 20px 50px rgba(0,0,0,0.5);
-        }
-        body.dark-mode .receipt-paper::before {
-            background-image: radial-gradient(#ffffff 1px, transparent 1px);
-            opacity: 0.1;
-        }
-        body.dark-mode .header {
-            background: #0f172a; /* Keep header dark but slightly distinct */
-            border-bottom: 1px solid #334155;
-        }
-        body.dark-mode .footer {
-            background: #1e293b;
-            border-top: 1px solid #334155;
-        }
-        body.dark-mode .value, 
-        body.dark-mode .meta-value {
-            color: #f8fafc;
-            border-bottom-color: #334155;
-        }
-        body.dark-mode .label, 
-        body.dark-mode .meta-label, 
-        body.dark-mode .amount-label,
-        body.dark-mode .footer-text {
-            color: #94a3b8;
-        }
-        body.dark-mode .amount-value {
-            color: #60a5fa; /* Brighter blue for dark mode */
-        }
-        body.dark-mode .amount-section {
-            border-bottom-color: #334155;
-        }
-        body.dark-mode .txn-type {
-            background: rgba(37, 99, 235, 0.2);
-            color: #60a5fa;
-        }
-        body.dark-mode .section-title {
-            color: #cbd5e1;
         }
         
-        /* --- MAIN LAYOUT --- */
+        body.dark-mode { background-color: #020617; }
+
+        /* RECEIPT CONTAINER */
         .receipt-paper {
-            background: white;
+            background: var(--paper-bg);
             width: 100%; max-width: 600px;
-            padding: 0; 
-            box-shadow: 0 20px 50px rgba(0,0,0,0.1);
+            box-shadow: 0 25px 50px -12px rgba(0,0,0,0.15);
             position: relative;
-            border-radius: 4px;
+            border-radius: 12px;
             overflow: hidden;
-            transition: background 0.3s ease;
+            border: 1px solid var(--border);
         }
 
-        /* SECURITY WATERMARK PATTERN */
-        .receipt-paper::before {
-            content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 100%;
-            background-image: radial-gradient(#e2e8f0 1px, transparent 1px);
-            background-size: 20px 20px; opacity: 0.3; pointer-events: none;
+        /* WATERMARK */
+        .watermark {
+            position: absolute; top: 50%; left: 50%;
+            transform: translate(-50%, -50%) rotate(-30deg);
+            font-size: 80px; font-weight: 900; color: rgba(0,0,0,0.03);
+            pointer-events: none; z-index: 0; white-space: nowrap;
         }
+        body.dark-mode .watermark { color: rgba(255,255,255,0.03); }
 
-        /* HEADER SECTION */
+        /* HEADER */
         .header { 
             background: #0f172a; color: white; padding: 40px; 
             display: flex; justify-content: space-between; align-items: flex-start;
-            position: relative;
+            position: relative; z-index: 2;
         }
-        .brand { font-size: 24px; font-weight: 800; letter-spacing: -1px; display: flex; align-items: center; gap: 10px; color: white; }
+        .brand { font-size: 24px; font-weight: 800; letter-spacing: -0.5px; display: flex; align-items: center; gap: 10px; }
         .brand svg { width: 28px; height: 28px; }
         
         .header-meta { text-align: right; }
-        .meta-label { font-size: 11px; text-transform: uppercase; color: #94a3b8; letter-spacing: 1px; margin-bottom: 4px; }
-        .meta-value { font-family: 'Courier Prime', monospace; font-size: 14px; color: white; }
+        .meta-label { font-size: 10px; text-transform: uppercase; color: #94a3b8; letter-spacing: 1px; margin-bottom: 4px; font-weight: 600; }
+        .meta-value { font-family: 'JetBrains Mono', monospace; font-size: 13px; color: white; letter-spacing: 0.5px; }
 
-        /* BODY SECTION */
-        .body { padding: 40px; position: relative; }
+        /* BODY */
+        .body { padding: 40px; position: relative; z-index: 2; }
 
+        /* STATUS BADGE */
         .status-badge {
-            position: absolute; top: -20px; right: 40px;
-            padding: 8px 20px; border-radius: 30px;
+            position: absolute; top: -18px; right: 40px;
+            padding: 8px 24px; border-radius: 30px;
             font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px;
             box-shadow: 0 4px 10px rgba(0,0,0,0.1);
-            z-index: 10;
+            border: 4px solid var(--paper-bg);
         }
-        .status-success { background: #dcfce7; color: #166534; border: 2px solid white; }
-        .status-processing { background: #fef9c3; color: #854d0e; border: 2px solid white; }
-        .status-failed { background: #fee2e2; color: #991b1b; border: 2px solid white; }
-        
-        /* Dark mode badge border adjustment */
-        body.dark-mode .status-success,
-        body.dark-mode .status-processing,
-        body.dark-mode .status-failed {
-            border-color: #1e293b;
-        }
+        .status-success { background: var(--success-bg); color: var(--success-color); }
+        .status-processing { background: #fef9c3; color: #854d0e; }
+        .status-failed { background: var(--fail-bg); color: var(--fail-color); }
 
+        /* AMOUNT HERO */
         .amount-section { text-align: center; margin-bottom: 40px; border-bottom: 2px dashed var(--border); padding-bottom: 40px; }
-        .amount-label { font-size: 13px; color: var(--muted); text-transform: uppercase; letter-spacing: 1px; font-weight: 600; }
-        .amount-value { font-size: 48px; font-weight: 800; color: var(--primary); margin: 10px 0; letter-spacing: -2px; }
-        .txn-type { font-size: 14px; background: #eff6ff; color: var(--accent); padding: 4px 12px; border-radius: 6px; display: inline-block; font-weight: 600; text-transform: uppercase; }
-
-        /* GRID LAYOUT */
-        .details-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 30px; margin-bottom: 30px; }
-        .detail-group { margin-bottom: 5px; }
-        .label { font-size: 11px; color: var(--muted); text-transform: uppercase; font-weight: 600; margin-bottom: 6px; }
-        .value { font-size: 15px; color: var(--text); font-weight: 500; border-bottom: 1px solid #f1f5f9; padding-bottom: 8px; }
-        .section-title { font-size: 12px; font-weight: 700; color: var(--primary); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 15px; margin-top: 20px; }
+        .amount-label { font-size: 12px; color: var(--text-light); text-transform: uppercase; letter-spacing: 1.5px; font-weight: 700; }
+        .amount-value { font-size: 42px; font-weight: 800; color: var(--primary); margin: 15px 0; letter-spacing: -1.5px; }
+        .txn-type { 
+            font-size: 12px; background: rgba(37, 99, 235, 0.1); color: var(--accent); 
+            padding: 6px 14px; border-radius: 20px; display: inline-block; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px;
+        }
 
         /* REJECTION BOX */
         .rejection-box {
-            background-color: #fff1f2; border-left: 4px solid #f43f5e;
+            background-color: var(--fail-bg); border-left: 4px solid var(--fail-color);
             padding: 15px; margin-bottom: 30px; border-radius: 4px;
-            color: #be123c; font-size: 14px; font-weight: 500;
+            color: var(--fail-color); font-size: 13px; font-weight: 600;
         }
 
-        /* FOOTER & QR */
+        /* GRID LAYOUT */
+        .details-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 30px 20px; margin-bottom: 30px; }
+        .label { font-size: 11px; color: var(--text-light); text-transform: uppercase; font-weight: 700; margin-bottom: 6px; letter-spacing: 0.5px; }
+        .value { font-size: 15px; color: var(--text-dark); font-weight: 600; border-bottom: 1px solid var(--border); padding-bottom: 8px; word-break: break-word; }
+        .section-title { font-size: 12px; font-weight: 800; color: var(--accent); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 20px; margin-top: 10px; border-left: 3px solid var(--accent); padding-left: 10px; }
+
+        /* FOOTER */
         .footer { 
-            background: #f8fafc; padding: 30px 40px; 
+            background: rgba(0,0,0,0.02); padding: 30px 40px; 
             border-top: 1px solid var(--border);
             display: flex; justify-content: space-between; align-items: center;
         }
-        .footer-text { font-size: 10px; color: var(--muted); line-height: 1.6; max-width: 70%; }
-        .qr-code { width: 60px; height: 60px; background: white; padding: 5px; border: 1px solid var(--border); border-radius: 4px; }
+        .footer-text { font-size: 10px; color: var(--text-light); line-height: 1.6; max-width: 75%; }
+        .qr-code { width: 60px; height: 60px; opacity: 0.8; }
 
         /* PRINT BUTTON */
         .print-btn {
             position: fixed; bottom: 30px; right: 30px;
-            background: var(--accent-color); color: white; padding: 14px 28px;
+            background: var(--accent); color: white; padding: 14px 28px;
             border: none; border-radius: 50px; cursor: pointer;
-            font-weight: 600; box-shadow: 0 10px 25px rgba(15, 23, 42, 0.3);
+            font-weight: 600; box-shadow: 0 10px 25px rgba(37, 99, 235, 0.4);
             transition: 0.2s; display: flex; align-items: center; gap: 8px; z-index: 100;
         }
-        .print-btn:hover { transform: translateY(-3px); box-shadow: 0 15px 35px rgba(15, 23, 42, 0.4); }
+        .print-btn:hover { transform: translateY(-3px); box-shadow: 0 15px 35px rgba(37, 99, 235, 0.5); }
 
         @media print {
-            body { background: none; padding: 0; }
-            /* Force white paper on print even if dark mode is on */
-            .receipt-paper { box-shadow: none; width: 100%; max-width: 100%; border: 1px solid #ddd; background-color: white !important; color: black !important; }
-            .header { background-color: #0f172a !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
-            .meta-value { color: white !important; }
+            body { background: white; padding: 0; }
+            .receipt-paper { box-shadow: none; border: none; width: 100%; max-width: 100%; border-radius: 0; }
             .print-btn { display: none; }
-            .value, .amount-value, .section-title { color: black !important; }
-            .label, .meta-label, .footer-text { color: #666 !important; }
-            .footer { background-color: #f9f9f9 !important; border-top: 1px solid #eee !important; }
+            body.dark-mode { --paper-bg: white; --primary: #0f172a; --text-dark: #334155; }
+            .status-badge { border: 2px solid white !important; }
         }
     </style>
 </head>
-<body>
+<body class="{% if account.dark_mode %}dark-mode{% endif %}">
 
     <button onclick="window.print()" class="print-btn">
         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9V2h12v7"></path><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"></path><path d="M6 14h12v8H6z"></path></svg>
-        Download PDF
+        Download Receipt
     </button>
 
     <div class="receipt-paper">
+        <div class="watermark">VELTRIS OFFICIAL</div>
         
-        <!-- DARK HEADER -->
         <div class="header">
             <div class="brand">
                 <svg viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg>
@@ -185,108 +154,127 @@
             </div>
             <div class="header-meta">
                 <div class="meta-label">Reference ID</div>
-                <div class="meta-value">#TRX-{{ transaction.id }}99842</div>
+                <!-- Logic: Use Real ID if available (future proof), fallback to generated one -->
+                <div class="meta-value">#TRX-{{ transaction.id }}9928</div>
                 <div class="meta-label" style="margin-top: 8px;">Date Generated</div>
-                <div class="meta-value">{{ transaction.date|date:"M d, Y H:i" }}</div>
+                <div class="meta-value">{{ transaction.date|date:"M d, Y • H:i" }}</div>
             </div>
         </div>
 
         <div class="body">
-            <!-- STATUS BADGE -->
             <div class="status-badge status-{{ transaction.status }}">
                 {{ transaction.status|upper }}
             </div>
 
-            <!-- AMOUNT HERO -->
             <div class="amount-section">
-                <div class="amount-label">Transfer Amount</div>
+                <div class="amount-label">Amount</div>
                 <div class="amount-value">${{ transaction.amount|intcomma }}</div>
-                <div class="txn-type">{{ transaction.transaction_type }}</div>
+                <div class="txn-type">{{ transaction.transaction_type|title }}</div>
             </div>
 
-            <!-- REJECTION REASON -->
             {% if transaction.status == 'failed' and transaction.rejection_reason %}
             <div class="rejection-box">
-                ⚠ TRANSACTION FAILED: {{ transaction.rejection_reason }}
+                ⚠ REASON: {{ transaction.rejection_reason }}
             </div>
             {% endif %}
 
-            <!-- DETAILS GRID -->
-            <div class="section-title">Sender Information</div>
+            <!-- SMART FIELDS SECTION -->
+            <div class="section-title">Transaction Details</div>
+            
             <div class="details-grid">
+                <!-- SENDER LOGIC -->
                 <div>
-                    <div class="label">Account Holder</div>
+                    <div class="label">Sender / Source</div>
                     <div class="value">
-                        {% if transaction.sender %}
+                        {% if transaction.transaction_type == 'wire' or transaction.transaction_type == 'refund' %}
+                            <!-- External or Admin Refund -->
+                            {{ transaction.note|default:"External Source" }}
+                        {% elif transaction.sender %}
+                            <!-- Internal User -->
                             {{ transaction.sender.first_name }} {{ transaction.sender.last_name }}
                         {% else %}
-                            External Source
+                            <!-- Deposit -->
+                            {{ user.first_name }} {{ user.last_name }} (Self)
                         {% endif %}
                     </div>
                 </div>
-                <div>
-                    <div class="label">Bank</div>
-                    <div class="value">Veltris Bank N.A.</div>
-                </div>
-            </div>
 
-            <div class="section-title">Beneficiary Details</div>
-            <div class="details-grid">
+                <!-- BANK LOGIC -->
                 <div>
-                    <div class="label">Recipient Name / Note</div>
+                    <div class="label">Source Institution</div>
+                    <div class="value">
+                        {% if transaction.transaction_type == 'wire' %}
+                            {{ transaction.receiver_bank_name|default:"External Bank" }}
+                        {% else %}
+                            Veltris Bank N.A.
+                        {% endif %}
+                    </div>
+                </div>
+
+                <!-- BENEFICIARY LOGIC -->
+                <div>
+                    <div class="label">Beneficiary</div>
                     <div class="value">
                         {% if transaction.receiver %}
                             {{ transaction.receiver.first_name }} {{ transaction.receiver.last_name }}
                         {% else %}
-                            {{ transaction.note|default:"External Beneficiary" }}
+                            {{ transaction.note|default:"External Account" }}
                         {% endif %}
                     </div>
                 </div>
-                
+
+                <!-- ACCT NUMBER LOGIC -->
                 <div>
-                    <div class="label">Account Number</div>
-                    <div class="value" style="font-family: 'Courier Prime';">
+                    <div class="label">Beneficiary Account</div>
+                    <div class="value" style="font-family: 'JetBrains Mono';">
                         {% if transaction.receiver %}
-                            {{ transaction.receiver.account.account_number }}
+                            •••• {{ transaction.receiver.account.account_number|slice:"-4:" }}
+                        {% elif transaction.receiver_account_number %}
+                            •••• {{ transaction.receiver_account_number|slice:"-4:" }}
                         {% else %}
-                            {{ transaction.receiver_account_number|default:"N/A" }}
+                            N/A
                         {% endif %}
                     </div>
                 </div>
-
-                {% if transaction.receiver_bank_name %}
-                <div>
-                    <div class="label">Destination Bank</div>
-                    <div class="value">{{ transaction.receiver_bank_name }}</div>
-                </div>
-                {% endif %}
-
-                {% if transaction.routing_number %}
-                <div>
-                    <div class="label">Routing Number</div>
-                    <div class="value" style="font-family: 'Courier Prime';">{{ transaction.routing_number }}</div>
-                </div>
-                {% endif %}
             </div>
+
+            <!-- NOTES SECTION (If available) -->
+            {% if transaction.note and transaction.transaction_type != 'wire' %}
+            <div class="details-grid">
+                <div style="grid-column: span 2;">
+                    <div class="label">Description / Memo</div>
+                    <div class="value" style="border-bottom:none;">{{ transaction.note }}</div>
+                </div>
+            </div>
+            {% endif %}
         </div>
 
-        <!-- FOOTER WITH QR -->
         <div class="footer">
             <div class="footer-text">
-                This is an electronically generated receipt valid without signature.<br>
+                This receipt is electronically generated and valid without a signature.<br>
                 <strong>Veltris Bank N.A.</strong> Member FDIC. Equal Housing Lender.<br>
-                <span style="opacity: 0.7; font-size: 9px;">Transaction ID: {{ transaction.id }}-{{ transaction.date|date:"YmdHis" }}</span>
+                Transaction ID: {{ transaction.id }}-{{ transaction.date|date:"YmdHis" }}
             </div>
-            <!-- Visual QR -->
-            <svg class="qr-code" viewBox="0 0 100 100" fill="none">
-                <rect x="0" y="0" width="100" height="100" fill="white"/>
-                <path fill="black" d="M10 10h30v30h-30z M60 10h30v30h-30z M10 60h30v30h-30z M50 50h10v10h-10z M70 70h10v10h-10z M20 20h10v10h-10z M70 20h10v10h-10z M20 70h10v10h-10z"/>
+            <!-- QR CODE SVG -->
+            <svg class="qr-code" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <rect width="100" height="100" fill="white"/>
+                <path fill-rule="evenodd" clip-rule="evenodd" d="M10 10H40V40H10V10ZM16 16V34H34V16H16Z" fill="black"/>
+                <path d="M22 22H28V28H22V22Z" fill="black"/>
+                <path fill-rule="evenodd" clip-rule="evenodd" d="M60 10H90V40H60V10ZM66 16V34H84V16H66Z" fill="black"/>
+                <path d="M72 22H78V28H72V22Z" fill="black"/>
+                <path fill-rule="evenodd" clip-rule="evenodd" d="M10 60H40V90H10V60ZM16 66V84H34V66H16Z" fill="black"/>
+                <path d="M22 72H28V78H22V72Z" fill="black"/>
+                <path d="M50 50H60V60H50V50Z" fill="black"/>
+                <path d="M60 60H70V70H60V60Z" fill="black"/>
+                <path d="M70 50H80V60H70V50Z" fill="black"/>
+                <path d="M50 70H60V80H50V70Z" fill="black"/>
+                <path d="M80 80H90V90H80V80Z" fill="black"/>
             </svg>
         </div>
     </div>
 
-    <!-- JS TO APPLY DARK MODE -->
     <script>
+        // Apply dark mode if user setting is active
         if("{{ account.dark_mode }}" === "True") {
             document.body.classList.add('dark-mode');
         }
