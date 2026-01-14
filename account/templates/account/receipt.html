@@ -6,6 +6,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Transaction Receipt | Veltris Bank</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@500&display=swap" rel="stylesheet">
+    <!-- QR Code Library -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+
     <style>
         :root { 
             --primary: #0f172a; 
@@ -116,7 +119,14 @@
             display: flex; justify-content: space-between; align-items: center;
         }
         .footer-text { font-size: 10px; color: var(--text-light); line-height: 1.6; max-width: 75%; }
-        .qr-code { width: 60px; height: 60px; opacity: 0.8; }
+        
+        /* QR Code Container */
+        #qrcode { 
+            background: white; padding: 5px; 
+            border: 1px solid var(--border); border-radius: 4px; 
+        }
+        /* Ensure QR image fits nicely */
+        #qrcode img { display: block; }
 
         /* PRINT BUTTON */
         .print-btn {
@@ -154,7 +164,6 @@
             </div>
             <div class="header-meta">
                 <div class="meta-label">Reference ID</div>
-                <!-- Logic: Use Real ID if available (future proof), fallback to generated one -->
                 <div class="meta-value">#TRX-{{ transaction.id }}9928</div>
                 <div class="meta-label" style="margin-top: 8px;">Date Generated</div>
                 <div class="meta-value">{{ transaction.date|date:"M d, Y • H:i" }}</div>
@@ -178,7 +187,6 @@
             </div>
             {% endif %}
 
-            <!-- SMART FIELDS SECTION -->
             <div class="section-title">Transaction Details</div>
             
             <div class="details-grid">
@@ -187,13 +195,10 @@
                     <div class="label">Sender / Source</div>
                     <div class="value">
                         {% if transaction.transaction_type == 'wire' or transaction.transaction_type == 'refund' %}
-                            <!-- External or Admin Refund -->
                             {{ transaction.note|default:"External Source" }}
                         {% elif transaction.sender %}
-                            <!-- Internal User -->
                             {{ transaction.sender.first_name }} {{ transaction.sender.last_name }}
                         {% else %}
-                            <!-- Deposit -->
                             {{ user.first_name }} {{ user.last_name }} (Self)
                         {% endif %}
                     </div>
@@ -238,7 +243,6 @@
                 </div>
             </div>
 
-            <!-- NOTES SECTION (If available) -->
             {% if transaction.note and transaction.transaction_type != 'wire' %}
             <div class="details-grid">
                 <div style="grid-column: span 2;">
@@ -255,21 +259,9 @@
                 <strong>Veltris Bank N.A.</strong> Member FDIC. Equal Housing Lender.<br>
                 Transaction ID: {{ transaction.id }}-{{ transaction.date|date:"YmdHis" }}
             </div>
-            <!-- QR CODE SVG -->
-            <svg class="qr-code" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <rect width="100" height="100" fill="white"/>
-                <path fill-rule="evenodd" clip-rule="evenodd" d="M10 10H40V40H10V10ZM16 16V34H34V16H16Z" fill="black"/>
-                <path d="M22 22H28V28H22V22Z" fill="black"/>
-                <path fill-rule="evenodd" clip-rule="evenodd" d="M60 10H90V40H60V10ZM66 16V34H84V16H66Z" fill="black"/>
-                <path d="M72 22H78V28H72V22Z" fill="black"/>
-                <path fill-rule="evenodd" clip-rule="evenodd" d="M10 60H40V90H10V60ZM16 66V84H34V66H16Z" fill="black"/>
-                <path d="M22 72H28V78H22V72Z" fill="black"/>
-                <path d="M50 50H60V60H50V50Z" fill="black"/>
-                <path d="M60 60H70V70H60V60Z" fill="black"/>
-                <path d="M70 50H80V60H70V50Z" fill="black"/>
-                <path d="M50 70H60V80H50V70Z" fill="black"/>
-                <path d="M80 80H90V90H80V80Z" fill="black"/>
-            </svg>
+            
+            <!-- DYNAMIC QR CODE CONTAINER -->
+            <div id="qrcode"></div>
         </div>
     </div>
 
@@ -278,6 +270,17 @@
         if("{{ account.dark_mode }}" === "True") {
             document.body.classList.add('dark-mode');
         }
+
+        // GENERATE FUNCTIONAL QR CODE
+        // This takes the current page URL (the receipt link) and encodes it
+        new QRCode(document.getElementById("qrcode"), {
+            text: window.location.href, // Encodes: https://veltris.online/transaction/123/receipt/
+            width: 60,
+            height: 60,
+            colorDark : "#000000",
+            colorLight : "#ffffff",
+            correctLevel : QRCode.CorrectLevel.H
+        });
     </script>
 </body>
 </html>
