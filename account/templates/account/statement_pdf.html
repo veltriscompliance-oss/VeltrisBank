@@ -3,117 +3,225 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Statement | Veltris Bank</title>
+    <title>Account Statement | Veltris Bank</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=JetBrains+Mono:wght@500&display=swap" rel="stylesheet">
     <style>
-        body { font-family: 'Helvetica Neue', Arial, sans-serif; background: #555; display: flex; justify-content: center; padding: 40px; margin: 0; }
-        .page { background: white; width: 210mm; min-height: 297mm; padding: 20mm; box-shadow: 0 0 20px rgba(0,0,0,0.5); box-sizing: border-box; position: relative; }
-        
-        .header { display: flex; justify-content: space-between; border-bottom: 2px solid #004d99; padding-bottom: 20px; margin-bottom: 40px; }
-        .brand { font-size: 28px; font-weight: bold; color: #004d99; letter-spacing: 2px; }
-        .meta { text-align: right; font-size: 12px; color: #666; line-height: 1.5; }
+        body { 
+            font-family: 'Inter', sans-serif; 
+            background: #525659; /* PDF Viewer Background Color */
+            display: flex; justify-content: center; 
+            padding: 40px; margin: 0; 
+        }
+
+        /* A4 PAPER */
+        .page { 
+            background: white; 
+            width: 210mm; min-height: 297mm; 
+            padding: 15mm 20mm; 
+            box-shadow: 0 4px 15px rgba(0,0,0,0.3); 
+            box-sizing: border-box; 
+            position: relative;
+            color: #1e293b;
+        }
+
+        /* HEADER */
+        .header { 
+            border-bottom: 2px solid #0f172a; 
+            padding-bottom: 20px; margin-bottom: 30px; 
+            display: flex; justify-content: space-between; align-items: flex-start;
+        }
+        .brand { font-size: 24px; font-weight: 800; color: #0f172a; letter-spacing: -0.5px; display: flex; align-items: center; gap: 8px; }
+        .brand svg { width: 24px; height: 24px; }
+        .address { font-size: 11px; color: #64748b; margin-top: 5px; line-height: 1.4; }
+
+        /* CLIENT INFO ROW */
+        .info-row { display: flex; justify-content: space-between; margin-bottom: 40px; }
+        .client-box h3, .bank-box h3 { font-size: 10px; text-transform: uppercase; color: #94a3b8; letter-spacing: 1px; margin: 0 0 5px 0; }
+        .client-details { font-size: 14px; font-weight: 600; line-height: 1.5; }
+        .account-details { text-align: right; }
         
         /* SUMMARY BOX */
         .summary-box { 
-            display: flex; justify-content: space-between; 
-            background: #f8fafc; padding: 25px; border-radius: 8px; margin-bottom: 40px; 
-            border: 1px solid #eee;
+            background: #f8fafc; border: 1px solid #e2e8f0; 
+            border-radius: 8px; padding: 20px; margin-bottom: 40px;
+            display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px;
         }
-        .sum-col { flex: 1; text-align: center; border-right: 1px solid #ddd; }
-        .sum-col:last-child { border-right: none; }
-        .sum-label { font-size: 10px; text-transform: uppercase; color: #888; font-weight: bold; margin-bottom: 5px; }
-        .sum-val { font-size: 18px; font-weight: bold; color: #333; }
-        .sum-val.green { color: #166534; }
-        .sum-val.red { color: #dc2626; }
-        
-        /* TABLE STYLES */
+        .sum-item { text-align: center; border-right: 1px solid #e2e8f0; }
+        .sum-item:last-child { border-right: none; }
+        .sum-label { font-size: 10px; text-transform: uppercase; color: #64748b; font-weight: 700; margin-bottom: 5px; }
+        .sum-val { font-size: 16px; font-weight: 700; color: #0f172a; font-family: 'JetBrains Mono', monospace; }
+        .val-green { color: #166534; }
+        .val-red { color: #991b1b; }
+
+        /* TABLE */
         table { width: 100%; border-collapse: collapse; font-size: 12px; }
-        th { text-align: left; padding: 12px 10px; border-bottom: 2px solid #004d99; color: #004d99; text-transform: uppercase; font-weight: bold; }
-        td { padding: 12px 10px; border-bottom: 1px solid #eee; color: #333; }
-        tr:nth-child(even) { background-color: #f9f9f9; }
+        th { text-align: left; padding: 12px 10px; background: #0f172a; color: white; text-transform: uppercase; font-size: 10px; letter-spacing: 1px; }
+        td { padding: 14px 10px; border-bottom: 1px solid #e2e8f0; vertical-align: top; }
+        tr:nth-child(even) { background-color: #f8fafc; }
+
+        /* Transaction Styling */
+        .txn-date { color: #64748b; font-family: 'JetBrains Mono', monospace; }
+        .txn-main { font-weight: 600; color: #0f172a; display: block; margin-bottom: 2px; }
+        .txn-sub { font-size: 10px; color: #64748b; }
+        .txn-amount { font-family: 'JetBrains Mono', monospace; font-weight: 700; text-align: right; }
         
-        /* TRANSACTION COLORS */
-        .amount-in { color: #166534; font-weight: bold; } /* Green for Deposits */
-        .amount-out { color: #dc2626; font-weight: bold; } /* Red for Withdrawals */
-        
-        .footer { position: absolute; bottom: 20mm; left: 20mm; right: 20mm; text-align: center; font-size: 10px; color: #999; border-top: 1px solid #eee; padding-top: 20px; }
-        
-        .print-btn { position: fixed; top: 20px; right: 20px; padding: 10px 20px; background: #004d99; color: white; text-decoration: none; border-radius: 5px; font-weight: bold; box-shadow: 0 5px 15px rgba(0,0,0,0.3); }
-        
+        .footer { 
+            position: absolute; bottom: 15mm; left: 20mm; right: 20mm; 
+            text-align: center; font-size: 9px; color: #94a3b8; 
+            border-top: 1px solid #e2e8f0; padding-top: 15px; 
+        }
+
+        /* FLOATING PRINT BUTTON */
+        .print-btn { 
+            position: fixed; bottom: 30px; right: 30px; 
+            background: #2563eb; color: white; padding: 15px 30px; 
+            border-radius: 50px; text-decoration: none; font-weight: 700; 
+            box-shadow: 0 10px 25px rgba(0,0,0,0.3); transition: 0.2s;
+            font-family: sans-serif; display: flex; align-items: center; gap: 8px;
+        }
+        .print-btn:hover { transform: translateY(-2px); background: #1d4ed8; }
+
+        /* PRINT SETTINGS */
         @media print {
-            body { background: none; padding: 0; }
-            .page { box-shadow: none; width: 100%; margin: 0; }
+            body { background: white; padding: 0; }
+            .page { box-shadow: none; margin: 0; width: 100%; height: auto; }
             .print-btn { display: none; }
+            @page { margin: 0; }
         }
     </style>
 </head>
 <body>
-    <a href="javascript:window.print()" class="print-btn">🖨️ Print / Save PDF</a>
+
+    <a href="javascript:window.print()" class="print-btn">
+        <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M6 9V2h12v7"></path><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"></path><path d="M6 14h12v8H6z"></path></svg>
+        Print Statement
+    </a>
 
     <div class="page">
+        <!-- HEADER -->
         <div class="header">
             <div>
-                <div class="brand">VELTRIS BANK</div>
-                <div style="font-size:12px; color:#666; margin-top:5px;">123 Financial District, NY 10005</div>
+                <div class="brand">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg>
+                    VELTRIS BANK
+                </div>
+                <div class="address">
+                    123 Financial District, Suite 500<br>
+                    New York, NY 10005<br>
+                    support@veltris.online
+                </div>
             </div>
-            <div class="meta">
-                <strong>Statement Period:</strong> {{ date|date:"F Y" }}<br>
-                <strong>Account:</strong> •••• {{ account.account_number|slice:"-4:" }}<br>
-                <strong>Generated On:</strong> {% now "M d, Y" %}
+            <div style="text-align: right;">
+                <h1 style="margin: 0; font-size: 24px; color: #0f172a;">STATEMENT</h1>
+                <div style="font-size: 12px; color: #64748b; margin-top: 5px;">{{ date|date:"F 1, Y" }} — {{ date|date:"t, Y" }}</div>
             </div>
         </div>
 
-        <!-- SUMMARY BOX -->
+        <!-- ACCOUNT INFO -->
+        <div class="info-row">
+            <div>
+                <div class="client-box"><h3>Account Holder</h3></div>
+                <div class="client-details">
+                    {{ user.first_name }} {{ user.last_name }}<br>
+                    {{ account.address }}<br>
+                    {{ account.city }}, {{ account.zip_code }}
+                </div>
+            </div>
+            <div class="account-details">
+                <div class="bank-box"><h3>Account Details</h3></div>
+                <div class="client-details">
+                    Checking Account<br>
+                    xxxx-{{ account.account_number|slice:"-4:" }}<br>
+                    <span style="font-family: 'JetBrains Mono'; font-weight: normal;">Routing: 026009593</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- SUMMARY STATS -->
         <div class="summary-box">
-            <div class="sum-col">
+            <div class="sum-item">
                 <div class="sum-label">Beginning Balance</div>
                 <div class="sum-val">${{ beginning_balance|floatformat:2 }}</div>
             </div>
-            <div class="sum-col">
+            <div class="sum-item">
                 <div class="sum-label">Total Deposits</div>
-                <div class="sum-val green">+${{ total_in|floatformat:2 }}</div>
+                <div class="sum-val val-green">+${{ total_in|floatformat:2 }}</div>
             </div>
-            <div class="sum-col">
+            <div class="sum-item">
                 <div class="sum-label">Total Withdrawals</div>
-                <div class="sum-val red">-${{ total_out|floatformat:2 }}</div>
+                <div class="sum-val val-red">-${{ total_out|floatformat:2 }}</div>
             </div>
-            <div class="sum-col">
+            <div class="sum-item">
                 <div class="sum-label">Ending Balance</div>
                 <div class="sum-val">${{ account.balance|floatformat:2 }}</div>
             </div>
         </div>
 
+        <!-- TRANSACTIONS TABLE -->
         <table>
             <thead>
                 <tr>
-                    <th>Date</th>
-                    <th>Description</th>
-                    <th>Reference</th>
-                    <th style="text-align:right;">Amount</th>
+                    <th style="width: 15%;">Date</th>
+                    <th style="width: 45%;">Description</th>
+                    <th style="width: 20%;">Reference</th>
+                    <th style="width: 20%; text-align: right;">Amount</th>
                 </tr>
             </thead>
             <tbody>
                 {% for t in transactions %}
                 <tr>
-                    <td>{{ t.date|date:"M d" }}</td>
+                    <!-- Date -->
+                    <td class="txn-date">{{ t.date|date:"M d" }}</td>
+                    
+                    <!-- Smart Description Logic -->
                     <td>
-                        <strong style="display:block;color:#000;">{{ t.transaction_type|title }}</strong>
-                        <span style="color:#666; font-size:10px;">{{ t.note|default:"-" }}</span>
+                        <span class="txn-main">
+                            {% if t.transaction_type == 'wire' or t.transaction_type == 'refund' %}
+                                {{ t.note }} <!-- Shows "Incoming Wire: Chase..." -->
+                            {% elif t.sender == user %}
+                                <!-- Money Out -->
+                                {% if t.receiver %}
+                                    To: {{ t.receiver.first_name }} {{ t.receiver.last_name }}
+                                {% else %}
+                                    {{ t.note|default:"Payment" }}
+                                {% endif %}
+                            {% else %}
+                                <!-- Money In -->
+                                {% if t.sender %}
+                                    From: {{ t.sender.first_name }} {{ t.sender.last_name }}
+                                {% else %}
+                                    Deposit
+                                {% endif %}
+                            {% endif %}
+                        </span>
+                        <span class="txn-sub">{{ t.transaction_type|upper }}</span>
                     </td>
-                    <td style="font-family:monospace;">TRX-{{ t.id }}</td>
-                    <td style="text-align:right;" class="{% if t.receiver == user %}amount-in{% else %}amount-out{% endif %}">
+
+                    <!-- Reference -->
+                    <td class="txn-date">#TRX-{{ t.id }}9928</td>
+
+                    <!-- Amount -->
+                    <td class="txn-amount {% if t.receiver == user %}val-green{% else %}val-red{% endif %}">
                         {% if t.receiver == user %}+{% else %}-{% endif %}${{ t.amount|floatformat:2 }}
                     </td>
                 </tr>
                 {% empty %}
-                <tr><td colspan="4" style="text-align:center; padding:30px;">No transactions found for this period.</td></tr>
+                <tr>
+                    <td colspan="4" style="text-align:center; padding:30px; color:#94a3b8;">
+                        No transactions recorded for this period.
+                    </td>
+                </tr>
                 {% endfor %}
             </tbody>
         </table>
 
+        <!-- FOOTER -->
         <div class="footer">
             Veltris Bank N.A. Member FDIC. Equal Housing Lender.<br>
-            This statement is electronically generated and valid without a signature.
+            This statement is electronically generated and is valid without a physical signature.
+            <br>Generated on {% now "F d, Y \a\t H:i" %}
         </div>
     </div>
+
 </body>
 </html>
