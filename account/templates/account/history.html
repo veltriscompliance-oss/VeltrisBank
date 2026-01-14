@@ -36,6 +36,7 @@
 
         * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
         
+        /* APP-LIKE LAYOUT */
         body { 
             margin: 0; padding: 0;
             font-family: 'Inter', sans-serif; 
@@ -44,7 +45,7 @@
             overflow: hidden; transition: background-color 0.3s ease;
         }
 
-        /* --- SIDEBAR (Fixed Mobile Logic & Hidden Scroll) --- */
+        /* --- SIDEBAR --- */
         .sidebar {
             width: 280px; background: var(--bg-card); border-right: 1px solid var(--border-color);
             padding: 30px 20px; display: flex; flex-direction: column; z-index: 3000;
@@ -58,12 +59,11 @@
         }
         .brand-icon { width: 32px; height: 32px; background: var(--accent-color); border-radius: 8px; color: white; display: flex; align-items: center; justify-content: center; }
 
-        /* Hidden Scrollbar */
+        /* Hidden Scrollbar for Sidebar */
         .menu-group { 
             display: flex; flex-direction: column; gap: 5px; flex: 1; 
             overflow-y: auto; 
-            scrollbar-width: none; 
-            -ms-overflow-style: none;
+            scrollbar-width: none; -ms-overflow-style: none;
         }
         .menu-group::-webkit-scrollbar { display: none; }
         
@@ -78,11 +78,12 @@
 
         .sidebar-footer { border-top: 1px solid var(--border-color); padding-top: 20px; margin-top: auto; display: flex; flex-direction: column; gap: 5px; flex-shrink: 0; }
 
-        /* --- MAIN LAYOUT --- */
+        /* --- MAIN CONTENT AREA --- */
         .main { 
             flex: 1; padding: 0; 
             display: flex; flex-direction: column; 
             height: 100%; position: relative; overflow: hidden; 
+            width: 100%;
         }
         
         /* HEADER SECTION */
@@ -118,24 +119,25 @@
         .mobile-header { 
             display: none; width: 100%; justify-content: space-between; align-items: center; 
             padding: 15px 20px; background: var(--bg-card); border-bottom: 1px solid var(--border-color);
-            flex-shrink: 0;
+            flex-shrink: 0; z-index: 100;
         }
         .nav-avatar { width: 40px; height: 40px; border-radius: 50%; object-fit: cover; border: 2px solid var(--border-color); cursor: pointer; }
 
-        /* --- HISTORY CONTENT --- */
+        /* --- HISTORY CONTENT (SCROLLABLE) --- */
         .history-content {
             flex: 1;
             padding: 0 40px 40px 40px; 
-            overflow-y: auto; /* This container scrolls */
+            overflow-y: auto;
             display: flex; flex-direction: column; gap: 20px;
-            /* Ensure bottom padding so button isn't cut off */
-            padding-bottom: 100px; 
+            /* CRITICAL: Extra padding at bottom so Load More is never hidden behind UI */
+            padding-bottom: 120px; 
+            min-height: 0; /* Ensures flexbox scroll works */
         }
         .history-content::-webkit-scrollbar { width: 6px; }
         .history-content::-webkit-scrollbar-track { background: transparent; }
         .history-content::-webkit-scrollbar-thumb { background: var(--border-color); border-radius: 10px; }
 
-        /* CONTROL BAR */
+        /* CONTROL BAR (Sticky) */
         .control-bar {
             background: var(--bg-card); border: 1px solid var(--border-color);
             padding: 15px; border-radius: 16px;
@@ -144,12 +146,18 @@
             position: sticky; top: 0; z-index: 10;
         }
         
-        .search-box { flex: 1; min-width: 250px; position: relative; }
+        .search-box { 
+            flex: 1; 
+            min-width: 250px; 
+            position: relative; 
+        }
+        
         .search-input {
             width: 100%; padding: 12px 15px 12px 40px;
             background: var(--bg-body); border: 1px solid var(--border-color);
             border-radius: 12px; color: var(--text-primary); font-size: 14px; font-family: 'Inter';
             outline: none; transition: 0.2s;
+            box-sizing: border-box; 
         }
         .search-input:focus { border-color: var(--accent-color); }
         .search-icon { position: absolute; left: 12px; top: 50%; transform: translateY(-50%); color: var(--text-secondary); pointer-events: none; }
@@ -163,7 +171,7 @@
         .filter-chip:hover { border-color: var(--accent-color); color: var(--accent-color); }
         .filter-chip.active { background: var(--accent-color); color: white; border-color: var(--accent-color); }
 
-        /* TRANSACTION LIST */
+        /* TRANSACTION FEED */
         .txn-feed { display: flex; flex-direction: column; gap: 12px; }
         
         .txn-card {
@@ -197,30 +205,22 @@
         .s-processing { background: rgba(245, 158, 11, 0.1); color: var(--warning); }
         .s-failed { background: rgba(239, 68, 68, 0.1); color: var(--danger); }
 
+        /* LOAD MORE BUTTON */
+        .load-more-btn {
+            width: 100%; padding: 15px; background: var(--bg-card);
+            border: 1px solid var(--border-color); color: var(--text-secondary);
+            font-weight: 600; border-radius: 12px; cursor: pointer; transition: 0.2s;
+            margin-top: 10px; margin-bottom: 10px;
+        }
+        .load-more-btn:hover { background: var(--bg-body); color: var(--text-primary); }
+
         /* SKELETON */
         .skeleton { background: var(--border-color); border-radius: 16px; animation: pulse 1.5s infinite; }
         @keyframes pulse { 0% { opacity: 0.4; } 50% { opacity: 0.8; } 100% { opacity: 0.4; } }
         .sk-card { height: 82px; width: 100%; margin-bottom: 12px; }
 
-        .load-more-btn {
-            width: 100%; padding: 15px; background: var(--bg-card);
-            border: 1px solid var(--border-color); color: var(--text-secondary);
-            font-weight: 600; border-radius: 12px; cursor: pointer; transition: 0.2s;
-            margin-top: 10px;
-            /* Ensure it has space */
-            margin-bottom: 20px;
-        }
-        .load-more-btn:hover { background: var(--bg-body); color: var(--text-primary); }
-        
         /* OVERLAY */
         .overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 2000; backdrop-filter: blur(4px); }
-
-        /* NOTIFICATIONS */
-        .notif-dropdown { display: none; position: absolute; top: 60px; right: 40px; background: var(--bg-card); width: 320px; max-height: 400px; overflow-y: auto; box-shadow: 0 10px 40px rgba(0,0,0,0.15); border-radius: 16px; z-index: 3000; border: 1px solid var(--border-color); }
-        .notif-item { padding: 15px; border-bottom: 1px solid var(--border-color); transition: 0.2s; }
-        .notif-item:hover { background: var(--bg-body); }
-        .notif-msg { font-size: 13px; color: var(--text-primary); line-height: 1.4; }
-        .notif-time { font-size: 11px; color: var(--text-secondary); margin-top: 5px; }
 
         /* RESPONSIVE */
         @media (max-width: 900px) {
@@ -230,20 +230,22 @@
             .header-section { display: none; } 
             .mobile-header { display: flex; } 
             
+            /* Full height content for mobile */
             .main { padding: 0; height: 100vh; }
-            .history-content { padding: 15px; padding-bottom: 80px; }
+            .history-content { padding: 15px; padding-bottom: 120px; }
             
+            /* Search Bar Fix */
             .control-bar { padding: 12px; flex-direction: column; align-items: stretch; gap: 12px; top: -1px; }
-            .filter-group { padding-bottom: 5px; }
-            .t-ref { display: none; } 
+            .search-box { min-width: 0; width: 100%; flex: 1 1 auto; }
+            .filter-group { padding-bottom: 5px; max-width: 100%; }
             
-            /* Compact list on mobile */
+            /* List Adjustments */
+            .t-ref { display: none; } 
             .txn-card { padding: 15px; }
             .t-icon { width: 36px; height: 36px; font-size: 16px; }
             .t-meta h4 { font-size: 14px; }
             .t-amount { font-size: 15px; }
             
-            .notif-dropdown { right: 10px; width: calc(100% - 20px); top: 70px; }
             .nav-avatar { width: 40px !important; height: 40px !important; min-width: 40px !important; border: 2px solid var(--border-color); }
         }
     </style>
@@ -276,7 +278,7 @@
         </div>
         <div class="sidebar-footer">
             <a href="/profile/" class="menu-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg> Profile</a>
-            <a href="/support/" class="menu-item active"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg> Support</a>
+            <a href="/support/" class="menu-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg> Support</a>
             <a href="/settings/" class="menu-item"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1 0-2.83 2 2 0 0 1 0-2.83l.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg> Settings</a>
             <a href="/logout/" class="menu-item" style="color: var(--danger);"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path><polyline points="16 17 21 12 16 7"></polyline><line x1="21" y1="12" x2="9" y2="12"></line></svg> Sign Out</a>
         </div>
@@ -293,12 +295,11 @@
                         <div class="nav-avatar" style="background: #e2e8f0; color: #64748b; display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 14px;">{{ user.username|slice:":1" }}</div>
                     {% endif %}
                 </div>
-                <div style="font-weight: 800; color: var(--text-primary); font-size: 18px;">HISTORY</div>
+                <div style="font-weight: 800; color: var(--text-primary); font-size: 20px;">HISTORY</div>
             </div>
-            <div class="icon-btn" onclick="toggleNotifs()">
-                <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path><path d="M13.73 21a2 2 0 0 1-3.46 0"></path></svg>
-                {% if unread_count > 0 %}<div class="notif-dot"></div>{% endif %}
-            </div>
+            
+            <!-- Removed the icon-btn since there are no notifications in this view -->
+            <div style="width: 24px;"></div>
         </div>
 
         <!-- DESKTOP HEADER -->
@@ -309,35 +310,15 @@
                     <div class="page-subtitle">Archive of all financial movements.</div>
                 </div>
                 <div class="header-actions">
-                    <div class="icon-btn" onclick="toggleNotifs()">
-                        <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path><path d="M13.73 21a2 2 0 0 1-3.46 0"></path></svg>
-                        {% if unread_count > 0 %}<div class="notif-dot"></div>{% endif %}
-                    </div>
-                    <div class="user-pill" onclick="window.location.href='/profile/'">
+                    <div class="user-pill">
                         {% if account.profile_pic %}
                             <img src="{{ account.profile_pic.url }}" class="avatar">
                         {% else %}
                             <div class="avatar" style="display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:bold;">{{ user.username|slice:":1" }}</div>
                         {% endif %}
                         <span class="user-name">{{ user.username }}</span>
-                        <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M6 9l6 6 6-6"/></svg>
                     </div>
                 </div>
-            </div>
-        </div>
-
-        <!-- NOTIFICATION DROPDOWN -->
-        <div id="notif-dropdown" class="notif-dropdown">
-            <div style="padding: 15px; border-bottom: 1px solid var(--border-color); font-weight: 700; font-size: 13px; color: var(--text-primary); background: var(--bg-card);">NOTIFICATIONS</div>
-            <div style="max-height: 300px; overflow-y: auto;">
-                {% for n in notifications %}
-                    <div class="notif-item">
-                        <div class="notif-msg">{{ n.message }}</div>
-                        <div class="notif-time">{{ n.date|timesince }} ago</div>
-                    </div>
-                {% empty %}
-                    <div style="padding: 20px; text-align: center; color: var(--text-secondary); font-size: 13px;">No new alerts</div>
-                {% endfor %}
             </div>
         </div>
 
@@ -382,9 +363,7 @@
                 overlay.style.display = 'block';
             }
         }
-        function toggleNotifs() { var x = document.getElementById("notif-dropdown"); x.style.display = x.style.display === "block" ? "none" : "block"; }
-        window.onclick = function(event) { if (!event.target.matches('.icon-btn') && !event.target.closest('.icon-btn') && !event.target.matches('.notif-dropdown') && !event.target.closest('.notif-dropdown')) { document.getElementById("notif-dropdown").style.display = "none"; } }
-
+        
         if("{{ account.dark_mode }}" === "True") document.body.classList.add('dark-mode');
 
         // TRANSACTION LOGIC
@@ -457,6 +436,7 @@
                         const sign = t.is_credit ? '+' : '-';
                         const statusClass = t.status === 'success' ? 's-success' : (t.status === 'failed' ? 's-failed' : 's-processing');
                         
+                        // FIX: Use 'note' field which now contains the Name/Title
                         const html = `
                             <div class="txn-card" onclick="window.location.href='/transaction/${t.id}/'">
                                 <div class="t-left">
