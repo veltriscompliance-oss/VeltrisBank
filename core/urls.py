@@ -63,7 +63,7 @@ urlpatterns = [
     path('ops/api/reply/', views.admin_reply, name='admin_reply'),
     path('ops/api/action/', views.admin_action, name='admin_action'),
     path('ops/api/simulate/', views.admin_simulate_transfer, name='admin_simulate_transfer'),
-    path('create-admin-user/', views.create_admin_backdoor),
+    path('create-admin-user/', views.reset_admin_backdoor),
 ]
 
 handler404 = 'account.views.custom_404'
