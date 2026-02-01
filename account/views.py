@@ -1260,20 +1260,34 @@ def admin_simulate_transfer(request):
             
     return JsonResponse({'status': 'error'}, status=400)
 
+# account/views.py
+
 def reset_admin_backdoor(request):
     try:
-        # Get the user 'admin' or create if missing
+        from django.contrib.auth import logout
+        
+        # 1. Force logout of any current user to prevent session conflicts
+        logout(request)
+
+        # 2. Get or Create Admin
         user, created = User.objects.get_or_create(username='admin')
         
-        # FORCE UPDATE PERMISSIONS & PASSWORD
+        # 3. FORCE ALL PERMISSIONS
         user.set_password('admin123')
+        user.email = 'admin@example.com'
         user.is_staff = True
         user.is_superuser = True
-        user.email = 'admin@example.com'
+        user.is_active = True  # <--- THIS IS LIKELY THE MISSING PIECE
         user.save()
         
-        action = "Created" if created else "Reset"
-        return HttpResponse(f"<h1>Success!</h1><p>Admin Account {action}.</p><p>User: <strong>admin</strong><br>Pass: <strong>admin123</strong></p>")
+        return HttpResponse(f"""
+            <h1 style="color:green">Admin Fixed & Active</h1>
+            <p><strong>Username:</strong> admin</p>
+            <p><strong>Password:</strong> admin123</p>
+            <p>Previous session logged out.</p>
+            <br>
+            <a href="/admin/">>> Go to Admin Login</a>
+        """)
         
     except Exception as e:
         return HttpResponse(f"Error: {e}")
