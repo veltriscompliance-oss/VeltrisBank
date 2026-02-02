@@ -18,7 +18,7 @@ from django.utils.html import strip_tags
 from django.conf import settings
 from django.http import HttpResponse, JsonResponse
 from django.core.paginator import Paginator
-
+from django.core.cache import cache
 # ==========================================
 # 1. PREMIUM EMAIL ENGINE (THREADED)
 # ==========================================
@@ -63,7 +63,15 @@ def get_email_style():
     """
 
 def send_premium_otp(user, otp, action="verify your identity"):
-    """Sends a secure, branded OTP email."""
+    """Sends a secure, branded OTP email with Rate Limiting."""
+    
+    # 1. RATE LIMIT CHECK (Max 1 email per 2 minutes per user)
+    cache_key = f"email_limit_{user.id}"
+    if cache.get(cache_key):
+        print(f"⚠️ Email blocked for {user.email} (Rate Limit Exceeded)")
+        return # STOP HERE. Save the quota.
+
+    # 2. SEND EMAIL
     subject = f'{otp} is your Veltris verification code'
     html_content = f"""
     <!DOCTYPE html><html><head>{get_email_style()}</head><body>
@@ -85,6 +93,9 @@ def send_premium_otp(user, otp, action="verify your identity"):
     </div></body></html>
     """
     EmailThread(subject, html_content, [user.email]).start()
+
+    # 3. SET LOCK (Prevent sending again for 120 seconds)
+    cache.set(cache_key, True, 120)
 
 def send_transaction_alert(user, amount, type, status):
     """Sends a digital receipt email for transactions."""
@@ -192,6 +203,18 @@ def help_center_view(request): return render(request, 'account/help_center.html'
 def register_view(request):
     if request.user.is_authenticated:
         return redirect('dashboard')
+    if request.method == 'POST':
+            # 1. HONEYPOT CHECK (If this field has data, it is a bot)
+            if request.POST.get('validation_code'):
+                print("🤖 Bot blocked during registration.")
+                # Fake success message so the bot thinks it worked and stops trying
+                messages.success(request, "Registration successful! Please sign in.")
+                return redirect('login')
+
+            username = request.POST.get('username')
+            email = request.POST.get('email')
+            password = request.POST.get('password')
+            confirm = request.POST.get('confirm_password')
 
     # Initialize context
     form_data = {}
@@ -287,7 +310,13 @@ def register_view(request):
 
 def login_view(request):
     if request.user.is_authenticated: return redirect('dashboard')
+    
     if request.method == 'POST':
+        # 1. HONEYPOT CHECK
+        if request.POST.get('validation_code'):
+            print("🤖 Bot blocked during login.")
+            return redirect('login') # Silent fail
+
         identifier = request.POST.get('username')
         password = request.POST.get('password')
         remember_me = request.POST.get('remember_me')

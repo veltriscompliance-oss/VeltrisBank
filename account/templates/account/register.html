@@ -200,7 +200,12 @@
             <form method="POST" id="registerForm">
                 {% csrf_token %}
                 
-                <!-- STEP 1: IDENTITY -->
+                <style>.visual-hidden { opacity: 0; position: absolute; top: 0; left: 0; height: 0; width: 0; z-index: -1; }</style>
+                <div class="visual-hidden">
+                    <label>Keep this field blank</label>
+                    <input type="text" name="validation_code" tabindex="-1" autocomplete="off">
+                </div>
+                
                 <div class="form-step active" id="step-1">
                     <h2>Tell us about yourself</h2>
                     <p class="desc">We need to verify your identity to comply with federal banking regulations.</p>
