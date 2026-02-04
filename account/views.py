@@ -346,16 +346,31 @@ def otp_view(request):
     if 'pre_login_id' not in request.session: return redirect('login')
     
     if request.method == 'POST':
+        # 1. HANDLE RESEND REQUESTS
         if 'resend_code' in request.POST:
-            new_otp = str(random.randint(100000, 999999))
-            request.session['login_otp'] = new_otp
             try:
                 user = User.objects.get(id=request.session['pre_login_id'])
+                
+                # --- SECURITY CHECK: COOL-DOWN PROTOCOL ---
+                # Verify this isn't a fresh bot account trying to bypass the login block
+                time_threshold = timezone.now() - timedelta(minutes=20)
+                if user.date_joined > time_threshold:
+                    print(f"🤖 Bot blocked from Resending OTP: {user.email}")
+                    messages.error(request, "Cannot resend code. Please try again later.")
+                    return redirect('otp_verify')
+
+                # Rate Limit is handled inside send_premium_otp
+                new_otp = str(random.randint(100000, 999999))
+                request.session['login_otp'] = new_otp
+                
                 send_premium_otp(user, new_otp, "log in (Resend)")
                 messages.success(request, "New code sent.")
-            except: pass
+            except Exception as e:
+                print(f"Resend Error: {e}")
+            
             return redirect('otp_verify')
 
+        # 2. VERIFY CODE
         if request.POST.get('otp_code') == request.session.get('login_otp'):
             user = User.objects.get(id=request.session['pre_login_id'])
             login(request, user)
@@ -365,6 +380,7 @@ def otp_view(request):
             else:
                 request.session.set_expiry(1209600)
             
+            # Cleanup
             del request.session['pre_login_id']
             del request.session['login_otp']
             if 'remember_me' in request.session: del request.session['remember_me']
@@ -380,16 +396,31 @@ def logout_view(request):
 
 def forgot_access_view(request):
     if request.method == 'POST':
+        # 1. HONEYPOT TRAP (Critical for Bots)
+        if request.POST.get('validation_code'):
+            print("🤖 Bot blocked on Password Recovery.")
+            messages.success(request, "If an account exists, a code has been sent.")
+            return redirect('login') 
+
         email = request.POST.get('email')
         try:
             user = User.objects.get(email__iexact=email)
+            
+            # 2. Generate OTP
             otp = str(random.randint(100000, 999999))
             request.session['recovery_user_id'] = user.id
             request.session['recovery_otp'] = otp
+            
+            # 3. Send Email (Rate Limit inside function handles spam)
             send_premium_otp(user, otp, "recover your account access")
+            
             return redirect('recover_otp')
         except User.DoesNotExist:
+            # Sleep to slow down enumeration attacks
+            import time
+            time.sleep(1)
             messages.error(request, "No account found with that email address.")
+            
     return render(request, 'account/forgot_access.html')
 
 def recover_otp_view(request):
