@@ -502,56 +502,102 @@ def search_account(request):
 
 @login_required(login_url='/login/')
 def transfer_money(request):
+    # 1. Blocked Account Check
     if is_account_blocked(request.user):
         return redirect('/dashboard/?restricted=true')
+    
     account = request.user.account
     if not account.transaction_pin: return redirect('create_pin')
+    
+    # 2. Handle OTP Redirects (Fix for AJAX Reload flow)
+    # If an OTP session exists, redirect GET requests to the OTP page immediately.
+    # This ensures that when the JS reloads the page after a high-value submit, the user goes to OTP.
+    if request.method == 'GET' and 'txn_otp' in request.session:
+        return redirect('transfer_otp')
+
     popup_data = request.session.pop('txn_popup', None) 
     
     if request.method == 'POST':
+        # Detect AJAX Request
+        is_ajax = request.headers.get('x-requested-with') == 'XMLHttpRequest'
+
+        # --- Handle "Forgot PIN" ---
         if 'forgot_pin' in request.POST:
             otp = str(random.randint(100000, 999999))
             request.session['reset_pin_otp'] = otp
             send_premium_otp(request.user, otp, "reset your PIN")
+            if is_ajax:
+                return JsonResponse({'status': 'redirect', 'url': '/otp/verify/'})
             return redirect('otp_verify')
 
+        # --- Get Form Data ---
         pin = request.POST.get('pin')
-        amount = Decimal(request.POST.get('amount'))
+        amount_str = request.POST.get('amount')
         t_type = request.POST.get('type')
-        # --- FIX: TRANSLATE FORM TYPE TO DATABASE TYPE ---
-        if t_type == 'external':
-            final_type = 'wire'       # Save as Wire Transfer
-        else:
-            final_type = 'transfer'   # Save as Internal Transfer
         
-        if t_type == 'internal':
-            target_account_num = request.POST.get('account_number')
-            if target_account_num == account.account_number:
-                messages.error(request, "Cannot transfer money to yourself.")
-                return redirect('transfer')
-            if not Account.objects.filter(account_number=target_account_num).exists():
-                messages.error(request, "Recipient account number not found.")
-                return redirect('transfer')
+        # --- Validate Amount ---
+        try:
+            amount = Decimal(amount_str)
+            if amount <= 0: raise ValueError
+        except:
+            msg = "Invalid amount. Please enter a value greater than $0.00"
+            if is_ajax: return JsonResponse({'status': 'error', 'message': msg})
+            messages.error(request, msg)
+            return redirect('transfer')
 
+        # --- Validate PIN ---
         if pin != account.transaction_pin:
             account.pin_attempts += 1
             account.save()
+            
             if account.pin_attempts >= 5:
                 account.account_status = 'blocked'
                 account.save()
-                messages.error(request, "Account Blocked due to failed attempts.")
+                msg = "Account Blocked due to too many failed attempts."
+                if is_ajax: return JsonResponse({'status': 'error', 'message': msg})
+                messages.error(request, msg)
                 return redirect('dashboard')
             else:
-                messages.error(request, f"Incorrect PIN. {5-account.pin_attempts} attempts left.")
+                attempts = 5 - account.pin_attempts
+                msg = f"Incorrect PIN. {attempts} attempts left."
+                if is_ajax: return JsonResponse({'status': 'error', 'message': msg})
+                messages.error(request, msg)
                 return redirect('transfer')
         
+        # Reset attempts on success
         account.pin_attempts = 0
         account.save()
 
-        if account.balance < amount:
-            messages.error(request, "Insufficient Funds")
+        # --- Validate Balance & Fees ---
+        WIRE_FEE = Decimal('25.00') if t_type == 'external' else Decimal('0.00')
+        total_deduction = amount + WIRE_FEE
+
+        if account.balance < total_deduction:
+            msg = f"Insufficient Funds. Balance: ${account.balance:,.2f}"
+            if is_ajax: return JsonResponse({'status': 'error', 'message': msg})
+            messages.error(request, msg)
             return redirect('transfer')
 
+        # --- Validate Recipient (Internal) ---
+        if t_type == 'external':
+            final_type = 'wire'
+        else:
+            final_type = 'transfer'
+            target_account_num = request.POST.get('account_number')
+            
+            if target_account_num == account.account_number:
+                msg = "Cannot transfer money to your own account."
+                if is_ajax: return JsonResponse({'status': 'error', 'message': msg})
+                messages.error(request, msg)
+                return redirect('transfer')
+                
+            if not Account.objects.filter(account_number=target_account_num).exists():
+                msg = "Recipient account number not found."
+                if is_ajax: return JsonResponse({'status': 'error', 'message': msg})
+                messages.error(request, msg)
+                return redirect('transfer')
+
+        # --- Prepare Data ---
         txn_data = {
             'type': final_type, 
             'amount': str(amount), 
@@ -561,14 +607,31 @@ def transfer_money(request):
             'note': request.POST.get('note') 
         }
         
+        # --- OTP Logic (High Value) ---
         if amount >= 1000:
             otp = str(random.randint(100000, 999999))
             request.session['txn_data'] = txn_data
             request.session['txn_otp'] = otp
-            send_premium_otp(request.user, otp, f"authorize transfer of ${amount}")
+            send_premium_otp(request.user, otp, f"authorize transfer of ${amount:,.2f}")
+            
+            if is_ajax:
+                # Return success. The JS will reload the page.
+                # The GET check at the top of this view will then catch the 
+                # 'txn_otp' session and redirect to the OTP page.
+                return JsonResponse({'status': 'success'})
+            
             return redirect('transfer_otp')
 
-        return execute_transfer(request, txn_data, amount)
+        # --- Execute Transaction (Low Value) ---
+        execute_transfer(request, txn_data, amount)
+
+        if is_ajax:
+            # Return success. JS reloads page.
+            # 'execute_transfer' sets 'txn_popup' in session.
+            # The page reloads, picks up 'txn_popup', and shows the Success Modal.
+            return JsonResponse({'status': 'success'})
+
+        return redirect('transfer')
 
     return render(request, 'account/transfer.html', {'popup_data': popup_data, 'account': account})
 
