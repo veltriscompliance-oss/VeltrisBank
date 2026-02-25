@@ -311,8 +311,13 @@
                 <div class="info-item"><div class="label">Account Status</div><div class="value value-green">{{ account.account_status|title }}</div></div>
                 <div class="info-item">
                     <div class="label">Daily Transfer Limit</div>
-                    {% if account.kyc_confirmed %}<div class="value value-green">$1,000,000.00</div>
-                    {% else %}<div class="value value-orange">$500.00 (Unverified)</div>{% endif %}
+                    {% if account.kyc_confirmed %}
+                        <div class="value value-green">$1,000,000.00</div>
+                    {% elif account.kyc_submitted %}
+                        <div class="value value-orange">$500.00 <span style="font-size: 12px; font-weight: 500;">(Pending Review)</span></div>
+                    {% else %}
+                        <div class="value" style="color: var(--danger);">$500.00 <span style="font-size: 12px; font-weight: 500;">(Unverified)</span></div>
+                    {% endif %}
                 </div>
             </div>
         </div>
